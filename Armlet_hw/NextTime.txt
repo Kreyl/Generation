@@ -1,0 +1,5 @@
+==== Generation ====
+* Move Acc I2C to I2C1 - to escape from DMA intersection with UART
+* (Cancel) Add Acc Int2 fo magnet data ready
+* Remove DRDY: Acc has higher sampling freq, it may be used with Gyro
+* Make Acc powered by MCU, say, PB12

@@ -1,0 +1,179 @@
+********************************************************************************
+***                            Micro-Cap 9.0.6.1                             ***
+***                                  Kreyl                                   ***
+***                                 Ostranna                                 ***
+***                        Transient Analysis of ir2                         ***
+********************************************************************************
+Limits
+======
+Time Range           50u
+Maximum Time Step    0
+Number of Points     51
+Temperature          Linear 27
+Run Options          Normal
+State Variables      Zero
+Operating Point      On
+Operating Point Only Off
+
+
+*****************************************************
+***                Temperature=27                 ***
+*****************************************************
+
+Temperature=27 
+
+Model parameters for devices of type Bipolar Junction Transistors NPN
+=====================================================================
+Instance:              Q1   
+Using model:    MMBT2222A   
+LEVEL                   1(*)
+AF                 1.000 (*)
+BF               256.700    
+BR                 6.590    
+CJC               10.110p   
+CJE               25.890p   
+CJS                0.000    
+EG                 1.110    
+FC               938.800m   
+IKF              489.900m   
+IKR              192.900m   
+IRB                1.000m   
+IS                29.130f   
+ISC              320.300p   
+ISE                9.652f   
+ISS                0.000 (*)
+ITF                4.797    
+KF                 0.000 (*)
+MJC              416.000m   
+MJE              366.800m   
+MJS              333.000m   
+NC                 1.608    
+NE                 1.516    
+NF               992.600m   
+NK               500.000m(*)
+NR               984.400m   
+NS                 1.000 (*)
+PTF                0.000    
+RB                 1.000    
+RBM                1.000    
+RC               224.800m   
+RE               193.400m   
+T_ABS           UNDEFINED(*)
+T_MEASURED      UNDEFINED(*)
+T_REL_GLOBAL    UNDEFINED(*)
+T_REL_LOCAL     UNDEFINED(*)
+TF               293.900p   
+TR               320.000n   
+TRB1               0.000 (*)
+TRB2               0.000 (*)
+TRC1               0.000 (*)
+TRC2               0.000 (*)
+TRE1               0.000 (*)
+TRE2               0.000 (*)
+TRM1               0.000 (*)
+TRM2               0.000 (*)
+VAF               80.990    
+VAR              101.200    
+VJC              662.200m   
+VJE              689.100m   
+VJS              750.000m   
+VTF               20.000    
+XCJC             594.600m   
+XTB                0.000    
+XTF               71.780    
+XTI                3.000    
+(*) Default Parameter
+
+
+
+Model parameters for devices of type Pulse
+==========================================
+Instance:              V2   
+Using model:        PULSE   
+P1                 0.000    
+P2                 0.000    
+P3                 8.000u   
+P4                 8.000u   
+P5                17.000u   
+VONE               3.300    
+VZERO              0.000 (*)
+(*) Default Parameter
+
+
+
+DC Operating Point Voltages
+===========================
+Node         Voltage  Node         Voltage  Node         Voltage 
+VBAT          5.000   2             5.000   UIN           0.000  
+UB          321.063n  5             0.005f 
+
+
+Operating point for devices of type Bipolar Junction Transistors NPN
+====================================================================
+Instance:                 Q1
+Using model:       MMBT2222A
+IB                 -321.063p
+IC                  326.403p
+VBE                 321.063n
+VBC                  -5.000 
+VCE                   5.000 
+BETADC               -1.017 
+GM                    1.093p
+RPI                   3.930T
+RX                    1.000 
+RO                  889.813G
+CPI                  25.890p
+CMU                   2.462p
+CBX                   1.679p
+CJS                   0.000 
+BETAAC                4.295 
+FT                    5.792m
+
+DC Power Terms:
+PD                    1.632n
+PS                    0.000 
+
+DC Pin Currents:
+Ib                 -321.063p
+Ic                  326.403p
+Ie                   -5.340p
+Is                    0.000 
+
+Condition:
+State                    OFF
+
+
+
+Operating point for devices of type Resistor
+============================================
+Instance:                  R1              R2              R3
+DC Power Terms:
+PD                 1.065E-019          0.103f      2.851E-029
+
+DC Pin Currents:
+Ir                   326.400p       -321.063p          5.340p
+
+
+
+Operating point for devices of type Pulse
+=========================================
+Instance:                  V2
+Using model:            PULSE
+DC Power Terms:
+PG                     0.000 
+
+DC Pin Currents:
+ISource              321.063p
+
+
+
+Operating point for devices of type SPICE Source
+================================================
+Instance:                 V1
+DC Power Terms:
+PG                    1.632n
+
+DC Pin Currents:
+ISource            -326.400p
+
+
