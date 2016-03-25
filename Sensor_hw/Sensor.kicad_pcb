@@ -3,9 +3,9 @@
   (general
     (links 34)
     (no_connects 0)
-    (area 133.949999 88.699999 163.050001 121.300001)
+    (area 132.66635 88.25 163.500001 121.750001)
     (thickness 1.6)
-    (drawings 27)
+    (drawings 31)
     (tracks 271)
     (zones 0)
     (modules 18)
@@ -14,13 +14,13 @@
 
   (page A4)
   (layers
-    (0 F.Cu signal)
-    (31 B.Cu signal)
+    (0 F.Cu signal hide)
+    (31 B.Cu signal hide)
     (36 B.SilkS user)
     (37 F.SilkS user)
     (38 B.Mask user)
     (39 F.Mask user)
-    (40 Dwgs.User user hide)
+    (40 Dwgs.User user)
     (44 Edge.Cuts user)
   )
 
@@ -50,7 +50,7 @@
     (pad_drill 0.762)
     (pad_to_mask_clearance 0.2)
     (aux_axis_origin 0 0)
-    (visible_elements 7FFFF77F)
+    (visible_elements 7FFFF75F)
     (pcbplotparams
       (layerselection 0x00030_80000001)
       (usegerberextensions false)
@@ -403,7 +403,7 @@
   )
 
   (module Connectors:PLS-4 (layer F.Cu) (tedit 56F1CAE0) (tstamp 56F1AE98)
-    (at 135.4 108.8 90)
+    (at 138.25 108.83 90)
     (descr "Single-line connector 4-pin")
     (path /56F18E54)
     (fp_text reference XL1 (at -0.7 1.85 90) (layer F.SilkS)
@@ -446,7 +446,7 @@
   )
 
   (module Connectors:PLS-4 (layer F.Cu) (tedit 56F1CB20) (tstamp 56F1AEA0)
-    (at 161.6 108.8 90)
+    (at 161.5 108.8 90)
     (descr "Single-line connector 4-pin")
     (path /56F18F37)
     (fp_text reference XL2 (at -0.8 -1.8 90) (layer F.SilkS)
@@ -598,6 +598,10 @@
     )
   )
 
+  (gr_circle (center 136 100.5) (end 137 100.5) (layer Edge.Cuts) (width 0.1) (tstamp 56F2D458))
+  (gr_circle (center 136 109.5) (end 137 109.5) (layer Edge.Cuts) (width 0.1) (tstamp 56F2D457))
+  (gr_circle (center 136 106.5) (end 137 106.5) (layer Edge.Cuts) (width 0.1) (tstamp 56F2D456))
+  (gr_circle (center 136 103.5) (end 137 103.5) (layer Edge.Cuts) (width 0.1) (tstamp 56F2D455))
   (gr_line (start 137 116.75) (end 134 113) (angle 90) (layer Edge.Cuts) (width 0.1))
   (gr_line (start 140.75 119.5) (end 137 116.75) (angle 90) (layer Edge.Cuts) (width 0.1))
   (gr_line (start 144.75 121) (end 140.75 119.5) (angle 90) (layer Edge.Cuts) (width 0.1))
