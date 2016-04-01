@@ -1,6 +1,6 @@
-update=02.05.2015 14:22:44
+update=29.03.2016 14:57:36
 version=1
-last_client=kicad
+last_client=eeschema
 [pcbnew]
 version=1
 LastNetListRead=
@@ -39,3 +39,4 @@ LibName7=Transistors_kl
 LibName8=Switches
 LibName9=Sensors
 LibName10=Antennas_kl
+LibName11=Connectors_kl
