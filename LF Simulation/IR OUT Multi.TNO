@@ -1,0 +1,188 @@
+********************************************************************************
+***                            Micro-Cap 9.0.6.1                             ***
+***                                  Kreyl                                   ***
+***                                 Ostranna                                 ***
+***                    Transient Analysis of IR OUT Multi                    ***
+********************************************************************************
+Limits
+======
+Time Range           100u
+Maximum Time Step    0
+Number of Points     51
+Temperature          Linear 27
+Run Options          Normal
+State Variables      Zero
+Operating Point      On
+Operating Point Only Off
+
+
+*****************************************************
+***                Temperature=27                 ***
+*****************************************************
+
+Temperature=27 
+
+Model parameters for devices of type Bipolar Junction Transistors NPN
+=====================================================================
+Instance:              Q1              Q2              Q3   
+Using model:    MMBT2222A          BC848A          BC848A   
+LEVEL                   1(*)            1(*)            1(*)
+AF                 1.000 (*)       1.000 (*)       1.000 (*)
+BF               256.700         193.536         193.536    
+BR                 6.590         525.753m        525.753m   
+CJC               10.110p          5.725p          5.725p   
+CJE               25.890p         11.313p         11.313p   
+CJS                0.000           0.000 (*)       0.000 (*)
+EG                 1.110           1.110 (*)       1.110 (*)
+FC               938.800m        500.000m(*)     500.000m(*)
+IKF              489.900m        401.549m        401.549m   
+IKR              192.900m        886.741         886.741    
+IRB                1.000m          0.000 (*)       0.000 (*)
+IS                29.130f         10.169f         10.169f   
+ISC              320.300p          5.659p          5.659p   
+ISE                9.652f        999.420f        999.420f   
+ISS                0.000 (*)       0.000 (*)       0.000 (*)
+ITF                4.797          10.283m         10.283m   
+KF                 0.000 (*)       0.000 (*)       0.000 (*)
+MJC              416.000m        310.512m        310.512m   
+MJE              366.800m        642.888m        642.888m   
+MJS              333.000m          0.000 (*)       0.000 (*)
+NC                 1.608           2.000 (*)       2.000 (*)
+NE                 1.516           1.800           1.800    
+NF               992.600m        957.858m        957.858m   
+NK               500.000m(*)     500.000m(*)     500.000m(*)
+NR               984.400m          1.000 (*)       1.000 (*)
+NS                 1.000 (*)       1.000 (*)       1.000 (*)
+PTF                0.000           0.000 (*)       0.000 (*)
+RB                 1.000           0.000 (*)       0.000 (*)
+RBM                1.000           0.000 (*)       0.000 (*)
+RC               224.800m          0.000 (*)       0.000 (*)
+RE               193.400m          1.588           1.588    
+T_ABS           UNDEFINED(*)    UNDEFINED(*)    UNDEFINED(*)
+T_MEASURED      UNDEFINED(*)    UNDEFINED(*)    UNDEFINED(*)
+T_REL_GLOBAL    UNDEFINED(*)    UNDEFINED(*)    UNDEFINED(*)
+T_REL_LOCAL     UNDEFINED(*)    UNDEFINED(*)    UNDEFINED(*)
+TF               293.900p        381.966p        381.966p   
+TR               320.000n         10.000n         10.000n   
+TRB1               0.000 (*)       0.000 (*)       0.000 (*)
+TRB2               0.000 (*)       0.000 (*)       0.000 (*)
+TRC1               0.000 (*)       0.000 (*)       0.000 (*)
+TRC2               0.000 (*)       0.000 (*)       0.000 (*)
+TRE1               0.000 (*)       0.000 (*)       0.000 (*)
+TRE2               0.000 (*)       0.000 (*)       0.000 (*)
+TRM1               0.000 (*)       0.000 (*)       0.000 (*)
+TRM2               0.000 (*)       0.000 (*)       0.000 (*)
+VAF               80.990         157.367         157.367    
+VAR              101.200           0.000 (*)       0.000 (*)
+VJC              662.200m        700.000m        700.000m   
+VJE              689.100m        700.000m        700.000m   
+VJS              750.000m        750.000m(*)     750.000m(*)
+VTF               20.000           9.998           9.998    
+XCJC             594.600m          1.000 (*)       1.000 (*)
+XTB                0.000           0.000 (*)       0.000 (*)
+XTF               71.780         506.476m        506.476m   
+XTI                3.000           3.000 (*)       3.000 (*)
+(*) Default Parameter
+
+
+
+Model parameters for devices of type Pulse
+==========================================
+Instance:              V2   
+Using model:       SQUARE   
+P1                 0.000    
+P2               100.000n   
+P3                 8.900u   
+P4                 8.950u   
+P5                18.000u   
+VONE               3.000    
+VZERO              0.000 (*)
+(*) Default Parameter
+
+
+
+DC Operating Point Voltages
+===========================
+Node         Voltage  Node         Voltage  Node         Voltage 
+VDD           4.000   PULSE         0.000   3             2.634  
+4             1.125   5             1.860   6             1.860  
+7             3.000   8            92.162n 
+
+
+Operating point for devices of type Bipolar Junction Transistors NPN
+====================================================================
+Instance:                 Q1              Q2              Q3
+Using model:       MMBT2222A          BC848A          BC848A
+IB                   19.420m         -9.216p        113.974u
+IC                    1.345          11.109p         20.431m
+VBE                   1.125          92.162n        735.557m
+VBC                  -1.510          -1.860        -774.083m
+VCE                   2.634           1.860           1.510 
+BETADC               69.269          -1.205         179.260 
+GM                   30.229         403.443f        786.644m
+RPI                   1.322          46.567G        220.632 
+RX                    1.000           0.000           0.000 
+RO                   60.617         976.842G          7.740K
+CPI                 437.416n         11.313p        440.139p
+CMU                   3.887p          3.827p          4.543p
+CBX                   2.662p          0.000           0.000 
+CJS                   0.000           0.000           0.000 
+BETAAC               39.976          18.787m        173.559 
+FT                 10.999MEG          4.241m      281.546MEG
+
+DC Power Terms:
+PD                    3.566          20.665p         30.927m
+PS                    0.000           0.000           0.000 
+
+DC Pin Currents:
+Ib                   19.420m         -9.216p        113.974u
+Ic                    1.345          11.109p         20.431m
+Ie                   -1.365          -1.893p        -20.545m
+Is                    0.000           0.000           0.000 
+
+Condition:
+State                    HOT             OFF             LIN
+
+
+
+Operating point for devices of type Resistor
+============================================
+Instance:                  R2              R3              R5              R6
+DC Power Terms:
+PD                    12.990f        129.901u          0.001f          1.265m
+
+DC Pin Currents:
+Ir                   113.974u        113.974u         -9.216p         -1.125m
+
+
+Instance:                  R7
+DC Power Terms:
+PD                     1.865 
+
+DC Pin Currents:
+Ir                     1.366 
+
+
+
+Operating point for devices of type Pulse
+=========================================
+Instance:                  V2
+Using model:           SQUARE
+DC Power Terms:
+PG                     0.000 
+
+DC Pin Currents:
+ISource                9.216p
+
+
+
+Operating point for devices of type SPICE Source
+================================================
+Instance:                 V1              V3
+DC Power Terms:
+PG                    5.463         341.922u
+
+DC Pin Currents:
+ISource              -1.366        -113.974u
+
+
