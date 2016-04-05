@@ -3,3 +3,7 @@ Armlet_hw/PCB/.Locket.fsxview
 *.kicad_pcb-bak
 *.ses
 *.fsxview
+Armlet_hw/PCB/_autosave-ArmletG.kicad_pcb
+*.bak_cir
+*.csv
+*.xml
