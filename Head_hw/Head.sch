@@ -3062,4 +3062,6 @@ Wire Wire Line
 Wire Wire Line
 	7500 1300 7500 1650
 Connection ~ 7500 1650
+Text Notes 3750 1850 0    591  ~ 0
+TODO: 3 SNS inputs!
 $EndSCHEMATC
