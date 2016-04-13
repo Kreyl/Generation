@@ -11,3 +11,4 @@ Armlet_hw/PCB/_autosave-ArmletG.kicad_pcb
 *.dcm
 Armlet_fw/.settings/org.eclipse.cdt.codan.core.prefs
 Armlet_fw/Debug/
+GunRadio_hw/GunRadio.bak

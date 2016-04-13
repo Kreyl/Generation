@@ -1,4 +1,4 @@
-update=04.04.2016 16:42:41
+update=13/04/2016 22:00:33
 version=1
 last_client=kicad
 [pcbnew]
@@ -29,14 +29,13 @@ version=1
 version=1
 LibDir=D:/Libs/Kicad
 [eeschema/libraries]
-LibName2=pcb_details
-LibName3=power
-LibName4=Power_kl
-LibName5=RF ICs
-LibName6=st_kl
-LibName7=Tittar_kl
-LibName8=Transistors_kl
-LibName9=Switches
-LibName10=Sensors
-LibName11=Antennas_kl
-LibName12=Connectors_kl
+LibName1=Antennas_kl
+LibName2=Connectors_kl
+LibName3=pcb_details
+LibName4=power
+LibName5=Power_kl
+LibName6=RF ICs
+LibName7=st_kl
+LibName8=Switches
+LibName9=Tittar_kl
+LibName10=Transistors_kl
