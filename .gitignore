@@ -16,3 +16,4 @@ RF Simulation/Armlet_MeanderScrews.hfssresults/
 *.lock
 *.auto
 RF Simulation/conv.dat
+*.g

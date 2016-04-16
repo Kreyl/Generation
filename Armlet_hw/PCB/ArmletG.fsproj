@@ -4,19 +4,16 @@
 	<Format>Project</Format>
 	<Header>
 		<Program name="TopoR" version="6.2"/>
-		<GUID>{78A23C55-1878-439C-806F-DC6A21B0973B}</GUID>
+		<GUID>{09C76963-3521-4C8D-8C39-9CFC484BFF90}</GUID>
 		<Annotation>Project file</Annotation>
 	</Header>
 	<Document>
 		<LocalLibrary />
 		<Pcb>
-			<File path=".\Sensor.fsx" isopened="0"/>
+			<File path=".\ArmletG.fsx" isopened="1"/>
+			<File path=".\ArmletG_!.fsx" isopened="0"/>
 		</Pcb>
-		<Import>
-			<Specctra>
-			<Path name="D:\Nute\Generation\Sensor_hw\Sensor.dsn"/>
-			</Specctra>
-		</Import>
+		<Documents path="D:\Nute\Generation\Armlet_hw\PCB\"/>
 		<ARouteSessions>
 		</ARouteSessions>
 	</Document>

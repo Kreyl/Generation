@@ -353,8 +353,6 @@ Text Label 1350 1850 0    60   ~ 0
 UART_TX
 Text Label 1350 1950 0    60   ~ 0
 UART_RX
-Text Label 3500 2350 0    60   ~ 0
-Vibro
 Text Label 14100 1200 0    60   ~ 0
 ANT1
 Entry Wire Line
@@ -1209,7 +1207,7 @@ F 5 "0" V 13830 6300 60  0001 C CNN "Price"
 	0    1    1    0   
 $EndComp
 Text Label 6000 8450 0    60   ~ 0
-Vibro
+Vibro_CTRL
 $Comp
 L CONN_1 XL6
 U 1 1 5707F1AB
@@ -1965,7 +1963,7 @@ Wire Wire Line
 Wire Wire Line
 	8800 4050 8700 4050
 Wire Wire Line
-	3500 2350 3950 2350
+	3400 2350 3950 2350
 Wire Wire Line
 	1350 1850 1100 1850
 Wire Wire Line
@@ -3553,10 +3551,10 @@ Wire Wire Line
 	5350 4750 6300 4750
 Connection ~ 5650 4750
 $Comp
-L GND #PWR?
+L GND #PWR095
 U 1 1 57135576
 P 4850 11050
-F 0 "#PWR?" H 4940 11030 30  0001 C CNN
+F 0 "#PWR095" H 4940 11030 30  0001 C CNN
 F 1 "GND" H 4850 10970 30  0001 C CNN
 F 2 "" H 4850 11050 60  0001 C CNN
 F 3 "" H 4850 11050 60  0001 C CNN
@@ -3568,4 +3566,8 @@ Wire Wire Line
 Wire Wire Line
 	5150 10400 5150 10150
 Connection ~ 5600 10150
+Text Label 4750 8100 0    60   ~ 0
+LEDW_OUT
+Text Label 3400 2350 0    60   ~ 0
+Vibro_CTRL
 $EndSCHEMATC
