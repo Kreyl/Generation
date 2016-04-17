@@ -3,17 +3,22 @@
 	<Version current="1"/>
 	<Format>Project</Format>
 	<Header>
-		<Program name="TopoR" version="6.2"/>
+		<Program name="TopoR" version="6.1"/>
 		<GUID>{09C76963-3521-4C8D-8C39-9CFC484BFF90}</GUID>
 		<Annotation>Project file</Annotation>
 	</Header>
 	<Document>
 		<LocalLibrary />
 		<Pcb>
-			<File path=".\ArmletG.fsx" isopened="1"/>
-			<File path=".\ArmletG_!.fsx" isopened="0"/>
+			<File path=".\ArmletG.fsx" Folder="-1" isopened="1"/>
+			<File path=".\ArmletG_!.fsx" Folder="-1" isopened="0"/>
 		</Pcb>
 		<Documents path="D:\Nute\Generation\Armlet_hw\PCB\"/>
+		<Import>
+			<Specctra>
+			<Path name="D:\Nute\Generation\Armlet_hw\PCB\ArmletG.dsn"/>
+			</Specctra>
+		</Import>
 		<ARouteSessions>
 		</ARouteSessions>
 	</Document>
