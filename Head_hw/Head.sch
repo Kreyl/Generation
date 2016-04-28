@@ -2269,8 +2269,8 @@ Connection ~ 13700 9550
 Text Label 12900 9800 0    60   ~ 0
 OUTER_PWR_CTRL
 Wire Wire Line
-	3150 2900 3950 2900
-Text Label 3150 2900 0    60   ~ 0
+	3150 3200 3950 3200
+Text Label 3150 3200 0    60   ~ 0
 OUTER_PWR_CTRL
 $Comp
 L PwrCtrled #PWR085
@@ -2390,7 +2390,6 @@ $EndComp
 Wire Wire Line
 	14000 9400 14000 9200
 Connection ~ 14000 9200
-NoConn ~ 3950 2800
 $Comp
 L CONN_3 XL13
 U 1 1 5702954E
@@ -2423,7 +2422,6 @@ $EndComp
 Wire Wire Line
 	2750 2800 2750 2850
 NoConn ~ 3950 2300
-NoConn ~ 3950 3200
 Text Label 10100 9700 0    60   ~ 0
 Lout
 $Comp
@@ -2997,4 +2995,8 @@ F 6 "2" H 15250 5800 60  0001 C CNN "SolderPoints"
 $EndComp
 Text Label 3450 3000 0    60   ~ 0
 Vibro_CTRL
+Wire Wire Line
+	3500 2800 3950 2800
+Wire Wire Line
+	3950 2900 3500 2900
 $EndSCHEMATC
