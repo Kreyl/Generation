@@ -239,7 +239,7 @@ void chDbgPanic(const char *msg1) {
 }
 #endif
 
-#if I2C_REQUIRED // ============================= I2C ==========================
+#if 0// I2C_REQUIRED // ============================= I2C ==========================
 void i2cDmaIrqHandler(void *p, uint32_t flags) {
     chSysLockFromISR();
     i2c_t *pi2c = (i2c_t*)p;
@@ -1443,7 +1443,7 @@ void Clk_t::UpdateFreqValues() {
 
 void Clk_t::PrintFreqs() {
     Uart.Printf(
-            "\rAHBFreq=%uMHz; APB1Freq=%uMHz; APB2Freq=%uMHz",
+            "AHBFreq=%uMHz; APB1Freq=%uMHz; APB2Freq=%uMHz\r",
             Clk.AHBFreqHz/1000000, Clk.APB1FreqHz/1000000, Clk.APB2FreqHz/1000000);
 }
 

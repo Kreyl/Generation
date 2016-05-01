@@ -89,7 +89,7 @@ static inline void FPutCharNow(char c) {
     while(!(UART->SR & USART_SR_TXE));
     UART_TX_REG = c;
     while(!(UART->SR & USART_SR_TXE));
-#elif defined STM32F0XX
+#elif defined STM32F0XX || defined STM32L4XX
     while(!(UART->ISR & USART_ISR_TXE));
     UART_TX_REG = c;
     while(!(UART->ISR & USART_ISR_TXE));
@@ -154,7 +154,9 @@ static void UartRxThread(void *arg) {
 
 // ==== Init & DMA ====
 #if UART_RX_ENABLED
-void Uart_t::Init(uint32_t ABaudrate, GPIO_TypeDef *PGpioTx, const uint16_t APinTx, GPIO_TypeDef *PGpioRx, const uint16_t APinRx) {
+void Uart_t::Init(uint32_t ABaudrate,
+        GPIO_TypeDef *PGpioTx, const uint16_t APinTx,
+        GPIO_TypeDef *PGpioRx, const uint16_t APinRx) {
 #else
 void Uart_t::Init(uint32_t ABaudrate, GPIO_TypeDef *PGpioTx, const uint16_t APinTx) {
 #endif

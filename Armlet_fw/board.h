@@ -17,12 +17,16 @@
 // Freq of external crystal if any. Leave it here even if not used.
 #define CRYSTAL_FREQ_HZ 12000000
 
-// OS settings
+// OS timer settings
 #define STM32_ST_IRQ_PRIORITY   2
 #define STM32_ST_USE_TIMER      5
 #define SYS_TIM_CLK             (Clk.APB1FreqHz)    // Timer 5 is clocked by APB1
 //  Periphery
-#define I2C_REQUIRED            FALSE
+#define I2C_REQUIRED            TRUE
+#define STM32_I2C_USE_I2C1      FALSE
+#define STM32_I2C_USE_I2C2      FALSE
+#define STM32_I2C_USE_I2C3      TRUE
+
 #define ADC_REQUIRED            FALSE
 #define STM32_DMA_REQUIRED      TRUE    // Leave this macro name for OS
 
@@ -93,10 +97,14 @@
 // DAC
 //#define DAC_DMA         STM32_DMA1_STREAM2
 
-#if I2C_REQUIRED // ==== I2C ====
-#define I2C_ACC_DMA_TX  STM32_DMA1_STREAM4
-#define I2C_ACC_DMA_RX  STM32_DMA1_STREAM5
-#endif
+// ==== I2C ====
+// Pill
+#define STM32_I2C_I2C2_RX_DMA_STREAM   STM32_DMA_STREAM_ID(1, 5)
+#define STM32_I2C_I2C2_TX_DMA_STREAM   STM32_DMA_STREAM_ID(1, 4)
+// EE
+#define STM32_I2C_I2C3_RX_DMA_STREAM   STM32_DMA_STREAM_ID(1, 3)
+#define STM32_I2C_I2C3_TX_DMA_STREAM   STM32_DMA_STREAM_ID(1, 2)
+
 
 #if ADC_REQUIRED
 /* DMA request mapped on this DMA channel only if the corresponding remapping bit is cleared in the SYSCFG_CFGR1

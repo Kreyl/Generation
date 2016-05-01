@@ -14,12 +14,12 @@
 #include "board.h"
 
 // Set to true if RX needed
-#define UART_RX_ENABLED     FALSE
+#define UART_RX_ENABLED     TRUE
 
 #define UART_USE_DMA        TRUE
 
 // ==== TX ====
-#define UART_TXBUF_SZ       256
+#define UART_TXBUF_SZ       512
 
 #define UART_DMA_TX_MODE    STM32_DMA_CR_CHSEL(UART_DMA_CHNL) | \
                             DMA_PRIORITY_LOW | \

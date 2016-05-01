@@ -950,7 +950,7 @@ public:
 };
 #endif
 
-#if I2C_REQUIRED // ========================= I2C ==============================
+#if 0// I2C_REQUIRED // ========================= I2C ==============================
 #define I2C_ASYNC       TRUE
 /* Example:
  * i2c_t i2c (I2C_ACC, ACC_I2C_GPIO, ACC_I2C_SCL_PIN, ACC_I2C_SDA_PIN,
