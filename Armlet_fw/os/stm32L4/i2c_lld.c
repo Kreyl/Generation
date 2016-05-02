@@ -1065,9 +1065,6 @@ msg_t i2c_lld_master_receive_timeout(I2CDriver *i2cp, i2caddr_t addr,
  *
  * @notapi
  */
-
-extern void PrintfCNow(const char *format, ...);
-
 msg_t i2c_lld_master_transmit_timeout(I2CDriver *i2cp, i2caddr_t addr,
                                       const uint8_t *txbuf, size_t txbytes,
                                       uint8_t *rxbuf, size_t rxbytes,
@@ -1075,8 +1072,6 @@ msg_t i2c_lld_master_transmit_timeout(I2CDriver *i2cp, i2caddr_t addr,
   msg_t msg;
   I2C_TypeDef *dp = i2cp->i2c;
   systime_t start, end;
-
-  PrintfCNow("1\r");
 
   /* Resetting error flags for this transfer.*/
   i2cp->errors = I2C_NO_ERROR;
@@ -1104,7 +1099,7 @@ msg_t i2c_lld_master_transmit_timeout(I2CDriver *i2cp, i2caddr_t addr,
   /* Calculating the time window for the timeout on the busy bus condition.*/
   start = osalOsGetSystemTimeX();
   end = start + OSAL_MS2ST(STM32_I2C_BUSY_TIMEOUT);
-  PrintfCNow("2\r");
+
   /* Waits until BUSY flag is reset or, alternatively, for a timeout
      condition.*/
   while (true) {
@@ -1123,8 +1118,6 @@ msg_t i2c_lld_master_transmit_timeout(I2CDriver *i2cp, i2caddr_t addr,
 
     osalSysUnlock();
   }
-
-  PrintfCNow("3\r");
 
   /* Setting up the slave address.*/
   i2c_lld_set_address(i2cp, addr);
@@ -1146,12 +1139,8 @@ msg_t i2c_lld_master_transmit_timeout(I2CDriver *i2cp, i2caddr_t addr,
   /* Starts the operation.*/
   dp->CR2 |= I2C_CR2_START;
 
-  PrintfCNow("4\r");
-
   /* Waits for the operation completion or a timeout.*/
   msg = osalThreadSuspendTimeoutS(&i2cp->thread, timeout);
-
-  PrintfCNow("5\r");
 
   /* In case of a software timeout a STOP is sent as an extreme attempt
      to release the bus.*/
