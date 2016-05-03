@@ -19,7 +19,7 @@ Maybe, to calm Eclipse, it will be required to write extra quote in the end: "\"
 */
 
 // Lib version
-#define KL_LIB_VERSION      "20160409_1810"
+#define KL_LIB_VERSION      "20160502_1801"
 
 #if defined STM32L1XX
 #include "stm32l1xx.h"
@@ -548,6 +548,14 @@ static inline void PinSetupOut(
 #endif
 }
 
+__always_inline
+static inline void PinSetupOut(const PortPin_t PortPin, PinOutMode_t PinOutMode,
+        const PinPullUpDown_t APullUpDown = pudNone,
+        const PinSpeed_t ASpeed = PIN_SPEED_DEFAULT
+) {
+    PinSetupOut(PortPin.PGpio, PortPin.Pin, PinOutMode, APullUpDown, ASpeed);
+}
+
 static inline void PinSetupIn(
         GPIO_TypeDef *PGpioPort,
         const uint16_t APinNumber,
@@ -950,7 +958,7 @@ public:
 };
 #endif
 
-#if 0// I2C_REQUIRED // ========================= I2C ==============================
+#if I2C_REQUIRED // ========================= I2C ==============================
 #define I2C_ASYNC       TRUE
 /* Example:
  * i2c_t i2c (I2C_ACC, ACC_I2C_GPIO, ACC_I2C_SCL_PIN, ACC_I2C_SDA_PIN,
