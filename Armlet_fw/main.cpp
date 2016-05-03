@@ -43,13 +43,11 @@ int main(void) {
 
     PinSetupOut(GPIOC, 2, omPushPull, pudNone);
     PinSet(GPIOC, 2);   // Power up EEPROM
-    PinSetupAlterFunc(GPIOC, 0, omOpenDrain, pudNone, AF4);
-    PinSetupAlterFunc(GPIOC, 1, omOpenDrain, pudNone, AF4);
 
     chThdSleepMilliseconds(99);
 
     i2c3.Init();
-//    i2c3.ScanBus();
+    i2c3.ScanBus();
 
     uint8_t txbuf[16] = {1,2,3,4,1,2,3,4,1,2,3,4,1,2,3,4};
     uint8_t rxBuf[9];
@@ -57,16 +55,6 @@ int main(void) {
     uint8_t r = i2c3.WriteRead(0x50, txbuf, 1, rxBuf, 9);
     if(r == OK) Uart.Printf("%A\r", rxBuf, 9, ' ');
     else Uart.Printf("rslt=%u\r", r);
-
-//    i2cInit();  // Init all I2C channels
-//    i2cStart(&I2CD3, &I2C3Cfg);
-//
-//    msg_t r;
-//    r = i2cMasterTransmitTimeout(&I2CD3, 0x50, txbuf, 1, rxBuf, 9, MS2ST(999));
-//
-//    Uart.Printf("r=%d; %A\r", r, rxBuf, 9, ' ');
-//    Uart.Printf("r=%d\r", r);
-
 
     Mems.Init();
 

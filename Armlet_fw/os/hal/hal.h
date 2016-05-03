@@ -45,7 +45,7 @@
 /* Normal drivers.*/
 //#include "ext.h"
 //#include "gpt.h"
-#include "i2c.h"
+//#include "i2c.h"
 //#include "i2s.h"
 //#include "icu.h"
 //#include "mac.h"
