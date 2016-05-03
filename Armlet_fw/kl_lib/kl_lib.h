@@ -548,6 +548,14 @@ static inline void PinSetupOut(
 #endif
 }
 
+__always_inline
+static inline void PinSetupOut(const PortPin_t PortPin, PinOutMode_t PinOutMode,
+        const PinPullUpDown_t APullUpDown = pudNone,
+        const PinSpeed_t ASpeed = PIN_SPEED_DEFAULT
+) {
+    PinSetupOut(PortPin.PGpio, PortPin.Pin, PinOutMode, APullUpDown, ASpeed);
+}
+
 static inline void PinSetupIn(
         GPIO_TypeDef *PGpioPort,
         const uint16_t APinNumber,
