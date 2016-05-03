@@ -22,10 +22,10 @@
 #define STM32_ST_USE_TIMER      5
 #define SYS_TIM_CLK             (Clk.APB1FreqHz)    // Timer 5 is clocked by APB1
 //  Periphery
-#define I2C_REQUIRED            TRUE
+#define I2C_REQUIRED            FALSE
 #define STM32_I2C_USE_I2C1      FALSE
 #define STM32_I2C_USE_I2C2      FALSE
-#define STM32_I2C_USE_I2C3      TRUE
+#define STM32_I2C_USE_I2C3      FALSE
 
 #define ADC_REQUIRED            FALSE
 #define STM32_DMA_REQUIRED      TRUE    // Leave this macro name for OS
@@ -101,7 +101,12 @@
 // Pill
 #define STM32_I2C_I2C2_RX_DMA_STREAM   STM32_DMA_STREAM_ID(1, 5)
 #define STM32_I2C_I2C2_TX_DMA_STREAM   STM32_DMA_STREAM_ID(1, 4)
-// EE
+// EE: i2c3
+#define I2C3_ENABLE     TRUE
+#define I2C3_DMA_TX     STM32_DMA1_STREAM2
+#define I2C3_DMA_RX     STM32_DMA1_STREAM3
+#define I2C3_DMA_CHNL   3
+
 #define STM32_I2C_I2C3_RX_DMA_STREAM   STM32_DMA_STREAM_ID(1, 3)
 #define STM32_I2C_I2C3_TX_DMA_STREAM   STM32_DMA_STREAM_ID(1, 2)
 

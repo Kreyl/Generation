@@ -19,7 +19,7 @@ Maybe, to calm Eclipse, it will be required to write extra quote in the end: "\"
 */
 
 // Lib version
-#define KL_LIB_VERSION      "20160409_1810"
+#define KL_LIB_VERSION      "20160502_1801"
 
 #if defined STM32L1XX
 #include "stm32l1xx.h"
