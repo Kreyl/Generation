@@ -6,13 +6,17 @@
  */
 
 #include "mems.h"
+#include "i2cL476.h"
 
 Mems_t Mems;
 
+#define mi2c    i2c1
+
 uint8_t Mems_t::Init() {
-//    i2c.Init();
-
-
+    PinSetupOut(MEMS_PWR, omPushPull, pudNone);
+    On();
+    chThdSleepMilliseconds(99);
+    mi2c.ScanBus();
 
     return 0;
 }

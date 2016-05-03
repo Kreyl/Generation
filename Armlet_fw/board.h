@@ -23,6 +23,9 @@
 #define SYS_TIM_CLK             (Clk.APB1FreqHz)    // Timer 5 is clocked by APB1
 
 //  Periphery
+#define I2C1_ENABLED            TRUE
+#define I2C3_ENABLED            TRUE
+
 #define ADC_REQUIRED            FALSE
 #define STM32_DMA_REQUIRED      TRUE    // Leave this macro name for OS
 
@@ -39,13 +42,19 @@
 #define LED_BLUE        { GPIOC, 8, TIM3, 3 }
 #define LED_WHITE       { GPIOC, 9, TIM3, 4 }
 
-// Acc
-#define I2C1_GPIO       GPIOB
-#define I2C1_SCL        6
-#define I2C1_SDA        7
+// Mems
+#define MEMS_PWR        { GPIOC, 12 }
 
 // EE
 #define EE_PWR          { GPIOC, 2 }
+
+// I2C
+#define I2C1_GPIO       GPIOB
+#define I2C1_SCL        6
+#define I2C1_SDA        7
+#define I2C2_GPIO       GPIOB
+#define I2C2_SCL        10
+#define I2C2_SDA        11
 #define I2C3_GPIO       GPIOC
 #define I2C3_SCL        0
 #define I2C3_SDA        1
@@ -62,7 +71,7 @@
 #endif // Timer
 
 #if I2C_REQUIRED // ====================== I2C =================================
-#define I2C_ACC         I2C2
+
 #endif
 
 #if 1 // =========================== SPI =======================================
@@ -105,11 +114,12 @@
 //#define DAC_DMA         STM32_DMA1_STREAM2
 
 // ==== I2C ====
-// Pill
-#define STM32_I2C_I2C2_RX_DMA_STREAM   STM32_DMA_STREAM_ID(1, 5)
-#define STM32_I2C_I2C2_TX_DMA_STREAM   STM32_DMA_STREAM_ID(1, 4)
-// EE: i2c3
-#define I2C3_ENABLED    TRUE
+#define I2C1_DMA_TX     STM32_DMA2_STREAM7
+#define I2C1_DMA_RX     STM32_DMA1_STREAM6
+#define I2C1_DMA_CHNL   5
+#define I2C2_DMA_TX     STM32_DMA1_STREAM4
+#define I2C2_DMA_RX     STM32_DMA1_STREAM5
+#define I2C2_DMA_CHNL   3
 #define I2C3_DMA_TX     STM32_DMA1_STREAM2
 #define I2C3_DMA_RX     STM32_DMA1_STREAM3
 #define I2C3_DMA_CHNL   3

@@ -17,9 +17,7 @@ struct i2cParams_t {
     uint32_t Timing;    // Setting for TIMINGR register
     // DMA
     const stm32_dma_stream_t *PDmaTx;
-    uint32_t DmaTxMode;
     const stm32_dma_stream_t *PDmaRx;
-    uint32_t DmaRxMode;
     // IRQ
     uint32_t IrqEvtNumber, IrqErrorNumber;
 };
@@ -50,4 +48,4 @@ public:
     void IServeErrIRQ(uint32_t isr);
 };
 
-extern i2c_t i2c3;
+extern i2c_t i2c1, i2c3;
