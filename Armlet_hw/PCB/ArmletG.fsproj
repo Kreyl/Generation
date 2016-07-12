@@ -10,15 +10,17 @@
 	<Document>
 		<LocalLibrary />
 		<Pcb>
-			<File path=".\ArmletG.fsx" Folder="-1" isopened="1"/>
-			<File path=".\ArmletG_!.fsx" Folder="-1" isopened="0"/>
+			<File path=".\ArmletG.fsx" Folder="-1" isopened="0"/>
+			<File path=".\RoboMega.fsx" Folder="-1" isopened="0"/>
 		</Pcb>
 		<Documents path="D:\Nute\Generation\Armlet_hw\PCB\"/>
 		<Import>
 			<Specctra>
 			<Path name="D:\Nute\Generation\Armlet_hw\PCB\ArmletG.dsn"/>
+			<Path name="D:\Nute\PresentTime\RoboMega\PCB\RoboMega.dsn"/>
 			</Specctra>
 		</Import>
+		<Export path="D:\Nute\PresentTime\RoboMega\PCB\"/>
 		<ARouteSessions>
 		</ARouteSessions>
 	</Document>
