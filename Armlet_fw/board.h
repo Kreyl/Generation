@@ -67,6 +67,18 @@
 
 // IR LED
 //#define LED_IR          { GPIOA, 4 }
+
+// Radio
+#define CC_GPIO         GPIOA
+#define CC_GDO2         NC
+#define CC_GDO0         1
+#define CC_SCK          5
+#define CC_MISO         6
+#define CC_MOSI         7
+#define CC_CS           4
+// Input pin
+#define CC_GDO0_IRQ     { CC_GPIO, CC_GDO0, pudNone }
+
 #endif // GPIO
 
 #if 1 // ========================= Timer =======================================
@@ -81,6 +93,8 @@
 #endif
 
 #if 1 // =========================== SPI =======================================
+#define CC_SPI          SPI1
+#define CC_SPI_AF       AF5
 #endif
 
 #if 1 // ========================== USART ======================================
