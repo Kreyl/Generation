@@ -14,12 +14,12 @@ class EE_t {
 private:
 
 public:
-    void Init() { PinSetupOut(EE_PWR, omPushPull, pudNone); }
+    void Init() { PinSetupOut(EE_PWR_GPIO, EE_PWR_PIN, omPushPull); }
     void On()   {
-        PinSet(EE_PWR);
+        PinSetHi(EE_PWR_GPIO, EE_PWR_PIN);
 //        chThdSleepMilliseconds(1);
     }
-    void Off()  { PinClear(EE_PWR); }
+    void Off()  { PinSetLo(EE_PWR_GPIO, EE_PWR_PIN); }
 };
 
 extern EE_t ee;

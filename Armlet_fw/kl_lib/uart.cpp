@@ -135,7 +135,7 @@ void Uart_t::IRxTask() {
                 if(RIndx >= UART_RXBUF_SZ) RIndx = 0;
                 if(Cmd.PutChar(c) == pdrNewCmd) {
                     chSysLock();
-                    App.SignalEvtI(EVTMSK_UART_NEW_CMD);
+                    App.SignalEvtI(EVT_UART_NEW_CMD);
                     chSchGoSleepS(CH_STATE_SUSPENDED); // Wait until cmd processed
                     chSysUnlock();  // Will be here when application signals that cmd processed
                 }
@@ -166,14 +166,16 @@ void Uart_t::Init(uint32_t ABaudrate, GPIO_TypeDef *PGpioTx, const uint16_t APin
     if     (UART == USART1) { rccEnableUSART1(FALSE); }
     else if(UART == USART2) { rccEnableUSART2(FALSE); }
 
-#if defined STM32F072xB
+    // Setup independent clock
+#if UART_CLK_HSI && defined STM32F072xB
     // Setup HSI as UART's clk src
     if(UART == USART1) RCC->CFGR3 |= RCC_CFGR3_USART1SW_HSI;
     else if(UART == USART2) RCC->CFGR3 |= RCC_CFGR3_USART2SW_HSI;
-    OnAHBFreqChange();
-#else
-    OnAHBFreqChange();  // Setup baudrate
+#elif UART_CLK_HSI && defined STM32L4XX
+    if(UART == USART1) RCC->CCIPR |= 0b10;
+    else if(UART == USART2) RCC->CCIPR |= 0b10 << 2;
 #endif
+    OnClkChange();  // Setup baudrate
 
     UART->CR2 = 0;
 #if UART_USE_DMA    // ==== DMA ====
@@ -215,8 +217,8 @@ void Uart_t::Init(uint32_t ABaudrate, GPIO_TypeDef *PGpioTx, const uint16_t APin
     UART->CR1 |= USART_CR1_UE;    // Enable USART
 }
 
-void Uart_t::OnAHBFreqChange() {
-#if defined STM32L1XX || defined STM32F100_MCUCONF || defined STM32L4XX
+void Uart_t::OnClkChange() {
+#if defined STM32L1XX || defined STM32F100_MCUCONF
     if(UART == USART1) UART->BRR = Clk.APB2FreqHz / IBaudrate;
     else               UART->BRR = Clk.APB1FreqHz / IBaudrate;
 #elif defined STM32F072xB
@@ -227,5 +229,13 @@ void Uart_t::OnAHBFreqChange() {
 #elif defined STM32F2XX || defined STM32F4XX
     if(UART == USART1 or UART == USART6) UART->BRR = Clk.APB2FreqHz / IBaudrate;
     else UART->BRR = Clk.APB1FreqHz / IBaudrate;
+#elif defined STM32L4XX
+#if UART_CLK_HSI
+    if(UART == USART1) UART->BRR = HSI_FREQ_HZ / IBaudrate;
+    else               UART->BRR = HSI_FREQ_HZ / IBaudrate;
+#else
+    if(UART == USART1) UART->BRR = Clk.APB2FreqHz / IBaudrate;
+    else               UART->BRR = Clk.APB1FreqHz / IBaudrate;
+#endif
 #endif
 }

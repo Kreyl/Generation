@@ -19,7 +19,7 @@
 #define UART_USE_DMA        TRUE
 
 // ==== TX ====
-#define UART_TXBUF_SZ       4500
+#define UART_TXBUF_SZ       16000
 
 #define UART_DMA_TX_MODE    STM32_DMA_CR_CHSEL(UART_DMA_CHNL) | \
                             DMA_PRIORITY_LOW | \
@@ -68,7 +68,7 @@ public:
         if(UART == USART1) { rccDisableUSART1(FALSE); }
         else if(UART == USART2) { rccDisableUSART2(FALSE); }
     }
-    void OnAHBFreqChange();
+    void OnClkChange();
 #if UART_USE_DMA
     void Printf(const char *S, ...);
     void PrintfI(const char *S, ...);
