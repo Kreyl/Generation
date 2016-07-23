@@ -31,12 +31,12 @@
 rLevel1_t Radio;
 
 #if 1 // ================================ Task =================================
-static THD_WORKING_AREA(warLvl1Thread, 256);
-__noreturn
-static void rLvl1Thread(void *arg) {
-    chRegSetThreadName("rLvl1");
-    Radio.ITask();
-}
+//static THD_WORKING_AREA(warLvl1Thread, 256);
+//__noreturn
+//static void rLvl1Thread(void *arg) {
+//    chRegSetThreadName("rLvl1");
+//    Radio.ITask();
+//}
 
 __noreturn
 void rLevel1_t::ITask() {
@@ -74,11 +74,11 @@ void rLevel1_t::ITask() {
 //#else
 #endif
 
-        uint8_t RxRslt = CC.ReceiveSync(360, &Pkt, &Rssi);
-        if(RxRslt == OK and Pkt.DWord == THE_WORD) {
+//        uint8_t RxRslt = CC.ReceiveSync(360, &Pkt, &Rssi);
+//        if(RxRslt == OK and Pkt.DWord == THE_WORD) {
 //            Uart.Printf("Rssi=%d\r", Rssi);
 //            App.SignalEvt(EVT_SOMEONE_NEAR);
-        }
+//        }
 //        else Uart.Printf("#\r");
 
 #if 0
@@ -115,7 +115,7 @@ uint8_t rLevel1_t::Init() {
         CC.SetChannel(0);
 //        CC.EnterPwrDown();
         // Thread
-        PThd = chThdCreateStatic(warLvl1Thread, sizeof(warLvl1Thread), HIGHPRIO, (tfunc_t)rLvl1Thread, NULL);
+//        PThd = chThdCreateStatic(warLvl1Thread, sizeof(warLvl1Thread), HIGHPRIO, (tfunc_t)rLvl1Thread, NULL);
         return OK;
     }
     else return FAILURE;

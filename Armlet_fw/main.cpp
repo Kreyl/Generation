@@ -10,6 +10,7 @@
 #include "ee.h"
 #include "mems.h"
 #include "i2cL476.h"
+#include "radio_lvl1.h"
 
 App_t App;
 Mems_t Mems(&i2c1);
@@ -36,6 +37,11 @@ int main(void) {
 //    ee.On();
 
     Mems.Init();
+
+    if(Radio.Init() != OK) {
+//        Led.StartSequence(lsqFailure);
+        chThdSleepMilliseconds(2700);
+    }
 
     // Main cycle
     App.ITask();

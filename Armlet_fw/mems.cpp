@@ -8,6 +8,9 @@
 #include "mems.h"
 #include "uart.h"
 
+#include "cc1101.h"
+#include "radio_lvl1.h"
+
 static THD_WORKING_AREA(waMemsThread, 256);
 __noreturn
 static void MemsThread(void *arg) {
@@ -17,19 +20,25 @@ static void MemsThread(void *arg) {
 
 __noreturn
 void Mems_t::ITask() {
+    rPkt_t Pkt;
     while(true) {
-        chThdSleepMilliseconds(100);
-        uint32_t time = chVTGetSystemTime() / 10;
-        int16_t gyroBuf[3], accBuf[3], magBuf[3];
+        chThdSleepMilliseconds(20);
+        Pkt.Time = chVTGetSystemTime() / 10;
         // Read raw data
-        gyroRead(gyroBuf);
-        accRead(accBuf);
-        magRead(magBuf);
+        gyroRead(Pkt.gyro);
+        accRead(Pkt.acc);
+        magRead(Pkt.mag);
+        // Replace gyro axes
+        int16_t tmp = Pkt.gyro[0];
+        Pkt.gyro[0] = Pkt.gyro[1];
+        Pkt.gyro[1] = -tmp;
+
         // Send data
-        Uart.Printf("%u;   %d; %d; %d;   %d; %d; %d;   %d; %d; %d\r", time,
-                gyroBuf[0], gyroBuf[1], gyroBuf[2],
-                accBuf[0],  accBuf[1],  accBuf[2],
-                magBuf[0],  magBuf[1],  magBuf[2]);
+        CC.TransmitSync(&Pkt);
+//        Uart.Printf("%u;   %d; %d; %d;   %d; %d; %d;   %d; %d; %d\r\n", Pkt.Time,
+//                Pkt.gyro[0], Pkt.gyro[1], Pkt.gyro[2],
+//                Pkt.acc[0],  Pkt.acc[1],  Pkt.acc[2],
+//                Pkt.mag[0],  Pkt.mag[1],  Pkt.mag[2]);
     }
 }
 
@@ -38,7 +47,7 @@ uint8_t Mems_t::Init() {
     PinSetupOut(MEMS_PWR_GPIO, MEMS_PWR_PIN, omPushPull);
     On();
     chThdSleepMilliseconds(99);
-    pi2c->ScanBus();
+//    pi2c->ScanBus();
 
     __unused uint8_t v=0;
     // Gyro
@@ -48,7 +57,7 @@ uint8_t Mems_t::Init() {
 //    Uart.Printf("gyro: %X\r", v);
 
     // Acc
-    accWriteReg(ACC_CTRL_REG4, 0b00001000); // FS = 00 (+/- 2 g full scale); HR = 1 (high resolution enable)
+    accWriteReg(ACC_CTRL_REG4, 0b00101000); // FS = 10 (+/- 8 g full scale); HR = 1 (high resolution enable)
     accWriteReg(ACC_CTRL_REG1, 0b01000111); // ODR = 0100 (50 Hz ODR); LPen = 0 (normal mode); all axes enabled
 //    accReadReg(ACC_CTRL_REG1, &v);
 //    Uart.Printf("acc: %X\r", v);
