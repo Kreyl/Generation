@@ -20,30 +20,27 @@ static void MemsThread(void *arg) {
 
 __noreturn
 void Mems_t::ITask() {
-    rPkt_t Pkt;
     while(true) {
-        chThdSleepMilliseconds(20);
-        Pkt.Time = chVTGetSystemTime() / 10;
+        chThdSleepMilliseconds(16);
+        rPkt_t IPkt;
+        IPkt.Time = chVTGetSystemTime() / 10;
         // Read raw data
-        gyroRead(Pkt.gyro);
-        accRead(Pkt.acc);
-        magRead(Pkt.mag);
-        // Replace gyro axes
-        int16_t tmp = Pkt.gyro[0];
-        Pkt.gyro[0] = Pkt.gyro[1];
-        Pkt.gyro[1] = -tmp;
+        gyroRead(IPkt.gyro);
+        accRead(IPkt.acc);
+        magRead(IPkt.mag);
 
-        // Send data
-        CC.TransmitSync(&Pkt);
-//        Uart.Printf("%u;   %d; %d; %d;   %d; %d; %d;   %d; %d; %d\r\n", Pkt.Time,
-//                Pkt.gyro[0], Pkt.gyro[1], Pkt.gyro[2],
-//                Pkt.acc[0],  Pkt.acc[1],  Pkt.acc[2],
-//                Pkt.mag[0],  Pkt.mag[1],  Pkt.mag[2]);
+        // Add pkt to buf
+        Radio.TxBuf.PutAnyway(IPkt);
+
+        Uart.Printf("%u;   %d; %d; %d;   %d; %d; %d;   %d; %d; %d\r\n", IPkt.Time,  IPkt.gyro[0], IPkt.gyro[1], IPkt.gyro[2], IPkt.acc[0],  IPkt.acc[1],  IPkt.acc[2], IPkt.mag[0],  IPkt.mag[1],  IPkt.mag[2]);
     }
 }
 
 
 uint8_t Mems_t::Init() {
+    // Debug Pins
+    PinSetupOut(GPIOB, 0, omPushPull);
+
     PinSetupOut(MEMS_PWR_GPIO, MEMS_PWR_PIN, omPushPull);
     On();
     chThdSleepMilliseconds(99);
@@ -52,6 +49,9 @@ uint8_t Mems_t::Init() {
     __unused uint8_t v=0;
     // Gyro
     gyroWriteReg(L3G_CTRL_REG4, 0x20); // 2000 dps full scale
+    gyroWriteReg(L3G_CTRL_REG2, 0x00);
+    gyroWriteReg(L3G_CTRL_REG3, 0x00);
+    gyroWriteReg(L3G_CTRL_REG5, 0x00);
     gyroWriteReg(L3G_CTRL_REG1, 0x0F); // normal power mode, all axes enabled, 100 Hz
 //    gyroReadReg(L3G_WHO_AM_I, &v);
 //    Uart.Printf("gyro: %X\r", v);

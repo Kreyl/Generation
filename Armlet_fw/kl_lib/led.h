@@ -13,11 +13,6 @@
 #include "uart.h"
 #include "kl_lib.h"
 
-#if 1 // =========================== Common auxilary ===========================
-// TimeToWaitBeforeNextAdjustment = SmoothVar / (N+4) + 1, where N - current LED brightness.
-static inline uint32_t ICalcDelay(uint32_t CurrentBrightness, uint32_t SmoothVar) { return (uint32_t)((SmoothVar / (CurrentBrightness+4)) + 1); }
-#endif
-
 #if 0 // ========================= Single LED blinker ==========================
 #define LED_RGB_BLINKER
 
@@ -115,7 +110,7 @@ public:
 };
 #endif
 
-#if 0 // =========================== LedRGB Parent =============================
+#if 1 // =========================== LedRGB Parent =============================
 class LedRGBParent_t : public BaseSequencer_t<LedRGBChunk_t> {
 protected:
     const PinOutputPWM_t  R, G, B;
@@ -132,15 +127,15 @@ protected:
                 IPCurrentChunk++;                // and goto next chunk
             }
             else {
-                ICurrColor.Adjust(&IPCurrentChunk->Color);
+                ICurrColor.Adjust(IPCurrentChunk->Color);
                 SetColor(ICurrColor);
                 // Check if completed now
                 if(ICurrColor == IPCurrentChunk->Color) IPCurrentChunk++;
                 else { // Not completed
                     // Calculate time to next adjustment
-                    uint32_t DelayR = (ICurrColor.R == IPCurrentChunk->Color.R)? 0 : ICalcDelay(ICurrColor.R, IPCurrentChunk->Value);
-                    uint32_t DelayG = (ICurrColor.G == IPCurrentChunk->Color.G)? 0 : ICalcDelay(ICurrColor.G, IPCurrentChunk->Value);
-                    uint32_t DelayB = (ICurrColor.B == IPCurrentChunk->Color.B)? 0 : ICalcDelay(ICurrColor.B, IPCurrentChunk->Value);
+                    uint32_t DelayR = (ICurrColor.R == IPCurrentChunk->Color.R)? 0 : ClrCalcDelay(ICurrColor.R, IPCurrentChunk->Value);
+                    uint32_t DelayG = (ICurrColor.G == IPCurrentChunk->Color.G)? 0 : ClrCalcDelay(ICurrColor.G, IPCurrentChunk->Value);
+                    uint32_t DelayB = (ICurrColor.B == IPCurrentChunk->Color.B)? 0 : ClrCalcDelay(ICurrColor.B, IPCurrentChunk->Value);
                     uint32_t Delay = DelayR;
                     if(DelayG > Delay) Delay = DelayG;
                     if(DelayB > Delay) Delay = DelayB;
@@ -154,9 +149,9 @@ protected:
     }
 public:
     LedRGBParent_t(
-            const PortPinTim_t ARed,
-            const PortPinTim_t AGreen,
-            const PortPinTim_t ABlue) :
+            const PwmSetup_t ARed,
+            const PwmSetup_t AGreen,
+            const PwmSetup_t ABlue) :
         BaseSequencer_t(), R(ARed), G(AGreen), B(ABlue) {}
     void Init() {
         R.Init();
@@ -168,19 +163,24 @@ public:
 };
 #endif
 
-#if 0 // ============================== LedRGB =================================
+#if 1 // ============================== LedRGB =================================
 class LedRGB_t : public LedRGBParent_t {
 public:
     LedRGB_t(
-            const PortPinTim_t ARed,
-            const PortPinTim_t AGreen,
-            const PortPinTim_t ABlue) :
+            const PwmSetup_t ARed,
+            const PwmSetup_t AGreen,
+            const PwmSetup_t ABlue) :
                 LedRGBParent_t(ARed, AGreen, ABlue) {}
 
     void SetColor(Color_t AColor) {
         R.Set(AColor.R);
         G.Set(AColor.G);
         B.Set(AColor.B);
+    }
+    void SetColor(uint8_t AR, uint8_t AG, uint8_t AB) {
+        R.Set(AR);
+        G.Set(AG);
+        B.Set(AB);
     }
 };
 #endif

@@ -54,11 +54,25 @@ static inline void Lvl250ToLvl1000(uint16_t *PLvl) {
 #endif
 
 #if 1 // =========================== Pkt_t =====================================
-struct rPkt_t {
-    uint32_t Time;
-    int16_t acc[3], mag[3], gyro[3];
-} __attribute__ ((__packed__));
-#define RPKT_LEN        sizeof(rPkt_t)
+union rPkt_t  {
+    struct {
+        uint32_t Time;
+        int16_t gyro[3], acc[3], mag[3];
+    };
+    struct {
+        uint8_t R, G, B;
+        uint16_t BlinkOn, BlinkOff;
+        uint8_t VibroPwr;
+    };
+//    uint32_t Buf[3];
+//    rPkt_t& operator = (const rPkt_t &Right) {
+//        Buf[0] = Right.Buf[0];
+//        Buf[1] = Right.Buf[1];
+//        Buf[2] = Right.Buf[2];
+//        return *this;
+//    }
+} __packed;
+#define RPKT_LEN    sizeof(rPkt_t)
 #endif
 
 #define THE_WORD        0xCA115EA1
@@ -81,7 +95,7 @@ struct rPkt_t {
 
 class rLevel1_t {
 private:
-    rPkt_t Pkt;
+    rPkt_t PktRx;
     void TryToSleep(uint32_t SleepDuration) {
         if(SleepDuration >= MIN_SLEEP_DURATION_MS) CC.EnterPwrDown();
         chThdSleepMilliseconds(SleepDuration);
@@ -89,6 +103,7 @@ private:
 public:
     thread_t *PThd;
     int8_t Rssi;
+    CircBuf_t<rPkt_t, 9> TxBuf;
     uint8_t Init();
     // Inner use
     void ITask();

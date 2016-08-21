@@ -37,12 +37,16 @@
 #define UART_RX_PIN     3
 #define UART_AF         AF7 // for all USARTs
 
-// LEDs GPIO and timer
-//#define LED_GPIO        GPIOC
-#define LED_RED         { GPIOC, 6, TIM3, 1 }
-#define LED_GREEN       { GPIOC, 7, TIM3, 2 }
-#define LED_BLUE        { GPIOC, 8, TIM3, 3 }
+// LEDs
+#define LED_RED_CH      { GPIOC, 6, TIM3, 1, invInverted, omPushPull, 255 }
+#define LED_GREEN_CH    { GPIOC, 7, TIM3, 2, invInverted, omPushPull, 255 }
+#define LED_BLUE_CH     { GPIOC, 8, TIM3, 3, invInverted, omPushPull, 255 }
+
 #define LED_WHITE       { GPIOC, 9, TIM3, 4 }
+
+// Vibro
+#define VIBRO_TOP       100
+#define VIBRO_PIN       { GPIOB, 15, TIM15, 2, invNotInverted, omPushPull, VIBRO_TOP }
 
 // Mems
 #define MEMS_PWR_GPIO   GPIOC

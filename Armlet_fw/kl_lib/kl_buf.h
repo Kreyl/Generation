@@ -57,6 +57,11 @@ public:
 		if(++PWrite > (IBuf + Sz - 1)) PWrite = IBuf;   // Circulate buffer
 		if(IFullSlotsCount < Sz) IFullSlotsCount++;
 	}
+    void PutAnyway(T &p) {
+        memcpy(PWrite, &p, sizeof(T));
+        if(++PWrite > (IBuf + Sz - 1)) PWrite = IBuf;   // Circulate buffer
+        if(IFullSlotsCount < Sz) IFullSlotsCount++;
+    }
     uint8_t Put(T *p) {
         if(IFullSlotsCount >= Sz) return OVERFLOW;
         else {

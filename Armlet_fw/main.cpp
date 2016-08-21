@@ -11,9 +11,12 @@
 #include "mems.h"
 #include "i2cL476.h"
 #include "radio_lvl1.h"
+#include "Sequences.h"
 
 App_t App;
 Mems_t Mems(&i2c1);
+LedRGB_t Led { LED_RED_CH, LED_GREEN_CH, LED_BLUE_CH };
+Vibro_t Vibro {VIBRO_PIN};
 
 int main(void) {
     // ==== Setup clock frequency ====
@@ -30,6 +33,9 @@ int main(void) {
 
     App.InitThread();
 
+    Led.Init();
+    Vibro.Init();
+
     i2c1.Init();
 //    i2c3.Init();
 
@@ -38,10 +44,12 @@ int main(void) {
 
     Mems.Init();
 
-    if(Radio.Init() != OK) {
-//        Led.StartSequence(lsqFailure);
-        chThdSleepMilliseconds(2700);
+    if(Radio.Init() == OK) {
+        Led.StartSequence(lsqStart);
+        Vibro.StartSequence(vsqBrr);
     }
+    else Led.StartSequence(lsqFailure);
+    chThdSleepMilliseconds(1800);
 
     // Main cycle
     App.ITask();
