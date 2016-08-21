@@ -148,7 +148,7 @@ uint8_t rLevel1_t::Init() {
     if(CC.Init() == OK) {
         CC.SetTxPower(CC_Pwr0dBm);
         CC.SetPktSize(RPKT_LEN);
-        CC.SetChannel(0);
+        CC.SetChannel(1);
 //        CC.EnterPwrDown();
         // Thread
         PThd = chThdCreateStatic(warLvl1Thread, sizeof(warLvl1Thread), HIGHPRIO, (tfunc_t)rLvl1Thread, NULL);

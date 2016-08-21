@@ -62,6 +62,7 @@ struct Color_t {
     }
     void Set(uint8_t Red, uint8_t Green, uint8_t Blue) { R = Red; G = Green; B = Blue; }
     void Set(const Color_t* p) { DWord32 = p->DWord32; }
+    void Set(const Color_t &c) { DWord32 = c.DWord32; }
     void Get(uint8_t *PR, uint8_t *PG, uint8_t *PB) const { *PR = R; *PG = G; *PB = B; }
     uint8_t RGBTo565_HiByte() const {
         uint32_t rslt = R & 0b11111000;

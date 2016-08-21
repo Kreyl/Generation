@@ -10,8 +10,31 @@
 
 #include "cc1101.h"
 #include "radio_lvl1.h"
+#include "full_state_machine.h"
+#include "main.h"
 
-static THD_WORKING_AREA(waMemsThread, 256);
+FullStateMachine fullStateMachine(0);
+
+Color_t ClrTbl[] = {
+        clBlack,
+        clWhite,
+        clRed,
+        {100, 100, 0},
+        clYellow,
+        clGreen,
+        clMagenta,
+        clBlue      // CALIBRATION
+};
+
+static LedRGBChunk_t lsqBlink[] = {
+        {csSetup, 0, clGreen},
+        {csWait, 180},
+        {csSetup, 0, clBlack},
+        {csWait, 180},
+        {csGoto, 0}
+};
+
+static THD_WORKING_AREA(waMemsThread, 1024);
 __noreturn
 static void MemsThread(void *arg) {
     chRegSetThreadName("Mems");
@@ -20,19 +43,54 @@ static void MemsThread(void *arg) {
 
 __noreturn
 void Mems_t::ITask() {
+    uint32_t PrevTime = 0;
     while(true) {
         chThdSleepMilliseconds(16);
         rPkt_t IPkt;
         IPkt.Time = chVTGetSystemTime() / 10;
+        uint32_t tmp32 = IPkt.Time - PrevTime;
+        float Delta = tmp32;
+        Delta /= 1000;
+        PrevTime = IPkt.Time;
         // Read raw data
         gyroRead(IPkt.gyro);
         accRead(IPkt.acc);
         magRead(IPkt.mag);
+        // Replace gyro axes
+        int16_t tmp = IPkt.gyro[0];
+        IPkt.gyro[0] = IPkt.gyro[1];
+        IPkt.gyro[1] = -tmp;
 
         // Add pkt to buf
         Radio.TxBuf.PutAnyway(IPkt);
 
-        Uart.Printf("%u;   %d; %d; %d;   %d; %d; %d;   %d; %d; %d\r\n", IPkt.Time,  IPkt.gyro[0], IPkt.gyro[1], IPkt.gyro[2], IPkt.acc[0],  IPkt.acc[1],  IPkt.acc[2], IPkt.mag[0],  IPkt.mag[1],  IPkt.mag[2]);
+        float acc[3], gyro[3], mag[3];
+        for(int i=0; i<3; i++) {
+            acc[i] = IPkt.acc[i];
+            gyro[i] = IPkt.gyro[i];
+            mag[i] = IPkt.mag[i];
+        }
+
+//        Uart.Printf("%u;   %d; %d; %d;   %d; %d; %d;   %d; %d; %d\r\n", IPkt.Time,  IPkt.gyro[0], IPkt.gyro[1], IPkt.gyro[2], IPkt.acc[0],  IPkt.acc[1],  IPkt.acc[2], IPkt.mag[0],  IPkt.mag[1],  IPkt.mag[2]);
+        uint8_t ClrN;
+        uint16_t BlinkOn, BlinkOff;
+        uint8_t VibroPwr;
+
+        fullStateMachine.setData(Delta, acc, gyro, mag, 0xFFFFFFFF, &ClrN, &BlinkOn, &BlinkOff, &VibroPwr);
+
+        if(BlinkOn != 0) {
+            lsqBlink[0].Color.Set(ClrTbl[ClrN]);
+            lsqBlink[1].Time_ms = BlinkOn;
+            lsqBlink[3].Time_ms = BlinkOff;
+            if(Led.GetCurrentSequence() == nullptr) Led.StartSequence(lsqBlink);
+        }
+        else {
+            if(Led.GetCurrentSequence() != nullptr) Led.Stop();
+            Led.SetColor(ClrTbl[ClrN]);
+        }
+
+        Vibro.Set(VibroPwr);
+
     }
 }
 

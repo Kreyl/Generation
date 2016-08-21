@@ -12,6 +12,7 @@
 #include "i2cL476.h"
 #include "radio_lvl1.h"
 #include "Sequences.h"
+#include "full_state_machine.h"
 
 App_t App;
 Mems_t Mems(&i2c1);
