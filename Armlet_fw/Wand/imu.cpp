@@ -152,10 +152,10 @@ float IMU::calcDeviation(const float data[CALIBRATION_LENGTH][DIMENTION], const 
 }
 
 float IMU::compassHeading(const float mag[DIMENTION]) {
-    float cosRoll = cos(angles[0]);
-    float sinRoll = sin(angles[0]);
-    float cosPitch = cos(angles[1]);
-    float sinPitch = sin(angles[1]);
+    float cosRoll = cosf(angles[0]);
+    float sinRoll = sinf(angles[0]);
+    float cosPitch = cosf(angles[1]);
+    float sinPitch = sinf(angles[1]);
 
     float magnetsNorm[DIMENTION];
 
@@ -168,7 +168,7 @@ float IMU::compassHeading(const float mag[DIMENTION]) {
     magX = (magnetsNorm[0] * cosPitch + magnetsNorm[1] * sinRoll * sinPitch + magnetsNorm[2] * cosRoll * sinPitch);
     magY = (magnetsNorm[1] * cosRoll - magnetsNorm[2] * sinRoll);
 
-    return atan2(-magY, magX);
+    return atan2f(-magY, magX);
 }
 
 void IMU::updateDcmMatrix(const float delta, const float gyro[DIMENTION]) {

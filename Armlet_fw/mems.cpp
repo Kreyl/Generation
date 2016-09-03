@@ -44,6 +44,7 @@ static void MemsThread(void *arg) {
 __noreturn
 void Mems_t::ITask() {
     uint32_t PrevTime = 0;
+
     while(true) {
         chThdSleepMilliseconds(16);
         rPkt_t IPkt;
@@ -75,8 +76,11 @@ void Mems_t::ITask() {
 
 //        Uart.Printf("%u;   %d; %d; %d;   %d; %d; %d;   %d; %d; %d\r\n", IPkt.Time,  IPkt.gyro[0], IPkt.gyro[1], IPkt.gyro[2], IPkt.acc[0],  IPkt.acc[1],  IPkt.acc[2], IPkt.mag[0],  IPkt.mag[1],  IPkt.mag[2]);
 
+        uint32_t Tempor = chVTGetSystemTimeX();
         int Rslt = stateMachine.setData(Delta, acc, gyro, mag);
-//        Uart.Printf("%u   %f %d\r", chVTGetSystemTimeX(), Delta, Rslt);
+        Tempor = chVTGetSystemTimeX() - Tempor;
+        Uart.Printf("%u   %f %d  %u\r", chVTGetSystemTimeX(), Delta, Rslt, Tempor);
+//        Uart.Printf("%u \r", Tempor);
 
         switch(Rslt) {
             case 2: Led.SetColor(clRed); break;
