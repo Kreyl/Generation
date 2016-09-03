@@ -3,6 +3,8 @@
 #include "matrix.h"
 #include "unify_definition.h"
 
+#include "uart.h"
+
 float getDist(const float a[DIMENTION], const float b[DIMENTION]) {
     float delta = 0;
     float d;
@@ -12,7 +14,7 @@ float getDist(const float a[DIMENTION], const float b[DIMENTION]) {
         d = a[i] - b[i];
         delta += d * d;
     }
-    return sqrt(delta);
+    return sqrtf(delta);
 }
 
 void unifyStroke(float stroke[STROKE_MAX_LENGTH][DIMENTION], float newStroke[SEGMENTATION][DIMENTION], int length) {
@@ -29,7 +31,7 @@ void unifyStroke(float stroke[STROKE_MAX_LENGTH][DIMENTION], float newStroke[SEG
     strokeLengths[0] = 0;
 
     for (i = 1; i < length; i++) {
-        strokeLengths[i] = strokeLengths[i - 1] + getDist(stroke[i - 1], stroke[i]);       
+        strokeLengths[i] = strokeLengths[i - 1] + getDist(stroke[i - 1], stroke[i]);
     }
 
     step = strokeLengths[length - 1] / (SEGMENTATION - 1);
@@ -51,23 +53,20 @@ void unifyStroke(float stroke[STROKE_MAX_LENGTH][DIMENTION], float newStroke[SEG
             newStrokeId += 1;
             nextLength += step;
         }
-    } 
+    }
 
 }
 
-float checkStroke(float stroke[SEGMENTATION][DIMENTION], const float description[SEGMENTATION][DIMENTION + 1]) {
+float checkStroke(float stroke[SEGMENTATION][DIMENTION], const float description[SEGMENTATION][DIMENTION]) {
     float errors[SEGMENTATION];
     float mean = 0;
     float result = 0;
-    float radius;
     float d;
     int i;
 
     for (i = 0; i < SEGMENTATION; i++) {
-        radius = getDist(stroke[i], description[i]) - description[i][3];
-        radius = radius < 0 ? 0 : radius;
-        errors[i] = radius;
-        mean += radius;
+        errors[i] = getDist(stroke[i], description[i]);
+        mean += errors[i];
     }
 
     mean /= SEGMENTATION;
@@ -76,30 +75,36 @@ float checkStroke(float stroke[SEGMENTATION][DIMENTION], const float description
         d = errors[i] - mean;
         result += d * d;
     }
-    return sqrt(result / SEGMENTATION);
+    return sqrtf(result / SEGMENTATION);
 }
 
-int getStroke(float stroke[STROKE_MAX_LENGTH][DIMENTION], int length, unsigned long access) {
-    float unifiedStroke[SEGMENTATION][DIMENTION];
+static float unifiedStroke[SEGMENTATION][DIMENTION];
+
+int getStroke(float stroke[STROKE_MAX_LENGTH][DIMENTION], int length) {
     unifyStroke(stroke, unifiedStroke, length);
     int i;
     float error;
-    float min_error = MAX_ERROR;
-    float second = MAX_ERROR * COMPARE_LIMIT;
+    float min_error = -1;
+    float second = -1;
     int strokeId = -1;
     for (i = 0; i < STROKES_COUNT; i++) {
-        if ((access >> i) & 0x01) {
-            error = checkStroke(unifiedStroke, STROKES[i]);
-            if (error < min_error) {
-                if (strokeId > -1) {
-                    second = min_error;
-                }
-                min_error = error;
-                strokeId = i;
+        error = checkStroke(unifiedStroke, STROKES[i]);
+
+        if (min_error < 0) {
+            min_error = error;
+            strokeId = i;
+        } else if (error < min_error) {
+            if (second < 0) {
+                second = min_error;
+            }
+            min_error = error;
+            strokeId = i;
+        } else {
+            if (second < 0) {
+                second = error;
             }
         }
     }
-
     if ((min_error != 0) && ((second / min_error) <= COMPARE_LIMIT)) {
         return -1;
     }

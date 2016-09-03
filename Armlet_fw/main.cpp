@@ -12,7 +12,6 @@
 #include "i2cL476.h"
 #include "radio_lvl1.h"
 #include "Sequences.h"
-#include "full_state_machine.h"
 
 App_t App;
 Mems_t Mems(&i2c1);
@@ -45,12 +44,12 @@ int main(void) {
 
     Mems.Init();
 
-    if(Radio.Init() == OK) {
-        Led.StartSequence(lsqStart);
-        Vibro.StartSequence(vsqBrr);
-    }
-    else Led.StartSequence(lsqFailure);
-    chThdSleepMilliseconds(1800);
+//    if(Radio.Init() == OK) {
+//        Led.StartSequence(lsqStart);
+//        Vibro.StartSequence(vsqBrr);
+//    }
+//    else Led.StartSequence(lsqFailure);
+//    chThdSleepMilliseconds(1800);
 
     // Main cycle
     App.ITask();

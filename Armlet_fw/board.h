@@ -102,6 +102,7 @@
 #endif
 
 #if 1 // ========================== USART ======================================
+#define PRINTF_FLOAT_EN TRUE
 #define UART            USART2
 #define UART_TX_REG     UART->TDR
 #define UART_RX_REG     UART->RDR
