@@ -13,6 +13,9 @@
 #include "radio_lvl1.h"
 #include "Sequences.h"
 
+#include "qpc.h"
+#include "full_state_machine.h"
+
 App_t App;
 Mems_t Mems(&i2c1);
 LedRGB_t Led { LED_RED_CH, LED_GREEN_CH, LED_BLUE_CH };
@@ -82,6 +85,14 @@ void App_t::OnCmd(Shell_t *PShell) {
     Uart.Printf("\r%S\r", PCmd->Name);
     // Handle command
     if(PCmd->NameIs("Ping")) PShell->Ack(OK);
+
+    else if(PCmd->NameIs("Sig")) {
+        if(PCmd->GetNextInt32(&dw32) != OK) PShell->Ack(FAILURE);
+        QEvt e;
+        e.sig = SIG_MAP[dw32];
+        QMSM_DISPATCH(the_hand, &e);
+        QMSM_DISPATCH(the_biotics, &e);
+    }
 
     else PShell->Ack(CMD_UNKNOWN);
 }

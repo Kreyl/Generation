@@ -26,6 +26,7 @@ void RGB_blink_slow(uint8_t Color) {
     lsqBlink[1].Time_ms = 270;
     lsqBlink[3].Time_ms = 270;
     Led.StartSequence(lsqBlink);
+    Uart.Printf("Led Slow %u\r", Color);
 }
 
 void RGB_blink_fast(uint8_t Color) {
@@ -33,14 +34,18 @@ void RGB_blink_fast(uint8_t Color) {
     lsqBlink[1].Time_ms = 99;
     lsqBlink[3].Time_ms = 99;
     Led.StartSequence(lsqBlink);
+    Uart.Printf("Led Fast %u\r", Color);
 }
 
 void RGB_blink_stop() {
     Led.Stop();
+    Uart.Printf("Led Stop\r");
 }
 
 void vibro(uint8_t Power) {
     Vibro.Set(Power);
+
+    Uart.Printf("Vibro %u\r", Power);
 }
 
 #ifdef __cplusplus
