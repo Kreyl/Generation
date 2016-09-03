@@ -10,20 +10,17 @@
 #include "ee.h"
 #include "mems.h"
 #include "i2cL476.h"
+#include "radio_lvl1.h"
+#include "Sequences.h"
+#include "full_state_machine.h"
 
 App_t App;
+Mems_t Mems(&i2c1);
+LedRGB_t Led { LED_RED_CH, LED_GREEN_CH, LED_BLUE_CH };
+Vibro_t Vibro {VIBRO_PIN};
 
 int main(void) {
     // ==== Setup clock frequency ====
-    __unused uint8_t ClkResult = 1;
-//    Clk.SetupFlashLatency(64);  // Setup Flash Latency for clock in MHz
-//    Clk.EnablePrefetch();
-//    // 12 MHz/6 = 2; 2*192 = 384; 384/6 = 64 (preAHB divider); 384/8 = 48 (USB clock)
-//    Clk.SetupPLLDividers(6, 192, pllSysDiv6, 8);
-//    // 64/1 = 64 MHz core clock. APB1 & APB2 clock derive on AHB clock; APB1max = 42MHz, APB2max = 84MHz
-//    // Keep APB freq at 32 MHz to left peripheral settings untouched
-//    Clk.SetupBusDividers(ahbDiv1, apbDiv2, apbDiv2);
-//    if((ClkResult = Clk.SwitchToPLL()) == 0) Clk.HSIDisable();
     Clk.UpdateFreqValues();
 
     // Init OS
@@ -34,31 +31,26 @@ int main(void) {
     Uart.Init(115200, UART_GPIO, UART_TX_PIN, UART_GPIO, UART_RX_PIN);
     Uart.Printf("\r%S %S\r", APP_NAME, BUILD_TIME);
     Clk.PrintFreqs();
-//    if(ClkResult != 0) Uart.Printf("\rXTAL failure");
 
     App.InitThread();
 
-    i2c1.Init();
-    i2c3.Init();
+    Led.Init();
+    Vibro.Init();
 
-    ee.Init();
+    i2c1.Init();
+//    i2c3.Init();
+
+//    ee.Init();
 //    ee.On();
 
-//    i2c3.ScanBus();
-
-//    uint8_t txbuf[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
-//    uint8_t rxBuf[9];
-
-//    uint8_t r;
-////    r = i2c3.WriteWrite(0x50, &txbuf[7], 1, &txbuf[0], 1);
-//    r = i2c3.WriteWrite(0x50, &txbuf[7], 1, &txbuf[5], 1);
-//    Uart.Printf("rslt=%u\r", r);
-//    chThdSleepMilliseconds(27);
-//    r = i2c3.WriteRead(0x50, txbuf, 1, rxBuf, 11);
-//    Uart.Printf("rslt=%u\r", r);
-//    if(r == OK) Uart.Printf("%A\r", rxBuf, 11, ' ');
-
     Mems.Init();
+
+    if(Radio.Init() == OK) {
+        Led.StartSequence(lsqStart);
+        Vibro.StartSequence(vsqBrr);
+    }
+    else Led.StartSequence(lsqFailure);
+    chThdSleepMilliseconds(1800);
 
     // Main cycle
     App.ITask();
@@ -67,7 +59,7 @@ int main(void) {
 __attribute__ ((__noreturn__))
 void App_t::ITask() {
     while(true) {
-        uint32_t EvtMsk = chEvtWaitAny(ALL_EVENTS);
+        uint32_t Evt = chEvtWaitAny(ALL_EVENTS);
 #if 0 // ==== USB ====
         if(EvtMsk & EVTMSK_USB_READY) {
             Uart.Printf("\rUsbReady");
@@ -76,7 +68,7 @@ void App_t::ITask() {
             Uart.Printf("\rUsbSuspend");
         }
 #endif
-        if(EvtMsk & EVTMSK_UART_NEW_CMD) {
+        if(Evt & EVT_UART_NEW_CMD) {
             OnCmd((Shell_t*)&Uart);
             Uart.SignalCmdProcessed();
         }

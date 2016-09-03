@@ -14,15 +14,18 @@ struct i2cParams_t {
     GPIO_TypeDef *PGpio;
     uint16_t SclPin;
     uint16_t SdaPin;
+    AlterFunc_t PinAF;
     uint32_t Timing;    // Setting for TIMINGR register
     // DMA
     const stm32_dma_stream_t *PDmaTx;
     const stm32_dma_stream_t *PDmaRx;
+    uint32_t DmaModeTx, DmaModeRx;
     // IRQ
     uint32_t IrqEvtNumber, IrqErrorNumber;
 };
 
 #define I2C_TIMEOUT_MS      999
+#define I2C_USE_SEMAPHORE   TRUE
 
 enum i2cState_t {istIdle, istWriteRead, istWriteWrite, istRead, istWrite, istFailure};
 
@@ -36,6 +39,9 @@ private:
     void IWakeup();
     uint8_t *IPtr;  // }
     uint32_t ILen;  // } required for WriteWrite method
+#if I2C_USE_SEMAPHORE
+    binary_semaphore_t BSemaphore;
+#endif
 public:
     i2c_t(const i2cParams_t *APParams) : PParams(APParams), PThd(nullptr), IState(istIdle), IPtr(nullptr), ILen(0) {}
     void Init();

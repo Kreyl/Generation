@@ -12,8 +12,12 @@
 #include "uart.h"
 #include "evt_mask.h"
 #include "board.h"
+#include "color.h"
+#include "led.h"
+#include "vibro.h"
 
 #define APP_NAME            "ArmletG"
+
 
 class App_t {
 private:
@@ -33,3 +37,6 @@ public:
 };
 
 extern App_t App;
+
+extern LedRGB_t Led;
+extern Vibro_t Vibro;

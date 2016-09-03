@@ -24,6 +24,7 @@
 
 //  Periphery
 #define I2C1_ENABLED            TRUE
+#define I2C2_ENABLED            FALSE
 #define I2C3_ENABLED            TRUE
 
 #define ADC_REQUIRED            FALSE
@@ -36,17 +37,24 @@
 #define UART_RX_PIN     3
 #define UART_AF         AF7 // for all USARTs
 
-// LEDs GPIO and timer
-#define LED_RED         { GPIOC, 6, TIM3, 1 }
-#define LED_GREEN       { GPIOC, 7, TIM3, 2 }
-#define LED_BLUE        { GPIOC, 8, TIM3, 3 }
+// LEDs
+#define LED_RED_CH      { GPIOC, 6, TIM3, 1, invInverted, omPushPull, 255 }
+#define LED_GREEN_CH    { GPIOC, 7, TIM3, 2, invInverted, omPushPull, 255 }
+#define LED_BLUE_CH     { GPIOC, 8, TIM3, 3, invInverted, omPushPull, 255 }
+
 #define LED_WHITE       { GPIOC, 9, TIM3, 4 }
 
+// Vibro
+#define VIBRO_TOP       100
+#define VIBRO_PIN       { GPIOB, 15, TIM15, 2, invNotInverted, omPushPull, VIBRO_TOP }
+
 // Mems
-#define MEMS_PWR        { GPIOC, 12 }
+#define MEMS_PWR_GPIO   GPIOC
+#define MEMS_PWR_PIN    12
 
 // EE
-#define EE_PWR          { GPIOC, 2 }
+#define EE_PWR_GPIO     GPIOC
+#define EE_PWR_PIN      2
 
 // I2C
 #define I2C1_GPIO       GPIOB
@@ -58,9 +66,23 @@
 #define I2C3_GPIO       GPIOC
 #define I2C3_SCL        0
 #define I2C3_SDA        1
+// I2C Alternate Function
+#define I2C_AF          AF4
 
 // IR LED
 //#define LED_IR          { GPIOA, 4 }
+
+// Radio
+#define CC_GPIO         GPIOA
+#define CC_GDO2         NC
+#define CC_GDO0         0
+#define CC_SCK          5
+#define CC_MISO         6
+#define CC_MOSI         7
+#define CC_CS           1
+// Input pin
+#define CC_GDO0_IRQ     { CC_GPIO, CC_GDO0, pudNone }
+
 #endif // GPIO
 
 #if 1 // ========================= Timer =======================================
@@ -75,6 +97,8 @@
 #endif
 
 #if 1 // =========================== SPI =======================================
+#define CC_SPI          SPI1
+#define CC_SPI_AF       AF5
 #endif
 
 #if 1 // ========================== USART ======================================
@@ -115,7 +139,7 @@
 
 // ==== I2C ====
 #define I2C1_DMA_TX     STM32_DMA2_STREAM7
-#define I2C1_DMA_RX     STM32_DMA1_STREAM6
+#define I2C1_DMA_RX     STM32_DMA2_STREAM6
 #define I2C1_DMA_CHNL   5
 #define I2C2_DMA_TX     STM32_DMA1_STREAM4
 #define I2C2_DMA_RX     STM32_DMA1_STREAM5
@@ -124,8 +148,8 @@
 #define I2C3_DMA_RX     STM32_DMA1_STREAM3
 #define I2C3_DMA_CHNL   3
 
-#define STM32_I2C_I2C3_RX_DMA_STREAM   STM32_DMA_STREAM_ID(1, 3)
-#define STM32_I2C_I2C3_TX_DMA_STREAM   STM32_DMA_STREAM_ID(1, 2)
+//#define STM32_I2C_I2C3_RX_DMA_STREAM   STM32_DMA_STREAM_ID(1, 3)
+//#define STM32_I2C_I2C3_TX_DMA_STREAM   STM32_DMA_STREAM_ID(1, 2)
 
 
 #if ADC_REQUIRED
