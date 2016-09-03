@@ -3,8 +3,6 @@
 #include "matrix.h"
 #include "unify_definition.h"
 
-#include "uart.h"
-
 float getDist(const float a[DIMENTION], const float b[DIMENTION]) {
     float delta = 0;
     float d;
@@ -31,7 +29,7 @@ void unifyStroke(float stroke[STROKE_MAX_LENGTH][DIMENTION], float newStroke[SEG
     strokeLengths[0] = 0;
 
     for (i = 1; i < length; i++) {
-        strokeLengths[i] = strokeLengths[i - 1] + getDist(stroke[i - 1], stroke[i]);
+        strokeLengths[i] = strokeLengths[i - 1] + getDist(stroke[i - 1], stroke[i]);       
     }
 
     step = strokeLengths[length - 1] / (SEGMENTATION - 1);
@@ -53,7 +51,7 @@ void unifyStroke(float stroke[STROKE_MAX_LENGTH][DIMENTION], float newStroke[SEG
             newStrokeId += 1;
             nextLength += step;
         }
-    }
+    } 
 
 }
 
@@ -78,9 +76,8 @@ float checkStroke(float stroke[SEGMENTATION][DIMENTION], const float description
     return sqrtf(result / SEGMENTATION);
 }
 
-static float unifiedStroke[SEGMENTATION][DIMENTION];
-
 int getStroke(float stroke[STROKE_MAX_LENGTH][DIMENTION], int length) {
+    float unifiedStroke[SEGMENTATION][DIMENTION];
     unifyStroke(stroke, unifiedStroke, length);
     int i;
     float error;
@@ -102,7 +99,7 @@ int getStroke(float stroke[STROKE_MAX_LENGTH][DIMENTION], int length) {
         } else {
             if (second < 0) {
                 second = error;
-            }
+            }            
         }
     }
     if ((min_error != 0) && ((second / min_error) <= COMPARE_LIMIT)) {

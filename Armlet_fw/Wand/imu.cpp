@@ -7,7 +7,7 @@ IMU::IMU() {
     resetCalibration();
 }
 
-bool IMU::calc(const float delta,
+bool IMU::calc(const float delta, 
                const float accIn[DIMENTION], const float gyroIn[DIMENTION], const float magIn[DIMENTION],
                int axis,
                float * gyroOut, float accOut[DIMENTION], float headingOut[DIMENTION])
@@ -228,11 +228,11 @@ void IMU::driftCorrection(float accelWeight, float errorYaw[DIMENTION], float er
     scaleVec(omegaP, errorRollPitch, KP_ROLLPITCH * accelWeight);
     addVec(omegaP, omegaP, scaledOmegaP);
 
-    scaleVec(scaledOmegaI, errorYaw, KI_YAW);
+    scaleVec(scaledOmegaI, errorYaw, KI_YAW); 
     scaleVec(additionalOmegaI, errorRollPitch, KI_ROLLPITCH * accelWeight);
 
     addVec(omegaI, omegaI, additionalOmegaI);
-    addVec(omegaI, omegaI, scaledOmegaI);
+    addVec(omegaI, omegaI, scaledOmegaI);    
 }
 
 void IMU::eulerAngles() {
