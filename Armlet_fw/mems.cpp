@@ -10,10 +10,13 @@
 
 #include "cc1101.h"
 #include "radio_lvl1.h"
-#include "state_machine.h"
+//#include "state_machine.h"
+#include "full_state_machine.h"
 #include "main.h"
+#include "qpc.h"
 
-StateMachine stateMachine(0);
+//StateMachine stateMachine(0);
+FullStateMachine fullStateMachine(0);
 
 Color_t ClrTbl[] = {
         clBlack,
@@ -26,13 +29,13 @@ Color_t ClrTbl[] = {
         clBlue      // CALIBRATION
 };
 
-static LedRGBChunk_t lsqBlink[] = {
-        {csSetup, 0, clGreen},
-        {csWait, 180},
-        {csSetup, 0, clBlack},
-        {csWait, 180},
-        {csGoto, 0}
-};
+//static LedRGBChunk_t lsqBlink[] = {
+//        {csSetup, 0, clGreen},
+//        {csWait, 180},
+//        {csSetup, 0, clBlack},
+//        {csWait, 180},
+//        {csGoto, 0}
+//};
 
 static THD_WORKING_AREA(waMemsThread, 4096);
 __noreturn
@@ -76,18 +79,24 @@ void Mems_t::ITask() {
 
 //        Uart.Printf("%u;   %d; %d; %d;   %d; %d; %d;   %d; %d; %d\r\n", IPkt.Time,  IPkt.gyro[0], IPkt.gyro[1], IPkt.gyro[2], IPkt.acc[0],  IPkt.acc[1],  IPkt.acc[2], IPkt.mag[0],  IPkt.mag[1],  IPkt.mag[2]);
 
-        uint32_t Tempor = chVTGetSystemTimeX();
-        int Rslt = stateMachine.setData(Delta, acc, gyro, mag);
-        Tempor = chVTGetSystemTimeX() - Tempor;
-        Uart.Printf("%u   %f %d  %u\r", chVTGetSystemTimeX(), Delta, Rslt, Tempor);
+//        uint32_t Tempor = chVTGetSystemTimeX();
+//        int Rslt = stateMachine.setData(Delta, acc, gyro, mag);
+
+//        Uart.Printf("1\r");
+
+        bool IsCalibrating = !fullStateMachine.setData(Delta, acc, gyro, mag);
+//        Uart.Printf("2\r");
+        if(IsCalibrating) Uart.Printf("Calibrating\r");
+//        Tempor = chVTGetSystemTimeX() - Tempor;
+//        Uart.Printf("%u   %f %d  %u\r", chVTGetSystemTimeX(), Delta, Rslt, Tempor);
 //        Uart.Printf("%u \r", Tempor);
 
-        switch(Rslt) {
-            case 2: Led.SetColor(clRed); break;
-            case 3: Led.SetColor(clGreen); break;
-            case 4: Led.SetColor(clBlue); break;
-            default: break;
-        }
+//        switch(Rslt) {
+//            case 2: Led.SetColor(clRed); break;
+//            case 3: Led.SetColor(clGreen); break;
+//            case 4: Led.SetColor(clBlue); break;
+//            default: break;
+//        }
 
 //        uint8_t ClrN;
 //        uint16_t BlinkOn, BlinkOff;
@@ -164,6 +173,17 @@ uint8_t Mems_t::Init() {
 //    AccOffset [1] /= 32;
 //    AccOffset [2] /= 32;
 //    AccOffset[2] -= GRAVITY;
+
+
+    Biotics_ctor();
+    QMSM_INIT(the_biotics, (QEvt *)0);
+    Hand_ctor();
+    QMSM_INIT(the_hand, (QEvt *)0);
+
+    DebugSM = 0;
+    QEvt e;
+    e.sig = MAX_PILL_SIG;
+    QMSM_DISPATCH(the_hand, &e);
 
     // Thread
     chThdCreateStatic(waMemsThread, sizeof(waMemsThread), NORMALPRIO, (tfunc_t)MemsThread, NULL);
