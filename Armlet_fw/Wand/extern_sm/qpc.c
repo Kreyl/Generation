@@ -38,7 +38,7 @@ void QMsm_init_(QHsm *me, QEvt const * const e){
 extern void PrintfC(const char *format, ...);
 
 QState QMsm_dispatch_(QHsm *me, QEvt const * const e) {
-    PrintfC("%S: %u\r", __FUNCTION__, e->sig);
+//    PrintfC("%S: %u\r", __FUNCTION__, e->sig);
    QStateHandler s = me->state.fun;                /* save the current state */
    QStateHandler t;                             /* save state in transitions */
    QState r = (*s)(me, e);                         /* call the event handler */

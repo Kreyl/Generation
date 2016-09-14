@@ -4,6 +4,8 @@
 #include "knowledge.h"
 #include <stdio.h>
 
+extern void DbgBeep(uint32_t Indx);
+
 FullStateMachine::FullStateMachine(int axis) : innerMachine(axis) {
     innerTimer = 0;
 }
@@ -19,6 +21,7 @@ bool FullStateMachine::setData(const float delta,
         QEvt e;
         if (innerState > IDLE) {
             e.sig = SIG_MAP[innerState - STATES_OFFSET];
+            DbgBeep(innerState - STATES_OFFSET);
             QMSM_DISPATCH(the_hand, &e);
             QMSM_DISPATCH(the_biotics, &e);
         }

@@ -13,7 +13,31 @@
 //#include "state_machine.h"
 #include "full_state_machine.h"
 #include "main.h"
+
 #include "qpc.h"
+
+#include "beeper.h"
+#include "Sequences.h"
+
+extern Beeper_t Beeper;
+
+void DbgBeep(uint32_t Indx) {
+    switch(Indx) {
+        case 0: Beeper.StartSequence(bsqCharge); break;
+        case 1: Beeper.StartSequence(bsqThrow); break;
+        case 2: Beeper.StartSequence(bsqPunch); break;
+        case 3: Beeper.StartSequence(bsqLift); break;
+        case 4: Beeper.StartSequence(bsqWarp); break;
+        case 5: Beeper.StartSequence(bsqBarrier); break;
+        case 6: Beeper.StartSequence(bsqCleanse); break;
+        case 7: Beeper.StartSequence(bsqSingular); break;
+        case 8: Beeper.StartSequence(bsqSong); break;
+        case 9: Beeper.StartSequence(bsqRelease); break;
+        case 10: Beeper.StartSequence(bsqPwrRelease); break;
+        default: break;
+    }
+}
+
 
 //StateMachine stateMachine(0);
 FullStateMachine fullStateMachine(0);
@@ -47,6 +71,7 @@ static void MemsThread(void *arg) {
 __noreturn
 void Mems_t::ITask() {
     uint32_t PrevTime = 0;
+    bool WasCalibrating = false;
 
     while(true) {
         chThdSleepMilliseconds(16);
@@ -85,8 +110,15 @@ void Mems_t::ITask() {
 //        Uart.Printf("1\r");
 
         bool IsCalibrating = !fullStateMachine.setData(Delta, acc, gyro, mag);
+        if(IsCalibrating and !WasCalibrating) {
+            WasCalibrating = true;
+        }
+        else if(!IsCalibrating and WasCalibrating) {
+            WasCalibrating = false;
+            Beeper.StartSequence(bsqBeepBeep);
+        }
 //        Uart.Printf("2\r");
-        if(IsCalibrating) Uart.Printf("Calibrating\r");
+//        if(IsCalibrating) Uart.Printf("Calibrating\r");
 //        Tempor = chVTGetSystemTimeX() - Tempor;
 //        Uart.Printf("%u   %f %d  %u\r", chVTGetSystemTimeX(), Delta, Rslt, Tempor);
 //        Uart.Printf("%u \r", Tempor);
@@ -148,32 +180,6 @@ uint8_t Mems_t::Init() {
     magWriteReg(MAG_CRA_REG, 0b00001100); // DO = 011 (7.5 Hz ODR)
     magWriteReg(MAG_CRB_REG, 0b00100000); // GN = 001 (+/- 1.3 gauss full scale)
     magWriteReg(MAG_MR_REG,  0b00000000); // MD = 00 (continuous-conversion mode)
-//    magReadReg(MAG_CRA_REG, &v);
-//    Uart.Printf("mag: %X\r", v);
-
-    // Calibrate
-//    int16_t raw[3];
-//    for(int i=0; i<32; i++) {
-//        chThdSleepMilliseconds(20);
-//        // Gyro
-//        gyroReadRaw(raw);
-//        GyroOffset[0] += raw[0];
-//        GyroOffset[1] += raw[1];
-//        GyroOffset[2] += raw[2];
-//        // Acc
-//        AccReadRaw(raw);
-//        AccOffset[0] += raw[0];
-//        AccOffset[1] += raw[1];
-//        AccOffset[2] += raw[2];
-//    }
-//    GyroOffset[0] /= 32;
-//    GyroOffset[1] /= 32;
-//    GyroOffset[2] /= 32;
-//    AccOffset [0] /= 32;
-//    AccOffset [1] /= 32;
-//    AccOffset [2] /= 32;
-//    AccOffset[2] -= GRAVITY;
-
 
     Biotics_ctor();
     QMSM_INIT(the_biotics, (QEvt *)0);

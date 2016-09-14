@@ -188,7 +188,7 @@ const LedChunk_t lsqBlinkGreenX2[] = {
 };
 #endif
 
-#if 1 // ============================ LED RGB ==================================
+#if 0 // ============================ LED RGB ==================================
 LedRGBChunk_t lsqStart[] = {
         {csSetup, 180, clGreen},
         {csSetup, 180, (Color_t){0, 1, 0}},
@@ -233,8 +233,8 @@ const LedSmoothChunk_t lsqEnterIdle[] = {
 
 #endif
 
-#if 0 // ============================= Beeper ==================================
-#define BEEP_VOLUME     2   // Maximum 10
+#if 1 // ============================= Beeper ==================================
+#define BEEP_VOLUME     1   // Maximum 10
 
 #if 1 // ==== Notes ====
 #define La_2    880
@@ -273,6 +273,15 @@ const LedSmoothChunk_t lsqEnterIdle[] = {
 #define OneWhole        (OneSixteenth * 16)
 #endif
 
+// MORSE
+#define MORSE_TONE {csSetup, BEEP_VOLUME, Do_3}
+#define MORSE_DOT_LENGTH 180
+#define MORSE_DASH_LENGTH MORSE_DOT_LENGTH * 3
+#define MORSE_PAUSE_LENGTH MORSE_DOT_LENGTH
+#define MORSE_PAUSE {csSetup, 0}, {csWait, MORSE_PAUSE_LENGTH}
+#define MORSE_DOT MORSE_TONE, {csWait, MORSE_DOT_LENGTH}, MORSE_PAUSE
+#define MORSE_DASH MORSE_TONE, {csWait, MORSE_DASH_LENGTH}, MORSE_PAUSE
+
 // Type, BEEP_VOLUME, freq
 const BeepChunk_t bsqOn[] = {
         {csSetup, 10, 7000},
@@ -295,6 +304,58 @@ const BeepChunk_t bsqBeepBeep[] = {
         {csSetup, 0},
         {csEnd}
 };
+
+const BeepChunk_t bsqCharge[] = {
+        MORSE_DOT, MORSE_DASH,
+        {csEnd}
+};
+const BeepChunk_t bsqThrow[] = {
+        MORSE_DOT,
+        {csEnd}
+};
+const BeepChunk_t bsqPunch[] = {
+        MORSE_DOT, MORSE_DASH, MORSE_DASH, MORSE_DOT,
+        {csEnd}
+};
+const BeepChunk_t bsqLift[] = {
+        MORSE_DOT, MORSE_DASH, MORSE_DOT, MORSE_DOT,
+        {csEnd}
+};
+const BeepChunk_t bsqWarp[] = {
+        MORSE_DOT, MORSE_DASH, MORSE_DASH,
+        {csEnd}
+};
+const BeepChunk_t bsqBarrier[] = {
+        MORSE_DASH, MORSE_DOT, MORSE_DOT, MORSE_DOT,
+        {csEnd}
+};
+const BeepChunk_t bsqCleanse[] = {
+        MORSE_DASH, MORSE_DOT, MORSE_DASH, MORSE_DOT,
+        {csEnd}
+};
+const BeepChunk_t bsqSingular[] = {
+        MORSE_DOT, MORSE_DOT, MORSE_DOT,
+        {csEnd}
+};
+const BeepChunk_t bsqSong[] = {
+        {csSetup, BEEP_VOLUME, Sol_3},
+        {csWait, 360},
+        {csSetup, BEEP_VOLUME, Mi_3},
+        {csWait, 360},
+        {csSetup, BEEP_VOLUME, Do_3},
+        {csWait, 360},
+        {csSetup, 0},
+        {csEnd}
+};
+const BeepChunk_t bsqRelease[] = {
+        MORSE_DOT, MORSE_DASH, MORSE_DOT,
+        {csEnd}
+};
+const BeepChunk_t bsqPwrRelease[] = {
+        MORSE_DASH, MORSE_DOT, MORSE_DOT, MORSE_DASH,
+        {csEnd}
+};
+
 
 #if 1 // ==== Extensions ====
 // Pill

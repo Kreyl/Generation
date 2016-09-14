@@ -51,6 +51,7 @@ typedef struct {
 #define QMSM_DISPATCH(me_, e_) (QMsm_dispatch_(me_, e_))
 #define QMSM_INIT(me_, e_) (QMsm_init_(me_, e_))    // Macro for external calls
                                                     // for compatibility with QP
+
 #ifdef __cplusplus
 extern "C" {
 #endif
