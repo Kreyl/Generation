@@ -188,27 +188,32 @@ const LedChunk_t lsqBlinkGreenX2[] = {
 };
 #endif
 
-#if 0 // ============================ LED RGB ==================================
-LedRGBChunk_t lsqStart[] = {
-        {csSetup, 180, clGreen},
-        {csSetup, 180, (Color_t){0, 1, 0}},
-        {csEnd}
-};
+#if 1 // ============================ LED RGB ==================================
+extern LedRGBChunk_t lsqStart[];
+//LedRGBChunk_t lsqStart[] = {
+//        {csSetup, 0, clDarkRed},
+//        {csWait, 99},
+//        {csSetup, 0, clDarkGreen},
+//        {csWait, 99},
+//        {csSetup, 0, clDarkBlue},
+//        {csWait, 99},
+//        {csGoto, 0}
+//};
 
-const LedRGBChunk_t lsqFailure[] = {
-        {csSetup, 0, clRed},
-        {csWait, 99},
-        {csSetup, 0, clBlack},
-        {csWait, 99},
-        {csSetup, 0, clRed},
-        {csWait, 99},
-        {csSetup, 0, clBlack},
-        {csWait, 99},
-        {csSetup, 0, clRed},
-        {csWait, 99},
-        {csSetup, 0, clBlack},
-        {csEnd}
-};
+//const LedRGBChunk_t lsqFailure[] = {
+//        {csSetup, 0, clRed},
+//        {csWait, 99},
+//        {csSetup, 0, clBlack},
+//        {csWait, 99},
+//        {csSetup, 0, clRed},
+//        {csWait, 99},
+//        {csSetup, 0, clBlack},
+//        {csWait, 99},
+//        {csSetup, 0, clRed},
+//        {csWait, 99},
+//        {csSetup, 0, clBlack},
+//        {csEnd}
+//};
 #endif
 
 #if 0 // =========================== LED Smooth ================================
@@ -405,6 +410,71 @@ const BaseChunk_t vsqBrrBrr[] = {
         {csSetup, 0},
         {csEnd}
 };
+
+
+// Gestures
+#define VMORSE_TONE         {csSetup, VIBRO_VOLUME}
+#define VMORSE_DOT_LENGTH   180
+#define VMORSE_DASH_LENGTH  VMORSE_DOT_LENGTH * 3
+#define VMORSE_PAUSE_LENGTH VMORSE_DOT_LENGTH
+#define VMORSE_PAUSE        {csSetup, 0}, {csWait, VMORSE_PAUSE_LENGTH}
+#define VMORSE_DOT          VMORSE_TONE, {csWait, VMORSE_DOT_LENGTH}, VMORSE_PAUSE
+#define VMORSE_DASH         VMORSE_TONE, {csWait, VMORSE_DASH_LENGTH}, VMORSE_PAUSE
+
+
+const BaseChunk_t vsqCharge[] = {
+        VMORSE_DOT, VMORSE_DASH,
+        {csEnd}
+};
+const BaseChunk_t vsqThrow[] = {
+        VMORSE_DOT,
+        {csEnd}
+};
+const BaseChunk_t vsqPunch[] = {
+        VMORSE_DOT, VMORSE_DASH, VMORSE_DASH, VMORSE_DOT,
+        {csEnd}
+};
+const BaseChunk_t vsqLift[] = {
+        VMORSE_DOT, VMORSE_DASH, VMORSE_DOT, VMORSE_DOT,
+        {csEnd}
+};
+const BaseChunk_t vsqWarp[] = {
+        VMORSE_DOT, VMORSE_DASH, VMORSE_DASH,
+        {csEnd}
+};
+const BaseChunk_t vsqBarrier[] = {
+        VMORSE_DASH, VMORSE_DOT, VMORSE_DOT, VMORSE_DOT,
+        {csEnd}
+};
+const BaseChunk_t vsqCleanse[] = {
+        VMORSE_DASH, VMORSE_DOT, VMORSE_DASH, VMORSE_DOT,
+        {csEnd}
+};
+const BaseChunk_t vsqSingular[] = {
+        VMORSE_DOT, VMORSE_DOT, VMORSE_DOT,
+        {csEnd}
+};
+const BaseChunk_t vsqSong[] = {
+        {csSetup, 30},
+        {csWait, 360},
+        {csSetup, 60},
+        {csWait, 360},
+        {csSetup, 100},
+        {csWait, 360},
+        {csSetup, 0},
+        {csEnd}
+};
+const BaseChunk_t vsqRelease[] = {
+        VMORSE_DOT, VMORSE_DASH, VMORSE_DOT,
+        {csEnd}
+};
+const BaseChunk_t vsqPwrRelease[] = {
+        VMORSE_DASH, VMORSE_DOT, VMORSE_DOT, VMORSE_DASH,
+        {csEnd}
+};
+
+
+
 
 /*
 const BaseChunk_t vsqError[] = {

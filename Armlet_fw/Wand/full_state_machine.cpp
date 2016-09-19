@@ -3,8 +3,13 @@
 #include "extern_sm/generation_light.h"
 #include "knowledge.h"
 #include <stdio.h>
+#include "board.h"
+
+#include "led.h"
+#include "Sequences.h"
 
 extern void DbgBeep(uint32_t Indx);
+extern void DbgVibro(uint32_t Indx);
 
 FullStateMachine::FullStateMachine(int axis) : innerMachine(axis) {
     innerTimer = 0;
@@ -18,10 +23,14 @@ bool FullStateMachine::setData(const float delta,
     if (innerState == CALIBRATION) {
         return false;
     } else {
+        if(Led.GetCurrentSequence() == lsqStart) Led.Stop();
         QEvt e;
         if (innerState > IDLE) {
             e.sig = SIG_MAP[innerState - STATES_OFFSET];
+#if DEBUG_OTK
             DbgBeep(innerState - STATES_OFFSET);
+            DbgVibro(innerState - STATES_OFFSET);
+#endif
             QMSM_DISPATCH(the_hand, &e);
             QMSM_DISPATCH(the_biotics, &e);
         }

@@ -10,7 +10,10 @@
 #include <inttypes.h>
 
 // ==== General ====
-#define BOARD_NAME          "ArmletG vNucleo"
+#define BOARD_NAME          "ArmletG"
+
+#define DEBUG_OTK           0
+
 // MCU type as defined in the ST header.
 #define STM32L476xx
 

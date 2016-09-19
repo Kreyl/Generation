@@ -24,6 +24,16 @@ Vibro_t Vibro {VIBRO_PIN};
 
 Beeper_t Beeper {BEEPER_PIN};
 
+LedRGBChunk_t lsqStart[] = {
+        {csSetup, 0, clDarkRed},
+        {csWait, 99},
+        {csSetup, 0, clDarkGreen},
+        {csWait, 99},
+        {csSetup, 0, clDarkBlue},
+        {csWait, 99},
+        {csGoto, 0}
+};
+
 int main(void) {
     // ==== Setup clock frequency ====
     Clk.UpdateFreqValues();
@@ -51,7 +61,7 @@ int main(void) {
 //    ee.On();
 
 //    if(Radio.Init() == OK) {
-//        Led.StartSequence(lsqStart);
+
         Vibro.StartSequence(vsqBrrBrr);
 //    }
 //    else Led.StartSequence(lsqFailure);

@@ -43,7 +43,9 @@ void RGB_blink_stop() {
 }
 
 void vibro(uint8_t Power) {
+#if !DEBUG_OTK
     Vibro.Set(Power);
+#endif
 
     Uart.Printf("Vibro %u\r", Power);
 }

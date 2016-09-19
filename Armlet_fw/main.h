@@ -18,7 +18,6 @@
 
 #define APP_NAME            "ArmletG"
 
-
 class App_t {
 private:
     thread_t *PThread;

@@ -183,6 +183,8 @@ public:
         B.Set(AB);
     }
 };
+
+extern LedRGB_t Led;
 #endif
 
 #if 0 // =========================== RGB LED with power ========================

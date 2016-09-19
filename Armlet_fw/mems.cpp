@@ -38,6 +38,22 @@ void DbgBeep(uint32_t Indx) {
     }
 }
 
+void DbgVibro(uint32_t Indx) {
+    switch(Indx) {
+        case 0: Vibro.StartSequence(vsqCharge); break;
+        case 1: Vibro.StartSequence(vsqThrow); break;
+        case 2: Vibro.StartSequence(vsqPunch); break;
+        case 3: Vibro.StartSequence(vsqLift); break;
+        case 4: Vibro.StartSequence(vsqWarp); break;
+        case 5: Vibro.StartSequence(vsqBarrier); break;
+        case 6: Vibro.StartSequence(vsqCleanse); break;
+        case 7: Vibro.StartSequence(vsqSingular); break;
+        case 8: Vibro.StartSequence(vsqSong); break;
+        case 9: Vibro.StartSequence(vsqRelease); break;
+        case 10: Vibro.StartSequence(vsqPwrRelease); break;
+        default: break;
+    }
+}
 
 //StateMachine stateMachine(0);
 FullStateMachine fullStateMachine(0);
@@ -185,6 +201,8 @@ uint8_t Mems_t::Init() {
     QMSM_INIT(the_biotics, (QEvt *)0);
     Hand_ctor();
     QMSM_INIT(the_hand, (QEvt *)0);
+
+    Led.StartSequence(lsqStart);    // Show Calibration Ongoing
 
     DebugSM = 0;
     QEvt e;

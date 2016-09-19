@@ -9,7 +9,7 @@
 
 #include "color.h"
 #include "ch.h"
-#include "uart.h"
+//#include "uart.h"
 
 enum ChunkSort_t {csSetup, csWait, csGoto, csEnd};
 
