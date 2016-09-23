@@ -129,6 +129,27 @@ void i2c_t::ScanBus() {
     chBSemSignal(&BSemaphore);
 }
 
+uint8_t i2c_t::CheckAddress(uint32_t Addr) {
+    if(chBSemWait(&BSemaphore) != MSG_OK) return FAILURE;
+    uint8_t Rslt;
+    I2C_TypeDef *pi2c = PParams->pi2c;  // To make things shorter
+    if(IBusyWait() != OK) {
+        Rslt = BUSY;
+        Uart.Printf("i2cC Busy\r");
+        goto ChckEnd;
+    }
+    IReset(); // Reset I2C
+    pi2c->CR2 = (Addr << 1) | I2C_CR2_AUTOEND;
+    pi2c->CR2 |= I2C_CR2_START;     // Start
+    while(!(pi2c->ISR & I2C_ISR_STOPF));
+    if(pi2c->ISR & I2C_ISR_NACKF) Rslt = NOT_FOUND;
+    else Rslt = OK;
+
+    ChckEnd:
+    chBSemSignal(&BSemaphore);
+    return Rslt;
+}
+
 uint8_t i2c_t::Write(uint32_t Addr, uint8_t *WPtr, uint32_t WLength) {
     if(chBSemWait(&BSemaphore) != MSG_OK) return FAILURE;
     uint8_t Rslt;
@@ -262,6 +283,19 @@ void i2c_t::IReset() {
     PParams->pi2c->CR1 &= ~I2C_CR1_PE;
     __NOP(); __NOP(); __NOP();  // Wait 3 cycles
     PParams->pi2c->CR1 |= I2C_CR1_PE;
+}
+
+void i2c_t::Standby() {
+    PParams->pi2c->CR1 &= ~I2C_CR1_PE;
+    PinSetupAnalog(PParams->PGpio, PParams->SclPin);
+    PinSetupAnalog(PParams->PGpio, PParams->SdaPin);
+    __NOP(); __NOP(); __NOP();  // Wait 3 cycles
+}
+
+void i2c_t::Resume() {
+    PParams->pi2c->CR1 |= I2C_CR1_PE;
+    PinSetupAlterFunc(PParams->PGpio, PParams->SclPin, omOpenDrain, pudNone, PParams->PinAF);
+    PinSetupAlterFunc(PParams->PGpio, PParams->SdaPin, omOpenDrain, pudNone, PParams->PinAF);
 }
 
 uint8_t i2c_t::IBusyWait() {

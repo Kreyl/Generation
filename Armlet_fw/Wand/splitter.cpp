@@ -7,12 +7,14 @@
 Splitter::Splitter() {
     strokeLength = -1;
     filter = Filter();
+    timer = GYRO_TIMEOUT;
+    GyroTimeout = GYRO_TIMEOUT;
 }
 
 void Splitter::resetSize() {
     int i,j;
     for (i=0; i<DIMENTION; i++) {
-        for (j=0; j<2; j++){ 
+        for (j=0; j<2; j++){
             positionsRange[j][i] = 0;
         }
         position[i] = 0;
@@ -37,7 +39,7 @@ void Splitter::processSize(const float accel[DIMENTION], const float delta) {
 
     addVec(position, position, deltaP);
 
-    adjustRange(positionsRange, position);    
+    adjustRange(positionsRange, position);
 }
 
 int Splitter::setIMUData(const float delta, const float gyro, const float accel[DIMENTION], const float heading[DIMENTION]) {
@@ -54,12 +56,12 @@ int Splitter::setIMUData(const float delta, const float gyro, const float accel[
     processSize(filter.setInput(accel, delta), delta);
 
     if (gyro > GYRO_MIN) {
-        timer = GYRO_TIMEOUT;
+        timer = GyroTimeout;
         if (strokeLength == 0) {
             y[0] = heading[0];
             y[1] = heading[1];
             y[2] = 0;
-            
+
             z[0] = 0;
             z[1] = 0;
             z[2] = 1;
@@ -92,7 +94,7 @@ int Splitter::setIMUData(const float delta, const float gyro, const float accel[
         timer--;
         if (timer == 0) {
             subVec(dimentionVec, positionsRange[1], positionsRange[0]);
-            dimention = norm(dimentionVec);  
+            dimention = norm(dimentionVec);
 
             if ((MIN_STROKE_LENGTH < strokeLength) && (strokeLength <= STROKE_MAX_LENGTH) && (dimention > MIN_DIMENTION)) {
                 result = getStroke(buffer, strokeLength);

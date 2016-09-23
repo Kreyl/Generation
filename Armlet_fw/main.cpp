@@ -12,7 +12,10 @@
 #include "i2cL476.h"
 #include "radio_lvl1.h"
 #include "Sequences.h"
+#include "pill_mgr.h"
+
 #include "beeper.h"
+
 
 #include "qpc.h"
 #include "full_state_machine.h"
@@ -55,7 +58,10 @@ int main(void) {
     Beeper.Init();
 
     i2c1.Init();
+    i2c2.Init();
 //    i2c3.Init();
+
+    PillMgr.Init();
 
 //    ee.Init();
 //    ee.On();

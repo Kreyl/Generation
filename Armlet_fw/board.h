@@ -27,7 +27,7 @@
 
 //  Periphery
 #define I2C1_ENABLED            TRUE
-#define I2C2_ENABLED            FALSE
+#define I2C2_ENABLED            TRUE
 #define I2C3_ENABLED            TRUE
 
 #define ADC_REQUIRED            FALSE
@@ -76,6 +76,9 @@
 #define I2C3_SDA        1
 // I2C Alternate Function
 #define I2C_AF          AF4
+
+// Pill power
+#define PILL_PWR_PIN    { GPIOB, 12, omPushPull }
 
 // IR LED
 //#define LED_IR          { GPIOA, 4 }
