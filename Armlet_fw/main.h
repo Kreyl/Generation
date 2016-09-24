@@ -16,7 +16,7 @@
 #include "led.h"
 #include "vibro.h"
 
-#define APP_NAME            "ArmletG"
+#define APP_NAME            "ArmletRedTransmitter"
 
 class App_t {
 private:

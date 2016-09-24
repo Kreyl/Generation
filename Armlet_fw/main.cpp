@@ -8,37 +8,18 @@
 #include "main.h"
 #include "hal.h"
 #include "ee.h"
-#include "mems.h"
 #include "i2cL476.h"
 #include "radio_lvl1.h"
 #include "Sequences.h"
 #include "pill_mgr.h"
 
-#include "beeper.h"
-
-
-#include "qpc.h"
-#include "full_state_machine.h"
-
 App_t App;
-Mems_t Mems(&i2c1);
 LedRGB_t Led { LED_RED_CH, LED_GREEN_CH, LED_BLUE_CH };
 Vibro_t Vibro {VIBRO_PIN};
 
-Beeper_t Beeper {BEEPER_PIN};
-
-LedRGBChunk_t lsqStart[] = {
-        {csSetup, 0, clDarkRed},
-        {csWait, 99},
-        {csSetup, 0, clDarkGreen},
-        {csWait, 99},
-        {csSetup, 0, clDarkBlue},
-        {csWait, 99},
-        {csGoto, 0}
-};
-
 int main(void) {
     // ==== Setup clock frequency ====
+    Clk.SetupBusDividers(ahbDiv2, apbDiv1, apbDiv1);
     Clk.UpdateFreqValues();
 
     // Init OS
@@ -55,25 +36,21 @@ int main(void) {
     Led.Init();
     Vibro.Init();
 
-    Beeper.Init();
-
-    i2c1.Init();
-    i2c2.Init();
+//    i2c1.Init();
+//    i2c2.Init();
 //    i2c3.Init();
 
-    PillMgr.Init();
+//    PillMgr.Init();
 
 //    ee.Init();
 //    ee.On();
 
-//    if(Radio.Init() == OK) {
-
+    if(Radio.Init() == OK) {
         Vibro.StartSequence(vsqBrrBrr);
-//    }
-//    else Led.StartSequence(lsqFailure);
+        Led.StartSequence(lsqStart);
+    }
+    else Led.StartSequence(lsqFailure);
     chThdSleepMilliseconds(720);
-
-    Mems.Init();
 
     // Main cycle
     App.ITask();
@@ -109,10 +86,6 @@ void App_t::OnCmd(Shell_t *PShell) {
 
     else if(PCmd->NameIs("Sig")) {
         if(PCmd->GetNextInt32(&dw32) != OK) PShell->Ack(FAILURE);
-        QEvt e;
-        e.sig = SIG_MAP[dw32];
-        QMSM_DISPATCH(the_hand, &e);
-        QMSM_DISPATCH(the_biotics, &e);
     }
 
     else PShell->Ack(CMD_UNKNOWN);

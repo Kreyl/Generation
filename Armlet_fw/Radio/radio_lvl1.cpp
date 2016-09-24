@@ -30,14 +30,6 @@
 
 rLevel1_t Radio;
 
-static LedRGBChunk_t lsqBlink[] = {
-        {csSetup, 0, clGreen},
-        {csWait, 180},
-        {csSetup, 0, clBlack},
-        {csWait, 180},
-        {csGoto, 0}
-};
-
 #if 1 // ================================ Task =================================
 static THD_WORKING_AREA(warLvl1Thread, 256);
 __noreturn
@@ -49,38 +41,39 @@ static void rLvl1Thread(void *arg) {
 __noreturn
 void rLevel1_t::ITask() {
     while(true) {
-        int8_t Rssi;
-        Color_t Clr;
-        uint8_t RxRslt = CC.ReceiveSync(7, &PktRx, &Rssi);
-        if(RxRslt == OK) {
-            Uart.Printf("\rRssi=%d", Rssi);
-
-            // Blink or steady?
-            if(PktRx.BlinkOn != 0) {
-                lsqBlink[0].Color.Set(PktRx.R, PktRx.G, PktRx.B);
-                lsqBlink[1].Time_ms = PktRx.BlinkOn;
-                lsqBlink[3].Time_ms = PktRx.BlinkOff;
-                if(Led.GetCurrentSequence() == nullptr) Led.StartSequence(lsqBlink);
-            }
-            else {
-                if(Led.GetCurrentSequence() != nullptr) Led.Stop();
-                Led.SetColor(PktRx.R, PktRx.G, PktRx.B);
-            }
-
-            Vibro.Set(PktRx.VibroPwr);
-            // Send all data in queue
-            while(TxBuf.GetFullCount() != 0) {
-                // Get data
-                chSysLock();
-                rPkt_t PktTx;
-                TxBuf.Get(&PktTx);
-                chSysUnlock();
-                DBG1_SET();
-                CC.TransmitSync(&PktTx);
-                DBG1_CLR();
-                chThdSleepMilliseconds(1);
-            } // while
-        } // if rx rslt
+        chThdSleepMilliseconds(450);
+//        int8_t Rssi;
+//        Color_t Clr;
+//        uint8_t RxRslt = CC.ReceiveSync(7, &PktRx, &Rssi);
+//        if(RxRslt == OK) {
+//            Uart.Printf("\rRssi=%d", Rssi);
+//
+//            // Blink or steady?
+//            if(PktRx.BlinkOn != 0) {
+//                lsqBlink[0].Color.Set(PktRx.R, PktRx.G, PktRx.B);
+//                lsqBlink[1].Time_ms = PktRx.BlinkOn;
+//                lsqBlink[3].Time_ms = PktRx.BlinkOff;
+//                if(Led.GetCurrentSequence() == nullptr) Led.StartSequence(lsqBlink);
+//            }
+//            else {
+//                if(Led.GetCurrentSequence() != nullptr) Led.Stop();
+//                Led.SetColor(PktRx.R, PktRx.G, PktRx.B);
+//            }
+//
+//            Vibro.Set(PktRx.VibroPwr);
+//            // Send all data in queue
+//            while(TxBuf.GetFullCount() != 0) {
+//                // Get data
+//                chSysLock();
+//                rPkt_t PktTx;
+//                TxBuf.Get(&PktTx);
+//                chSysUnlock();
+//                DBG1_SET();
+//                CC.TransmitSync(&PktTx);
+//                DBG1_CLR();
+//                chThdSleepMilliseconds(1);
+//            } // while
+//        } // if rx rslt
 
 #if 0        // Demo
         if(App.Mode == 0b0001) { // RX

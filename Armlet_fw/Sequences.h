@@ -189,31 +189,30 @@ const LedChunk_t lsqBlinkGreenX2[] = {
 #endif
 
 #if 1 // ============================ LED RGB ==================================
-extern LedRGBChunk_t lsqStart[];
-//LedRGBChunk_t lsqStart[] = {
-//        {csSetup, 0, clDarkRed},
-//        {csWait, 99},
-//        {csSetup, 0, clDarkGreen},
-//        {csWait, 99},
-//        {csSetup, 0, clDarkBlue},
-//        {csWait, 99},
-//        {csGoto, 0}
-//};
+const LedRGBChunk_t lsqStart[] = {
+        {csSetup, 0, clDarkRed},
+        {csWait, 99},
+        {csSetup, 0, clDarkGreen},
+        {csWait, 99},
+        {csSetup, 0, clDarkBlue},
+        {csWait, 99},
+        {csEnd}
+};
 
-//const LedRGBChunk_t lsqFailure[] = {
-//        {csSetup, 0, clRed},
-//        {csWait, 99},
-//        {csSetup, 0, clBlack},
-//        {csWait, 99},
-//        {csSetup, 0, clRed},
-//        {csWait, 99},
-//        {csSetup, 0, clBlack},
-//        {csWait, 99},
-//        {csSetup, 0, clRed},
-//        {csWait, 99},
-//        {csSetup, 0, clBlack},
-//        {csEnd}
-//};
+const LedRGBChunk_t lsqFailure[] = {
+        {csSetup, 0, clRed},
+        {csWait, 99},
+        {csSetup, 0, clBlack},
+        {csWait, 99},
+        {csSetup, 0, clRed},
+        {csWait, 99},
+        {csSetup, 0, clBlack},
+        {csWait, 99},
+        {csSetup, 0, clRed},
+        {csWait, 99},
+        {csSetup, 0, clBlack},
+        {csEnd}
+};
 #endif
 
 #if 0 // =========================== LED Smooth ================================
