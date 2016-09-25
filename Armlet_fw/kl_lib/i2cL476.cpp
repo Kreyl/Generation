@@ -109,7 +109,7 @@ void i2c_t::ScanBus() {
     I2C_TypeDef *pi2c = PParams->pi2c;  // To make things shorter
     for(AddrHi = 0; AddrHi < 0x80; AddrHi += 0x10) {
         Uart.Printf("\r%02X: ", AddrHi);
-        for(uint32_t n=0; n<0x10; n++) {
+        for(uint32_t n=0; n < 0x10; n++) {
             Addr = AddrHi + n;
             if(Addr <= 0x01 or Addr > 0x77) Uart.Printf("   ");
             else {

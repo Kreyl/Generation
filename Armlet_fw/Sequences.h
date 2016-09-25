@@ -191,11 +191,12 @@ const LedChunk_t lsqBlinkGreenX2[] = {
 #if 1 // ============================ LED RGB ==================================
 const LedRGBChunk_t lsqStart[] = {
         {csSetup, 0, clDarkRed},
-        {csWait, 99},
+        {csWait, 180},
         {csSetup, 0, clDarkGreen},
-        {csWait, 99},
+        {csWait, 180},
         {csSetup, 0, clDarkBlue},
-        {csWait, 99},
+        {csWait, 180},
+        {csSetup, 0, clBlack},
         {csEnd}
 };
 

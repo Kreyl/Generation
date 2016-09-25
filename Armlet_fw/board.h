@@ -60,10 +60,6 @@
 #define MEMS_PWR_GPIO   GPIOC
 #define MEMS_PWR_PIN    12
 
-// EE
-#define EE_PWR_GPIO     GPIOC
-#define EE_PWR_PIN      2
-
 // I2C
 #define I2C1_GPIO       GPIOB
 #define I2C1_SCL        6
@@ -79,6 +75,8 @@
 
 // Pill power
 #define PILL_PWR_PIN    { GPIOB, 12, omPushPull }
+// EE power
+#define EE_PWR_PIN      { GPIOC, 2, omPushPull }
 
 // IR LED
 //#define LED_IR          { GPIOA, 4 }

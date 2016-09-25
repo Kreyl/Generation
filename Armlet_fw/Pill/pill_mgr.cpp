@@ -31,20 +31,20 @@ static void PillThread(void *arg) {
 }
 
 void PillMgr_t::Init() {
-    PillPwr.Init();   // Power
+    IPwrPin.Init();   // Power
     chThdCreateStatic(waPillThread, sizeof(waPillThread), NORMALPRIO, (tfunc_t)PillThread, NULL);
 }
 
 void PillMgr_t::Standby() {
     i2c->Standby();
-    PillPwr.Lo();
+    IPwrPin.Lo();
     __NOP(); __NOP(); __NOP(); __NOP(); // Allow power to fade
-    PillPwr.Deinit();
+    IPwrPin.Deinit();
 }
 
 void PillMgr_t::Resume() {
-    PillPwr.Init();
-    PillPwr.Hi();
+    IPwrPin.Init();
+    IPwrPin.Hi();
     __NOP(); __NOP(); __NOP(); __NOP(); // Allow power to rise
     i2c->Resume();
 }
@@ -104,9 +104,9 @@ uint8_t PillMgr_t::Write(uint8_t MemAddr, void *Ptr, uint32_t Length) {
                     Standby();
                     return TIMEOUT;
                 }
-                chThdSleepMilliseconds(4);   // Allow memory to complete writing
             }
         } // while trying
+        chThdSleepMilliseconds(5);   // Allow memory to complete writing
     }
     // Wait completion
     uint32_t Retries = 0;

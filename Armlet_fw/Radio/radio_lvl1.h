@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <kl_lib.h>
+#include "kl_lib.h"
 #include "ch.h"
 #include "cc1101.h"
 #include "kl_buf.h"
@@ -57,12 +57,7 @@ static inline void Lvl250ToLvl1000(uint16_t *PLvl) {
 union rPkt_t  {
     struct {
         uint32_t Time;
-        int16_t gyro[3], acc[3], mag[3];
-    };
-    struct {
         uint8_t R, G, B;
-        uint16_t BlinkOn, BlinkOff;
-        uint8_t VibroPwr;
     };
 //    uint32_t Buf[3];
 //    rPkt_t& operator = (const rPkt_t &Right) {

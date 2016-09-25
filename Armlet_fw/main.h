@@ -18,10 +18,16 @@
 
 #define APP_NAME            "ArmletRedTransmitter"
 
+// ==== Constants and default values ====
+#define ID_MIN              1
+#define ID_MAX              36
+#define ID_DEFAULT          ID_MIN
+
 class App_t {
 private:
     thread_t *PThread;
 public:
+    uint8_t ID = 0;
     // Eternal methods
     void InitThread() { PThread = chThdGetSelfX(); }
     void SignalEvt(eventmask_t Evt) {
