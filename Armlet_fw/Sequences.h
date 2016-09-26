@@ -238,7 +238,7 @@ const LedSmoothChunk_t lsqEnterIdle[] = {
 
 #endif
 
-#if 1 // ============================= Beeper ==================================
+#if 0 // ============================= Beeper ==================================
 #define BEEP_VOLUME     1   // Maximum 10
 
 #if 1 // ==== Notes ====
@@ -409,6 +409,14 @@ const BaseChunk_t vsqBrrBrr[] = {
         {csWait, VIBRO_SHORT_MS},
         {csSetup, 0},
         {csEnd}
+};
+
+const BaseChunk_t vsqActive[] = {
+        {csSetup, VIBRO_VOLUME},
+        {csWait, 99},
+        {csSetup, 0},
+        {csWait, 720},
+        {csGoto, 0}
 };
 
 

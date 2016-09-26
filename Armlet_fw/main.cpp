@@ -20,6 +20,8 @@ App_t App;
 LedRGB_t Led { LED_RED_CH, LED_GREEN_CH, LED_BLUE_CH };
 Vibro_t Vibro {VIBRO_PIN};
 
+static TmrKL_t TmrEverySecond {MS2ST(1000), EVT_EVERY_SECOND, tktPeriodic};
+
 static void ReadIDfromEE();
 static uint8_t ISetID(int32_t NewID);
 
@@ -34,7 +36,6 @@ int main(void) {
 
     // ==== Init hardware ====
     Uart.Init(115200, UART_GPIO, UART_TX_PIN, UART_GPIO, UART_RX_PIN);
-    Clk.PrintFreqs();
 
     App.InitThread();
 
@@ -50,7 +51,9 @@ int main(void) {
     ee.Init();
     ReadIDfromEE();
     Uart.Printf("\r%S %S ID=%u\r", APP_NAME, BUILD_TIME, App.ID);
+    Clk.PrintFreqs();
 
+    TmrEverySecond.InitAndStart();
 
     if(Radio.Init() == OK) {
 //        Vibro.StartSequence(vsqBrrBrr);
@@ -67,6 +70,27 @@ __attribute__ ((__noreturn__))
 void App_t::ITask() {
     while(true) {
         uint32_t Evt = chEvtWaitAny(ALL_EVENTS);
+        if(Evt & EVT_EVERY_SECOND) {
+            if(TimeLeft_s > 0) TimeLeft_s--;
+            else {
+                Led.SetColor(clBlack);
+                if(Vibro.GetCurrentSequence() != nullptr) Vibro.Stop();
+            }
+        }
+
+        if(Evt & EVT_RADIO) {
+            Color_t Clr(Radio.PktRx.R, Radio.PktRx.G, Radio.PktRx.B);
+            TimeLeft_s = Radio.PktRx.TimeLeft_s;
+            if(TimeLeft_s > 0) {
+                Led.SetColor(Clr);
+                if(Vibro.GetCurrentSequence() == nullptr) Vibro.StartSequence(vsqActive);
+            }
+            else {
+                Led.SetColor(clBlack);
+                Vibro.Stop();
+            }
+        }
+
 #if 0 // ==== USB ====
         if(EvtMsk & EVTMSK_USB_READY) {
             Uart.Printf("\rUsbReady");
@@ -79,7 +103,6 @@ void App_t::ITask() {
             OnCmd((Shell_t*)&Uart);
             Uart.SignalCmdProcessed();
         }
-
     } // while true
 }
 
