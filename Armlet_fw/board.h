@@ -126,10 +126,10 @@
 // ADC channels
 #define ADC_BATTERY_CHNL 	14
 // ADC_VREFINT_CHNL
-//#define ADC_CHANNELS        { ADC_BATTERY_CHNL, ADC_BATTERY_CHNL, ADC_BATTERY_CHNL }
-//#define ADC_CHANNEL_CNT     3   // Do not use countof(AdcChannels) as preprocessor does not know what is countof => cannot check
+#define ADC_CHANNELS        { ADC_BATTERY_CHNL, ADC_VREFINT_CHNL }
+#define ADC_CHANNEL_CNT     2   // Do not use countof(AdcChannels) as preprocessor does not know what is countof => cannot check
 #define ADC_SAMPLE_TIME     ast24d5Cycles
-#define ADC_SAMPLE_CNT      1   // How many times to measure every channel
+#define ADC_OVERSAMPLING_RATIO  64   // 1 (no oversampling), 2, 4, 8, 16, 32, 64, 128, 256
 #endif
 
 #if 1 // =========================== DMA =======================================

@@ -113,20 +113,13 @@ public:
 #endif // f4xx & L151
 
 #if defined STM32L4XX
-//ADC_BATTERY_CHNL
-//ADC_VREFINT_CHNL
-#define ADC_CHANNELS        { ADC_BATTERY_CHNL, ADC_VREFINT_CHNL, ADC_VREFINT_CHNL, ADC_VREFINT_CHNL, ADC_BATTERY_CHNL}
-#define ADC_CHANNEL_CNT     3   // Do not use countof(AdcChannels) as preprocessor does not know what is countof => cannot check
-
-
-
 #define ADC_VREFINT_CHNL        0   // Do not change, see ref man
 #define ADC_TEMPERATURE_CHNL    17
 #define ADC_VBAT_CHNL           18
 #define ADC_MAX_SEQ_LEN         16  // 1...16; Const, see ref man
 #define ADC_VREFINT_CAL         (*(volatile uint16_t*)0x1FFF75AA)
 
-#define ADC_SEQ_LEN             (ADC_SAMPLE_CNT * ADC_CHANNEL_CNT)
+#define ADC_SEQ_LEN             (ADC_CHANNEL_CNT)
 
 #if (ADC_SEQ_LEN > ADC_MAX_SEQ_LEN) || (ADC_SEQ_LEN == 0)
 #error "Wrong ADC channel count and sample count"

@@ -80,8 +80,9 @@ int main(void) {
     App.ITask();
 }
 
-__attribute__ ((__noreturn__))
+__noreturn
 void App_t::ITask() {
+    uint32_t t;
     while(true) {
         uint32_t Evt = chEvtWaitAny(ALL_EVENTS);
         if(Evt & EVT_EVERY_SECOND) {
@@ -97,6 +98,7 @@ void App_t::ITask() {
             BatPinGnd.Lo();
             PinConnectAdc(BAT_INPUT_PIN);
             Adc.StartMeasurement();
+            t = chVTGetSystemTimeX();
         }
 
         if(Evt & EVT_RADIO) {
@@ -118,7 +120,7 @@ void App_t::ITask() {
 
 #if ADC_REQUIRED
         if(Evt & EVT_ADC_DONE) {
-//            Uart.PrintfI("ADC Done\r");
+            Uart.PrintfI("t = %u\r", chVTGetSystemTime() - t);
             uint32_t VBatAdc = Adc.GetResult(ADC_BATTERY_CHNL);
 //            Uart.Printf("adc: %u\r", VBatAdc);
 //            uint32_t VRef = Adc.GetResult(ADC_VREFINT_CHNL);
