@@ -9,17 +9,16 @@
 
 #include "inttypes.h"
 #include <sys/cdefs.h>
-#include "uart.h"
 
 // Mixing two colors
 #define ClrMix(C, B, L)     ((C * L + B * (255 - L)) / 255)
 
 struct Color_t {
     union {
+        uint32_t DWord32;
         struct {
             uint8_t R, G, B;
         };
-        uint32_t DWord32;
     };
     bool operator == (const Color_t &AColor) const { return (DWord32 == AColor.DWord32); }
     bool operator != (const Color_t &AColor) const { return (DWord32 != AColor.DWord32); }
@@ -61,10 +60,9 @@ struct Color_t {
             else B = 0;
         }
     }
-    void Set(uint8_t Red, uint8_t Green, uint8_t Blue) { R = Red; G = Green; B = Blue; }
-    void Set(const Color_t* p) { DWord32 = p->DWord32; }
-    void Set(const Color_t &c) { DWord32 = c.DWord32; }
-    void Get(uint8_t *PR, uint8_t *PG, uint8_t *PB) const { *PR = R; *PG = G; *PB = B; }
+    void FromRGB(uint8_t Red, uint8_t Green, uint8_t Blue) { R = Red; G = Green; B = Blue; }
+    void ToRGB(uint8_t *PR, uint8_t *PG, uint8_t *PB) const { *PR = R; *PG = G; *PB = B; }
+    bool IsEqualRGB(uint8_t Red, uint8_t Green, uint8_t Blue) { return (R == Red and G == Green and B == Blue); }
     uint8_t RGBTo565_HiByte() const {
         uint32_t rslt = R & 0b11111000;
         rslt |= G >> 5;
@@ -88,7 +86,7 @@ struct Color_t {
     }
     void Print() { Uart.Printf("{%u, %u, %u}\r", R, G, B); }
     Color_t() : DWord32(0) {}
-    Color_t(uint8_t AR, uint8_t AG, uint8_t AB) : R(AR), G(AG), B(AB) {}
+    Color_t(uint8_t AR, uint8_t AG, uint8_t AB) { DWord32 = 0; R = AR; G = AG; B = AB; }
 } __attribute__((packed));
 
 

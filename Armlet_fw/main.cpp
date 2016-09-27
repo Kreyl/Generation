@@ -12,6 +12,7 @@
 #include "radio_lvl1.h"
 #include "Sequences.h"
 #include "pill_mgr.h"
+#include "kl_adc.h"
 
 // EEAddresses
 #define EE_ADDR_DEVICE_ID       0
@@ -19,15 +20,22 @@
 App_t App;
 LedRGB_t Led { LED_RED_CH, LED_GREEN_CH, LED_BLUE_CH };
 Vibro_t Vibro {VIBRO_PIN};
+const PinOutput_t BatPinGnd(BAT_GND_PIN);
 
 static TmrKL_t TmrEverySecond {MS2ST(1000), EVT_EVERY_SECOND, tktPeriodic};
 
 static void ReadIDfromEE();
 static uint8_t ISetID(int32_t NewID);
 
+LedRGBChunk_t lsqActive[] = {
+        {csSetup, 0, clYellow},
+        {csEnd}
+};
+
 int main(void) {
     // ==== Setup clock frequency ====
     Clk.SetupBusDividers(ahbDiv2, apbDiv1, apbDiv1);
+    Clk.SetupPllSrc(pllsrcMsi); // Required to allow PLLSAI1 for ADC clocking
     Clk.UpdateFreqValues();
 
     // Init OS
@@ -53,6 +61,12 @@ int main(void) {
     Uart.Printf("\r%S %S ID=%u\r", APP_NAME, BUILD_TIME, App.ID);
     Clk.PrintFreqs();
 
+    // Battery measurement
+    Adc.Init();
+    BatPinGnd.Deinit();
+    PinSetupAnalog(BAT_INPUT_PIN);
+//    Adc.EnableVref();
+
     TmrEverySecond.InitAndStart();
 
     if(Radio.Init() == OK) {
@@ -71,25 +85,55 @@ void App_t::ITask() {
     while(true) {
         uint32_t Evt = chEvtWaitAny(ALL_EVENTS);
         if(Evt & EVT_EVERY_SECOND) {
+            // Check if time to switch indication off
             if(TimeLeft_s > 0) TimeLeft_s--;
-            else {
-                Led.SetColor(clBlack);
-                if(Vibro.GetCurrentSequence() != nullptr) Vibro.Stop();
+            else if(IsActive) {
+                Led.Stop();
+                Vibro.Stop();
+                IsActive = false;
             }
+            // Start battery measurement
+            BatPinGnd.Init();
+            BatPinGnd.Lo();
+            PinConnectAdc(BAT_INPUT_PIN);
+            Adc.StartMeasurement();
         }
 
         if(Evt & EVT_RADIO) {
-            Color_t Clr(Radio.PktRx.R, Radio.PktRx.G, Radio.PktRx.B);
             TimeLeft_s = Radio.PktRx.TimeLeft_s;
             if(TimeLeft_s > 0) {
-                Led.SetColor(Clr);
-                if(Vibro.GetCurrentSequence() == nullptr) Vibro.StartSequence(vsqActive);
+                lsqActive[0].Color.FromRGB(Radio.PktRx.R, Radio.PktRx.G, Radio.PktRx.B);
+                Led.StartSequence(lsqActive);   // always set new color
+                if(!IsActive) {
+                    Vibro.StartSequence(vsqActive);
+                    IsActive = true;
+                }
             }
             else {
-                Led.SetColor(clBlack);
+                Led.Stop();
                 Vibro.Stop();
+                IsActive = false;
             }
         }
+
+#if ADC_REQUIRED
+        if(Evt & EVT_ADC_DONE) {
+//            Uart.PrintfI("ADC Done\r");
+            uint32_t VBatAdc = Adc.GetResult(ADC_BATTERY_CHNL);
+//            Uart.Printf("adc: %u\r", VBatAdc);
+//            uint32_t VRef = Adc.GetResult(ADC_VREFINT_CHNL);
+//            uint32_t VBtn_mv = Adc.Adc2mV(VBtnAdc, VRef);
+//            Uart.Printf("adc: %u; Vref: %u; VBtn: %u\r", VBtnAdc, VRef, VBtn_mv);
+//            // Check battery
+//            if(VBtn_mv < 1150 and !WasDischarged) {
+//                WasDischarged = true;
+//                Led.StartSequence(lsqDischarged);
+//            }
+            // Disable pins
+            PinDisconnectAdc(BAT_INPUT_PIN);
+            BatPinGnd.Deinit();
+        }
+#endif
 
 #if 0 // ==== USB ====
         if(EvtMsk & EVTMSK_USB_READY) {

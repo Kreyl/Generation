@@ -27,6 +27,7 @@ class App_t {
 private:
     thread_t *PThread;
     int32_t TimeLeft_s = 0;
+    bool IsActive = false;
 public:
     uint8_t ID = 0;
     // Eternal methods

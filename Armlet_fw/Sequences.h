@@ -214,6 +214,7 @@ const LedRGBChunk_t lsqFailure[] = {
         {csSetup, 0, clBlack},
         {csEnd}
 };
+
 #endif
 
 #if 0 // =========================== LED Smooth ================================
