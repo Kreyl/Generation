@@ -380,9 +380,9 @@ void Adc_t::StartMeasurement() {
 }
 
 uint32_t Adc_t::GetResult(uint8_t AChannel) {
-    Uart.Printf("SQR1: %X; SQR2: %X; ISR: %X\r", ADC1->SQR1, ADC1->SQR2, ADC1->ISR);
-    for(int i=0; i<ADC_SEQ_LEN; i++) Uart.Printf("%u ", IBuf[i]);
-    Uart.Printf("\r");
+//    Uart.Printf("SQR1: %X; SQR2: %X; ISR: %X\r", ADC1->SQR1, ADC1->SQR2, ADC1->ISR);
+//    for(int i=0; i<ADC_SEQ_LEN; i++) Uart.Printf("%u ", IBuf[i]);
+//    Uart.Printf("\r");
 #if (ADC_CHANNEL_CNT > 1)
     // Find Channel indx
     for(uint32_t i=0; i < ADC_CHANNEL_CNT; i++) {
@@ -391,6 +391,10 @@ uint32_t Adc_t::GetResult(uint8_t AChannel) {
 #endif
     return IBuf[0];
 }
-#endif
+
+uint32_t Adc_t::Adc2mV(uint32_t AdcChValue, uint32_t VrefValue) {
+    return ((3000UL * ADC_VREFINT_CAL / ADC_MAX_VALUE) * AdcChValue) / VrefValue;
+}
+#endif // L476
 
 #endif  // ADC_REQUIRED

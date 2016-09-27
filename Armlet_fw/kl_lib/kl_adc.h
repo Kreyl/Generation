@@ -151,6 +151,7 @@ public:
     void EnableVref()  { ADC123_COMMON->CCR |= ADC_CCR_VREFEN; }
     void DisableVref() { ADC123_COMMON->CCR &= ADC_CCR_VREFEN; }
     void StartMeasurement();
+    uint32_t Adc2mV(uint32_t AdcChValue, uint32_t VrefValue);
     void Disable() { SET_BIT(ADC1->CR, ADC_CR_ADDIS); }
     void ClockOff() { rccDisableADC123(FALSE); }
     uint32_t GetResult(uint8_t AChannel);

@@ -215,6 +215,13 @@ const LedRGBChunk_t lsqFailure[] = {
         {csEnd}
 };
 
+const LedRGBChunk_t lsqDischarged[] = {
+        {csSetup, 0, clRed},
+        {csWait, 270},
+        {csSetup, 0, clBlack},
+        {csWait, 720},
+        {csGoto, 0}
+};
 #endif
 
 #if 0 // =========================== LED Smooth ================================

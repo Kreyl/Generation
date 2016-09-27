@@ -13,6 +13,7 @@
 #include "Sequences.h"
 #include "pill_mgr.h"
 #include "kl_adc.h"
+#include "battery_consts.h"
 
 // EEAddresses
 #define EE_ADDR_DEVICE_ID       0
@@ -65,15 +66,14 @@ int main(void) {
     Adc.Init();
     BatPinGnd.Deinit();
     PinSetupAnalog(BAT_INPUT_PIN);
-//    Adc.EnableVref();
 
     TmrEverySecond.InitAndStart();
 
     if(Radio.Init() == OK) {
 //        Vibro.StartSequence(vsqBrrBrr);
-        Led.StartSequence(lsqStart);
+        Led.StartOrContinue(lsqStart);
     }
-    else Led.StartSequence(lsqFailure);
+    else Led.StartOrContinue(lsqFailure);
     chThdSleepMilliseconds(720);
 
     // Main cycle
@@ -82,7 +82,6 @@ int main(void) {
 
 __noreturn
 void App_t::ITask() {
-    uint32_t t;
     while(true) {
         uint32_t Evt = chEvtWaitAny(ALL_EVENTS);
         if(Evt & EVT_EVERY_SECOND) {
@@ -94,22 +93,20 @@ void App_t::ITask() {
                 IsActive = false;
             }
             // Start battery measurement
+            Adc.EnableVref();
             BatPinGnd.Init();
             BatPinGnd.Lo();
             PinConnectAdc(BAT_INPUT_PIN);
             Adc.StartMeasurement();
-            t = chVTGetSystemTimeX();
         }
 
         if(Evt & EVT_RADIO) {
             TimeLeft_s = Radio.PktRx.TimeLeft_s;
             if(TimeLeft_s > 0) {
                 lsqActive[0].Color.FromRGB(Radio.PktRx.R, Radio.PktRx.G, Radio.PktRx.B);
-                Led.StartSequence(lsqActive);   // always set new color
-                if(!IsActive) {
-                    Vibro.StartSequence(vsqActive);
-                    IsActive = true;
-                }
+                Led.StartOrRestart(lsqActive);   // always set new color
+                Vibro.StartOrContinue(vsqActive);
+                IsActive = true;
             }
             else {
                 Led.Stop();
@@ -120,17 +117,25 @@ void App_t::ITask() {
 
 #if ADC_REQUIRED
         if(Evt & EVT_ADC_DONE) {
-            Uart.PrintfI("t = %u\r", chVTGetSystemTime() - t);
             uint32_t VBatAdc = Adc.GetResult(ADC_BATTERY_CHNL);
 //            Uart.Printf("adc: %u\r", VBatAdc);
-//            uint32_t VRef = Adc.GetResult(ADC_VREFINT_CHNL);
-//            uint32_t VBtn_mv = Adc.Adc2mV(VBtnAdc, VRef);
-//            Uart.Printf("adc: %u; Vref: %u; VBtn: %u\r", VBtnAdc, VRef, VBtn_mv);
-//            // Check battery
-//            if(VBtn_mv < 1150 and !WasDischarged) {
-//                WasDischarged = true;
-//                Led.StartSequence(lsqDischarged);
-//            }
+            uint32_t VRef = Adc.GetResult(ADC_VREFINT_CHNL);
+            uint32_t VBat_mv = 2 * Adc.Adc2mV(VBatAdc, VRef);
+            Uart.Printf("adc: %u; Vref: %u; VBat: %u\r", VBatAdc, VRef, VBat_mv);
+            // Check battery
+            if(VBat_mv < BAT_END_mV) {
+                Uart.Printf("Discharged to death\r");
+                Led.StartOrContinue(lsqDischarged);
+                chThdSleepSeconds(4);
+                Sleep::EnterStandby();
+            }
+            else if(VBat_mv < BAT_ZERO_mV) {
+                if(!IsActive) Led.StartOrContinue(lsqDischarged);
+            }
+            else {
+                if(!IsActive) Led.Stop();   // Stop "discharged" indication
+            }
+            Adc.DisableVref();
             // Disable pins
             PinDisconnectAdc(BAT_INPUT_PIN);
             BatPinGnd.Deinit();
