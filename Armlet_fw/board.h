@@ -83,6 +83,10 @@
 #define BAT_GND_PIN     GPIOC, 4, omPushPull
 #define BAT_INPUT_PIN   GPIOC, 5
 
+// State pins
+#define USB_DETECT_PIN  GPIOA, 9
+#define CHARGE_PIN      GPIOB, 13
+
 // Radio
 #define CC_GPIO         GPIOA
 #define CC_GDO2         NC

@@ -28,6 +28,9 @@ static TmrKL_t TmrEverySecond {MS2ST(1000), EVT_EVERY_SECOND, tktPeriodic};
 static void ReadIDfromEE();
 static uint8_t ISetID(int32_t NewID);
 
+static inline bool UsbIsConnected() { return PinIsHi(USB_DETECT_PIN); }
+static inline bool IsCharging()     { return PinIsLo(CHARGE_PIN); }
+
 LedRGBChunk_t lsqActive[] = {
         {csSetup, 0, clYellow},
         {csEnd}
@@ -45,11 +48,12 @@ int main(void) {
 
     // ==== Init hardware ====
     Uart.Init(115200, UART_GPIO, UART_TX_PIN, UART_GPIO, UART_RX_PIN);
-
     App.InitThread();
-
     Led.Init();
     Vibro.Init();
+    // State pins
+    PinSetupInput(USB_DETECT_PIN, pudPullDown);
+    PinSetupInput(CHARGE_PIN, pudPullUp);
 
 //    i2c1.Init();
 //    i2c2.Init();
@@ -85,60 +89,79 @@ void App_t::ITask() {
     while(true) {
         uint32_t Evt = chEvtWaitAny(ALL_EVENTS);
         if(Evt & EVT_EVERY_SECOND) {
-            // Check if time to switch indication off
-            if(TimeLeft_s > 0) TimeLeft_s--;
-            else if(IsActive) {
-                Led.Stop();
-                Vibro.Stop();
-                IsActive = false;
-            }
-            // Start battery measurement
-            Adc.EnableVref();
-            BatPinGnd.Init();
-            BatPinGnd.Lo();
-            PinConnectAdc(BAT_INPUT_PIN);
-            Adc.StartMeasurement();
-        }
+            switch(State) {
+                case stIdle:
+                    // Check if USB connected
+                    if(UsbIsConnected()) State = stPowered;
+                    else {
+                        // Start battery measurement
+                        Adc.EnableVref();
+                        BatPinGnd.Init();
+                        BatPinGnd.Lo();
+                        PinConnectAdc(BAT_INPUT_PIN);
+                        Adc.StartMeasurement();
+                    }
+                    break;
+                case stActive:
+                    // Check if time to switch indication off
+                    if(TimeLeft_s > 0) TimeLeft_s--;
+                    else {
+                        Led.Stop();
+                        Vibro.Stop();
+                        State = stIdle;
+                    }
+                    break;
+                case stPowered:
+                    // Check if still connected
+                    if(UsbIsConnected()) {
+                        // Check if charging
+                        if(IsCharging()) Led.StartOrContinue(lsqCharging);
+                        else Led.StartOrContinue(lsqChargingDone);
+                    }
+                    else {  // Disconnected
+                        Led.Stop();
+                        State = stIdle;
+                    }
+                    break;
+            } // switch
+        } // EVT_EVERY_SECOND
 
         if(Evt & EVT_RADIO) {
-            TimeLeft_s = Radio.PktRx.TimeLeft_s;
-            if(TimeLeft_s > 0) {
-                lsqActive[0].Color.FromRGB(Radio.PktRx.R, Radio.PktRx.G, Radio.PktRx.B);
-                Led.StartOrRestart(lsqActive);   // always set new color
-                Vibro.StartOrContinue(vsqActive);
-                IsActive = true;
-            }
-            else {
-                Led.Stop();
-                Vibro.Stop();
-                IsActive = false;
-            }
+            if(State == stIdle) {
+                TimeLeft_s = Radio.PktRx.TimeLeft_s;
+                if(TimeLeft_s > 0) {
+                    lsqActive[0].Color.FromRGB(Radio.PktRx.R, Radio.PktRx.G, Radio.PktRx.B);
+                    Led.StartOrRestart(lsqActive);   // always set new color
+                    Vibro.StartOrRestart(vsqActive);
+                    State = stActive;
+                }
+            } // if Idle
         }
 
 #if ADC_REQUIRED
         if(Evt & EVT_ADC_DONE) {
-            uint32_t VBatAdc = Adc.GetResult(ADC_BATTERY_CHNL);
-//            Uart.Printf("adc: %u\r", VBatAdc);
-            uint32_t VRef = Adc.GetResult(ADC_VREFINT_CHNL);
-            uint32_t VBat_mv = 2 * Adc.Adc2mV(VBatAdc, VRef);
-            Uart.Printf("adc: %u; Vref: %u; VBat: %u\r", VBatAdc, VRef, VBat_mv);
-            // Check battery
-            if(VBat_mv < BAT_END_mV) {
-                Uart.Printf("Discharged to death\r");
-                Led.StartOrContinue(lsqDischarged);
-                chThdSleepSeconds(4);
-                Sleep::EnterStandby();
-            }
-            else if(VBat_mv < BAT_ZERO_mV) {
-                if(!IsActive) Led.StartOrContinue(lsqDischarged);
-            }
-            else {
-                if(!IsActive) Led.Stop();   // Stop "discharged" indication
-            }
+            // Disable ADC and pins
             Adc.DisableVref();
-            // Disable pins
             PinDisconnectAdc(BAT_INPUT_PIN);
             BatPinGnd.Deinit();
+            // Do something with result
+            if(State == stIdle) {
+                uint32_t VBatAdc = Adc.GetResult(ADC_BATTERY_CHNL);
+                uint32_t VRef = Adc.GetResult(ADC_VREFINT_CHNL);
+                uint32_t VBat_mv = 2 * Adc.Adc2mV(VBatAdc, VRef);
+//                Uart.Printf("adc: %u; Vref: %u; VBat: %u\r", VBatAdc, VRef, VBat_mv);
+                Uart.Printf("VBat_mv: %u\r", VBat_mv);
+                // Check battery
+                if(VBat_mv <= BAT_END_mV) {
+                    Uart.Printf("Discharged to death\r");
+                    Led.StartOrRestart(lsqDischarged);
+                    chThdSleepSeconds(4);
+                    Sleep::EnterStandby();
+                }
+                else if(VBat_mv < BAT_ZERO_mV) {
+                    Led.StartOrContinue(lsqDischarged);
+                }
+            } // if idle
         }
 #endif
 

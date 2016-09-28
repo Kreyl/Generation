@@ -222,6 +222,19 @@ const LedRGBChunk_t lsqDischarged[] = {
         {csWait, 720},
         {csGoto, 0}
 };
+
+const LedRGBChunk_t lsqCharging[] = {
+        {csSetup, 360, clGreen},
+        {csSetup, 360, clBlack},
+        {csWait, 630},
+        {csGoto, 0}
+};
+
+const LedRGBChunk_t lsqChargingDone[] = {
+        {csSetup, 0, clGreen},
+        {csEnd}
+};
+
 #endif
 
 #if 0 // =========================== LED Smooth ================================

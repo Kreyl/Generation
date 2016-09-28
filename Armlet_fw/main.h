@@ -23,11 +23,13 @@
 #define ID_MAX              36
 #define ID_DEFAULT          ID_MIN
 
+enum AppState_t { stIdle, stActive, stPowered };
+
 class App_t {
 private:
     thread_t *PThread;
     int32_t TimeLeft_s = 0;
-    bool IsActive = false;
+    AppState_t State = stIdle;
 public:
     uint8_t ID = 0;
     // Eternal methods
