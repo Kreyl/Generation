@@ -74,7 +74,7 @@ int main(void) {
     TmrEverySecond.InitAndStart();
 
     if(Radio.Init() == OK) {
-//        Vibro.StartSequence(vsqBrrBrr);
+        Vibro.StartOrRestart(vsqBrrBrr);
         Led.StartOrContinue(lsqStart);
     }
     else Led.StartOrContinue(lsqFailure);
@@ -150,7 +150,7 @@ void App_t::ITask() {
                 uint32_t VRef = Adc.GetResult(ADC_VREFINT_CHNL);
                 uint32_t VBat_mv = 2 * Adc.Adc2mV(VBatAdc, VRef);
 //                Uart.Printf("adc: %u; Vref: %u; VBat: %u\r", VBatAdc, VRef, VBat_mv);
-                Uart.Printf("VBat_mv: %u\r", VBat_mv);
+//                Uart.Printf("VBat_mv: %u\r", VBat_mv);
                 // Check battery
                 if(VBat_mv <= BAT_END_mV) {
                     Uart.Printf("Discharged to death\r");
@@ -198,6 +198,7 @@ void App_t::OnCmd(Shell_t *PShell) {
     else if(PCmd->NameIs("SetID")) {
         if(PCmd->GetNextInt32(&dw32) != OK) { PShell->Ack(CMD_ERROR); return; }
         uint8_t r = ISetID(dw32);
+        CC.SetChannel(ID2RCHNL(App.ID));
         PShell->Ack(r);
     }
 

@@ -37,7 +37,8 @@ static void rLvl1Thread(void *arg) {
     while(true) {
         uint8_t RxRslt = CC.Receive(54, &Radio.PktRx, &Radio.Rssi);
         if(RxRslt == OK) {
-            Uart.Printf("\rRssi=%d", Radio.Rssi);
+            Uart.Printf("Rssi=%d\r", Radio.Rssi);
+            Radio.PktTx.TheWord = THE_WORD;
             CC.Transmit(&Radio.PktTx);  // Send acknowledge
             App.SignalEvt(EVT_RADIO);
         }
