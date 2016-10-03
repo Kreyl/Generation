@@ -40,6 +40,11 @@ void DbgBeep(uint32_t Indx) {
 
 void DbgVibro(uint32_t Indx) {
     switch(Indx) {
+        case 0: Vibro.StartSequence(vsqI); break;
+        case 1: Vibro.StartSequence(vsqII); break;
+        case 2: Vibro.StartSequence(vsqIII); break;
+        case 3: Vibro.StartSequence(vsqIV); break;
+        /*
         case 0: Vibro.StartSequence(vsqCharge); break;
         case 1: Vibro.StartSequence(vsqThrow); break;
         case 2: Vibro.StartSequence(vsqPunch); break;
@@ -51,6 +56,7 @@ void DbgVibro(uint32_t Indx) {
         case 8: Vibro.StartSequence(vsqSong); break;
         case 9: Vibro.StartSequence(vsqRelease); break;
         case 10: Vibro.StartSequence(vsqPwrRelease); break;
+        */
         default: break;
     }
 }
@@ -204,7 +210,7 @@ uint8_t Mems_t::Init() {
 
     Led.StartSequence(lsqStart);    // Show Calibration Ongoing
 
-    DebugSM = 0;
+//    DebugSM = 0;
     QEvt e;
     e.sig = MAX_PILL_SIG;
     QMSM_DISPATCH(the_hand, &e);

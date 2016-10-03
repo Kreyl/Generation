@@ -6,20 +6,13 @@
 #include "state_machine.h"
 #include "extern_sm/generation_light.h"
 
-#define EXTERN_TICK_MS 4000
+#define EXTERN_TICK_MS 1000
 
 const uint8_t SIG_MAP[STROKES_COUNT] =  {
-    CHARGE_SIG,
-    THROW_SIG,
-    PUNCH_SIG,
-    LIFT_SIG,
-    WARP_SIG,
-    BARRIER_SIG,
-    CLEANSE_SIG,
-    SINGULAR_SIG,
-    SONG_SIG,
-    RELEASE_SIG,
-    PWR_RELEASE_SIG
+    I_SIG,
+    II_SIG,
+    III_SIG,
+    IV_SIG
 };
 
 class FullStateMachine {

@@ -422,6 +422,26 @@ const BaseChunk_t vsqBrrBrr[] = {
 #define VMORSE_DASH         VMORSE_TONE, {csWait, VMORSE_DASH_LENGTH}, VMORSE_PAUSE
 
 
+const BaseChunk_t vsqI[] = {
+        VMORSE_DOT,
+        {csEnd}
+};
+
+const BaseChunk_t vsqII[] = {
+        VMORSE_DOT, VMORSE_DOT,
+        {csEnd}
+};
+
+const BaseChunk_t vsqIII[] = {
+        VMORSE_DOT, VMORSE_DOT, VMORSE_DOT,
+        {csEnd}
+};
+
+const BaseChunk_t vsqIV[] = {
+        VMORSE_DOT, VMORSE_DOT, VMORSE_DOT, VMORSE_DOT,
+        {csEnd}
+};
+
 const BaseChunk_t vsqCharge[] = {
         VMORSE_DOT, VMORSE_DASH,
         {csEnd}

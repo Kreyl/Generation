@@ -26,9 +26,16 @@ bool FullStateMachine::setData(const float delta,
         if(Led.GetCurrentSequence() == lsqStart) Led.Stop();
         QEvt e;
         if (innerState > IDLE) {
-            e.sig = SIG_MAP[innerState - STATES_OFFSET];
+            switch(innerState) {
+                case 2: e.sig = I_SIG; break;
+                case 3: e.sig = II_SIG; break;
+                case 4: e.sig = III_SIG; break;
+                case 5: e.sig = IV_SIG; break;
+                default: break;
+            }
+//            e.sig = SIG_MAP[0];//innerState - STATES_OFFSET];
 #if DEBUG_OTK
-            DbgBeep(innerState - STATES_OFFSET);
+//            DbgBeep(innerState - STATES_OFFSET);
             DbgVibro(innerState - STATES_OFFSET);
 #endif
             QMSM_DISPATCH(the_hand, &e);
