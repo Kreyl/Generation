@@ -23,34 +23,34 @@ extern Beeper_t Beeper;
 
 void DbgBeep(uint32_t Indx) {
     switch(Indx) {
-        case 0: Beeper.StartSequence(bsqCharge); break;
-        case 1: Beeper.StartSequence(bsqThrow); break;
-        case 2: Beeper.StartSequence(bsqPunch); break;
-        case 3: Beeper.StartSequence(bsqLift); break;
-        case 4: Beeper.StartSequence(bsqWarp); break;
-        case 5: Beeper.StartSequence(bsqBarrier); break;
-        case 6: Beeper.StartSequence(bsqCleanse); break;
-        case 7: Beeper.StartSequence(bsqSingular); break;
-        case 8: Beeper.StartSequence(bsqSong); break;
-        case 9: Beeper.StartSequence(bsqRelease); break;
-        case 10: Beeper.StartSequence(bsqPwrRelease); break;
+        case 0: Beeper.StartOrRestart(bsqCharge); break;
+        case 1: Beeper.StartOrRestart(bsqThrow); break;
+        case 2: Beeper.StartOrRestart(bsqPunch); break;
+        case 3: Beeper.StartOrRestart(bsqLift); break;
+        case 4: Beeper.StartOrRestart(bsqWarp); break;
+        case 5: Beeper.StartOrRestart(bsqBarrier); break;
+        case 6: Beeper.StartOrRestart(bsqCleanse); break;
+        case 7: Beeper.StartOrRestart(bsqSingular); break;
+        case 8: Beeper.StartOrRestart(bsqSong); break;
+        case 9: Beeper.StartOrRestart(bsqRelease); break;
+        case 10: Beeper.StartOrRestart(bsqPwrRelease); break;
         default: break;
     }
 }
 
 void DbgVibro(uint32_t Indx) {
     switch(Indx) {
-        case 0: Vibro.StartSequence(vsqCharge); break;
-        case 1: Vibro.StartSequence(vsqThrow); break;
-        case 2: Vibro.StartSequence(vsqPunch); break;
-        case 3: Vibro.StartSequence(vsqLift); break;
-        case 4: Vibro.StartSequence(vsqWarp); break;
-        case 5: Vibro.StartSequence(vsqBarrier); break;
-        case 6: Vibro.StartSequence(vsqCleanse); break;
-        case 7: Vibro.StartSequence(vsqSingular); break;
-        case 8: Vibro.StartSequence(vsqSong); break;
-        case 9: Vibro.StartSequence(vsqRelease); break;
-        case 10: Vibro.StartSequence(vsqPwrRelease); break;
+        case 0: Vibro.StartOrRestart(vsqCharge); break;
+        case 1: Vibro.StartOrRestart(vsqThrow); break;
+        case 2: Vibro.StartOrRestart(vsqPunch); break;
+        case 3: Vibro.StartOrRestart(vsqLift); break;
+        case 4: Vibro.StartOrRestart(vsqWarp); break;
+        case 5: Vibro.StartOrRestart(vsqBarrier); break;
+        case 6: Vibro.StartOrRestart(vsqCleanse); break;
+        case 7: Vibro.StartOrRestart(vsqSingular); break;
+        case 8: Vibro.StartOrRestart(vsqSong); break;
+        case 9: Vibro.StartOrRestart(vsqRelease); break;
+        case 10: Vibro.StartOrRestart(vsqPwrRelease); break;
         default: break;
     }
 }
@@ -131,7 +131,7 @@ void Mems_t::ITask() {
         }
         else if(!IsCalibrating and WasCalibrating) {
             WasCalibrating = false;
-            Beeper.StartSequence(bsqBeepBeep);
+            Beeper.StartOrRestart(bsqBeepBeep);
         }
 //        Uart.Printf("2\r");
 //        if(IsCalibrating) Uart.Printf("Calibrating\r");
@@ -202,7 +202,7 @@ uint8_t Mems_t::Init() {
     Hand_ctor();
     QMSM_INIT(the_hand, (QEvt *)0);
 
-    Led.StartSequence(lsqStart);    // Show Calibration Ongoing
+    Led.StartOrContinue(lsqStart);    // Show Calibration Ongoing
 
     DebugSM = 0;
     QEvt e;

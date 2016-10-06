@@ -8,6 +8,8 @@
 #include "led.h"
 #include "Sequences.h"
 
+extern LedRGB_t Led;
+
 extern void DbgBeep(uint32_t Indx);
 extern void DbgVibro(uint32_t Indx);
 

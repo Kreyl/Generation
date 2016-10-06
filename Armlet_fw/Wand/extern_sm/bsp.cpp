@@ -25,7 +25,7 @@ void RGB_blink_slow(uint8_t Color) {
     lsqBlink[0].Color.Set(Colors[Color].R, Colors[Color].G, Colors[Color].B);
     lsqBlink[1].Time_ms = 270;
     lsqBlink[3].Time_ms = 270;
-    Led.StartSequence(lsqBlink);
+    Led.StartOrContinue(lsqBlink);
     Uart.Printf("Led Slow %u\r", Color);
 }
 
@@ -33,7 +33,7 @@ void RGB_blink_fast(uint8_t Color) {
     lsqBlink[0].Color.Set(Colors[Color].R, Colors[Color].G, Colors[Color].B);
     lsqBlink[1].Time_ms = 99;
     lsqBlink[3].Time_ms = 99;
-    Led.StartSequence(lsqBlink);
+    Led.StartOrContinue(lsqBlink);
     Uart.Printf("Led Fast %u\r", Color);
 }
 

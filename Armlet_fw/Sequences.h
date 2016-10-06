@@ -214,6 +214,26 @@ extern LedRGBChunk_t lsqStart[];
 //        {csSetup, 0, clBlack},
 //        {csEnd}
 //};
+
+const LedRGBChunk_t lsqCharging[] = {
+        {csSetup, 360, clGreen},
+        {csSetup, 360, clBlack},
+        {csWait, 630},
+        {csGoto, 0}
+};
+
+const LedRGBChunk_t lsqChargingDone[] = {
+        {csSetup, 0, clGreen},
+        {csEnd}
+};
+
+const LedRGBChunk_t lsqDischarged[] = {
+        {csSetup, 0, clRed},
+        {csWait, 180},
+        {csSetup, 0, clBlack},
+        {csWait, 360},
+        {csGoto, 0}
+};
 #endif
 
 #if 0 // =========================== LED Smooth ================================

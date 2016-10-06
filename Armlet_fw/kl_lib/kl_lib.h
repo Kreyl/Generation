@@ -19,9 +19,6 @@ Define symbol BUILD_TIME in main.cpp options with value "\"${current_date}\"".
 Maybe, to calm Eclipse, it will be required to write extra quote in the end: "\"${current_date}\"""
 */
 
-// Lib version
-#define KL_LIB_VERSION      "20160701_1045"
-
 #if defined STM32L1XX
 #include "stm32l1xx.h"
 #elif defined STM32F0XX
@@ -184,8 +181,6 @@ static inline uint32_t GetUniqID3() {
     return *((uint32_t*)(UNIQ_ID_BASE + 0x14));
 }
 #endif
-
-
 #endif
 
 #if 1 // ======================= Virtual Timer =================================
@@ -264,7 +259,7 @@ static inline int Random(int LowInclusive, int HighInclusive) {
 static inline void RandomSeed(unsigned int Seed) { srand(Seed); }
 #endif
 
-#if 0 // =========================== Time ======================================
+#if 1 // =========================== Time ======================================
 static inline bool TimeElapsed(systime_t *PSince, uint32_t Delay_ms) {
     chSysLock();
     bool Rslt = (chVTGetSystemTimeX() - *PSince) > MS2ST(Delay_ms);
@@ -633,6 +628,15 @@ static inline void PinSetupAnalog(GPIO_TypeDef *PGpioPort, const uint16_t APinNu
 #endif
 }
 
+#ifdef STM32L4XX
+static inline void PinConnectAdc(GPIO_TypeDef *PGpioPort, const uint16_t APinNumber) {
+    SET_BIT(PGpioPort->ASCR, 1<<APinNumber);
+}
+static inline void PinDisconnectAdc(GPIO_TypeDef *PGpioPort, const uint16_t APinNumber) {
+    CLEAR_BIT(PGpioPort->ASCR, 1<<APinNumber);
+}
+#endif
+
 static inline void PinSetupAlterFunc(
         GPIO_TypeDef *PGpioPort,
         const uint16_t APinNumber,
@@ -753,8 +757,12 @@ private:
 public:
     void Init() const { PinSetupOut(PGpio, Pin, OutputType); }
     void Deinit() const { PinSetupAnalog(PGpio, Pin); }
-    void Hi() const { PinSetHi(PGpio, Pin); }
-    void Lo() const { PinSetLo(PGpio, Pin); }
+    void SetHi() const { PinSetHi(PGpio, Pin); }
+    void SetLo() const { PinSetLo(PGpio, Pin); }
+    void Set(uint8_t Value) {
+        if(Value == 0) SetLo();
+        else SetHi();
+    }
     PinOutput_t(GPIO_TypeDef *APGPIO, uint16_t APin, PinOutMode_t AOutputType) :
         PGpio(APGPIO), Pin(APin), OutputType(AOutputType) {}
 };
@@ -1061,7 +1069,7 @@ public:
 };
 #endif
 
-#if 0 // ========================= I2C ==============================
+#if I2C1_ENABLED && !defined STM32L4XX // ========================= I2C ==============================
 struct i2cParams_t {
     I2C_TypeDef *pi2c;
     GPIO_TypeDef *PGpio;
@@ -1535,11 +1543,11 @@ enum AHBDiv_t {
     ahbDiv256=0b1110,
     ahbDiv512=0b1111
 };
+
 enum APBDiv_t {apbDiv1=0b000, apbDiv2=0b100, apbDiv4=0b101, apbDiv8=0b110, apbDiv16=0b111};
-
 enum MCUVoltRange_t {mvrHiPerf, mvrLoPerf};
-
 enum Src48MHz_t { src48None = 0b00, src48PllSai1Q = 0b01, src48PllQ = 0b10, src48Msi = 0b11 };
+enum PllSrc_t { pllsrcNone = 0b00, pllsrcMsi = 0b01, pllsrcHsi16 = 0b10, pllsrcHse = 0b11 };
 
 class Clk_t {
 private:
@@ -1563,7 +1571,12 @@ public:
     void DisableMSI() { RCC->CR &= ~RCC_CR_MSION; }
 
     void SetupBusDividers(AHBDiv_t AHBDiv, APBDiv_t APB1Div, APBDiv_t APB2Div);
-    uint8_t SetupPLLMulDiv(uint32_t M, uint32_t N, uint32_t R, uint32_t Q, uint32_t P = 8);
+    // PLL and PLLSAI
+    void SetupPllSrc(PllSrc_t Src) { MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC, ((uint32_t)Src)); }
+    uint8_t SetupPllMulDiv(uint32_t M, uint32_t N, uint32_t R, uint32_t Q, uint32_t P = 8);
+    uint8_t SetupPllSai1(uint32_t N, uint32_t R);
+    void EnableSai1ROut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1REN); }
+
     void UpdateFreqValues();
     void EnablePrefeth() { FLASH->ACR |= FLASH_ACR_PRFTEN; }
     void SetupFlashLatency(uint8_t AHBClk_MHz, MCUVoltRange_t VoltRange);
