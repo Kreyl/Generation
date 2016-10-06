@@ -18,10 +18,19 @@
 
 #define APP_NAME            "ArmletG"
 
+// EEAddresses
+#define EE_ADDR_DEVICE_ID   0
+
+#define ID_MIN              1
+#define ID_MAX              99
+#define ID_DEFAULT          ID_MIN
+
 class App_t {
 private:
     thread_t *PThread;
 public:
+    uint8_t ID;
+    bool UsbIsConnected() { return PinIsHi(USB_DETECT_PIN); }
     // Eternal methods
     void InitThread() { PThread = chThdGetSelfX(); }
     void SignalEvt(eventmask_t Evt) {

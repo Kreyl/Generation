@@ -60,11 +60,11 @@ void rLevel1_t::ITask() {
                 lsqBlink[0].Color.Set(PktRx.R, PktRx.G, PktRx.B);
                 lsqBlink[1].Time_ms = PktRx.BlinkOn;
                 lsqBlink[3].Time_ms = PktRx.BlinkOff;
-                if(Led.GetCurrentSequence() == nullptr) Led.StartSequence(lsqBlink);
+//                if(Led.GetCurrentSequence() == nullptr) Led.StartSequence(lsqBlink);
             }
             else {
                 if(Led.GetCurrentSequence() != nullptr) Led.Stop();
-                Led.SetColor(PktRx.R, PktRx.G, PktRx.B);
+//                Led.SetColor(PktRx.R, PktRx.G, PktRx.B);
             }
 
             Vibro.Set(PktRx.VibroPwr);
