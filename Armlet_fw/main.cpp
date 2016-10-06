@@ -25,6 +25,11 @@ Mems_t Mems(&i2c1);
 LedRGB_t Led { LED_RED_CH, LED_GREEN_CH, LED_BLUE_CH };
 Vibro_t Vibro {VIBRO_PIN};
 
+const PinOutput_t BatPinGnd(BAT_GND_PIN);
+static inline bool UsbIsConnected() { return PinIsHi(USB_DETECT_PIN); }
+static inline bool IsCharging()     { return PinIsLo(CHARGE_PIN); }
+
+
 Beeper_t Beeper {BEEPER_PIN};
 
 LedRGBChunk_t lsqStart[] = {
@@ -66,8 +71,17 @@ int main(void) {
 //    ee.Init();
 //    ee.On();
 
-//    if(Radio.Init() == OK) {
+    // State pins
+    PinSetupInput(USB_DETECT_PIN, pudPullDown);
+    PinSetupInput(CHARGE_PIN, pudPullUp);
+    // Battery measurement
+    Adc.Init();
+    BatPinGnd.Deinit();
+    PinSetupAnalog(BAT_INPUT_PIN);
 
+
+
+//    if(Radio.Init() == OK) {
         Vibro.StartSequence(vsqBrrBrr);
 //    }
 //    else Led.StartSequence(lsqFailure);
