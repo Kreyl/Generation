@@ -72,7 +72,7 @@ int main(void) {
     i2c2.Init();
     i2c3.Init();
 
-//    PillMgr.Init();
+    PillMgr.Init();
 
     ee.Init();
     ReadIDfromEE();
@@ -140,9 +140,9 @@ void App_t::ITask() {
                 Uart.Printf("VBat_mv: %u; VDDA: %u\r", VBat_mv, VDDA_mv);
                 // Check battery
                 if(VBat_mv <= BAT_END_mV) {
-                    Uart.Printf("Discharged to death\r");
-                    Led.StartOrRestart(lsqDischarged);
-                    chThdSleepSeconds(4);
+//                    Uart.Printf("Discharged to death\r");
+//                    Led.StartOrContinue(lsqDischarged);
+//                    chThdSleepSeconds(4);
 //                    Sleep::EnterStandby();
                 }
                 else if(VBat_mv < BAT_ZERO_mV) {
@@ -190,7 +190,7 @@ void App_t::OnCmd(Shell_t *PShell) {
     else if(PCmd->NameIs("SetID")) {
         if(PCmd->GetNextInt32(&dw32) != OK) { PShell->Ack(CMD_ERROR); return; }
         uint8_t r = ISetID(dw32);
-        CC.SetChannel(ID2RCHNL(App.ID));
+//        CC.SetChannel(ID2RCHNL(App.ID));
         PShell->Ack(r);
     }
 

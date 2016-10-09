@@ -172,30 +172,45 @@ uint8_t Mems_t::Init() {
     PinSetupOut(GPIOB, 0, omPushPull);
 
     PinSetupOut(MEMS_PWR_GPIO, MEMS_PWR_PIN, omPushPull);
-    On();
-    chThdSleepMilliseconds(99);
-//    pi2c->ScanBus();
+    //    pi2c->ScanBus();
 
-    __unused uint8_t v=0;
-    // Gyro
-    gyroWriteReg(L3G_CTRL_REG4, 0x20); // 2000 dps full scale
-    gyroWriteReg(L3G_CTRL_REG2, 0x00);
-    gyroWriteReg(L3G_CTRL_REG3, 0x00);
-    gyroWriteReg(L3G_CTRL_REG5, 0x00);
-    gyroWriteReg(L3G_CTRL_REG1, 0x0F); // normal power mode, all axes enabled, 100 Hz
-//    gyroReadReg(L3G_WHO_AM_I, &v);
-//    Uart.Printf("gyro: %X\r", v);
+    uint32_t n=0;
+    while(true) {
+        __unused uint8_t v;
+        n++;
+        Uart.Printf("AccGyro Init: %u\r", n);
+        Off();
+        chThdSleepMilliseconds(99);
+        On();
+        chThdSleepMilliseconds(99);
+        // Gyro
+        gyroWriteReg(L3G_CTRL_REG4, 0x20); // 2000 dps full scale
+        gyroWriteReg(L3G_CTRL_REG2, 0x00);
+        gyroWriteReg(L3G_CTRL_REG3, 0x00);
+        gyroWriteReg(L3G_CTRL_REG5, 0x00);
+        gyroWriteReg(L3G_CTRL_REG1, 0x0F); // normal power mode, all axes enabled, 100 Hz
+    //    gyroReadReg(L3G_WHO_AM_I, &v);
+    //    Uart.Printf("gyro: %X\r", v);
 
-    // Acc
-    accWriteReg(ACC_CTRL_REG4, 0b00101000); // FS = 10 (+/- 8 g full scale); HR = 1 (high resolution enable)
-    accWriteReg(ACC_CTRL_REG1, 0b01000111); // ODR = 0100 (50 Hz ODR); LPen = 0 (normal mode); all axes enabled
-//    accReadReg(ACC_CTRL_REG1, &v);
-//    Uart.Printf("acc: %X\r", v);
+        // Acc
+        accWriteReg(ACC_CTRL_REG4, 0b00101000); // FS = 10 (+/- 8 g full scale); HR = 1 (high resolution enable)
+        accWriteReg(ACC_CTRL_REG1, 0b01000111); // ODR = 0100 (50 Hz ODR); LPen = 0 (normal mode); all axes enabled
+        int16_t a[3];
+        accRead(a);
+        Uart.Printf("Acc: %d %d %d\r", a[0], a[1], a[2]);
 
-    // Magnetometer
-    magWriteReg(MAG_CRA_REG, 0b00001100); // DO = 011 (7.5 Hz ODR)
-    magWriteReg(MAG_CRB_REG, 0b00100000); // GN = 001 (+/- 1.3 gauss full scale)
-    magWriteReg(MAG_MR_REG,  0b00000000); // MD = 00 (continuous-conversion mode)
+//        accReadReg(ACC_CTRL_REG1, &v);
+//        Uart.Printf("acc: %X\r", v);
+
+        // Magnetometer
+        magWriteReg(MAG_CRA_REG, 0b00001100); // DO = 011 (7.5 Hz ODR)
+        magWriteReg(MAG_CRB_REG, 0b00100000); // GN = 001 (+/- 1.3 gauss full scale)
+        magWriteReg(MAG_MR_REG,  0b00000000); // MD = 00 (continuous-conversion mode)
+
+        break;
+
+
+    }
 
     Biotics_ctor();
     QMSM_INIT(the_biotics, (QEvt *)0);
