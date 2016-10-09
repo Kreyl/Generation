@@ -75,7 +75,13 @@ int main(void) {
 
     if(Radio.Init() == OK) {
         Vibro.StartOrRestart(vsqBrrBrr);
-        Led.StartOrContinue(lsqStart);
+        switch(App.ID) {
+            case 1: Led.StartOrContinue(lsq1); break;
+            case 2: Led.StartOrContinue(lsq2); break;
+            case 3: Led.StartOrContinue(lsq3); break;
+            case 4: Led.StartOrContinue(lsq4); break;
+            default: Led.StartOrContinue(lsqStart); break;
+        }
     }
     else Led.StartOrContinue(lsqFailure);
     chThdSleepMilliseconds(720);
@@ -150,7 +156,7 @@ void App_t::ITask() {
                 uint32_t VRef = Adc.GetResult(ADC_VREFINT_CHNL);
                 uint32_t VBat_mv = 2 * Adc.Adc2mV(VBatAdc, VRef);
 //                Uart.Printf("adc: %u; Vref: %u; VBat: %u\r", VBatAdc, VRef, VBat_mv);
-//                Uart.Printf("VBat_mv: %u\r", VBat_mv);
+                Uart.Printf("VBat_mv: %u\r", VBat_mv);
                 // Check battery
                 if(VBat_mv <= BAT_END_mV) {
                     Uart.Printf("Discharged to death\r");

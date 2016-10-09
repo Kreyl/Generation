@@ -191,14 +191,67 @@ const LedChunk_t lsqBlinkGreenX2[] = {
 #if 1 // ============================ LED RGB ==================================
 const LedRGBChunk_t lsqStart[] = {
         {csSetup, 0, clDarkRed},
-        {csWait, 180},
+        {csWait, 270},
         {csSetup, 0, clDarkGreen},
-        {csWait, 180},
+        {csWait, 270},
         {csSetup, 0, clDarkBlue},
-        {csWait, 180},
+        {csWait, 270},
         {csSetup, 0, clBlack},
         {csEnd}
 };
+
+const LedRGBChunk_t lsq1[] = {
+        {csSetup, 0, clBlue},
+        {csWait, 450},
+        {csSetup, 0, clBlack},
+        {csEnd}
+};
+
+const LedRGBChunk_t lsq2[] = {
+        {csSetup, 0, clBlue},
+        {csWait, 450},
+        {csSetup, 0, clBlack},
+        {csWait, 450},
+        {csSetup, 0, clBlue},
+        {csWait, 450},
+        {csSetup, 0, clBlack},
+        {csEnd}
+};
+
+const LedRGBChunk_t lsq3[] = {
+        {csSetup, 0, clBlue},
+        {csWait, 450},
+        {csSetup, 0, clBlack},
+        {csWait, 450},
+        {csSetup, 0, clBlue},
+        {csWait, 450},
+        {csSetup, 0, clBlack},
+        {csWait, 450},
+        {csSetup, 0, clBlue},
+        {csWait, 450},
+        {csSetup, 0, clBlack},
+        {csEnd}
+};
+
+const LedRGBChunk_t lsq4[] = {
+        {csSetup, 0, clBlue},
+        {csWait, 450},
+        {csSetup, 0, clBlack},
+        {csWait, 450},
+        {csSetup, 0, clBlue},
+        {csWait, 450},
+        {csSetup, 0, clBlack},
+        {csWait, 450},
+        {csSetup, 0, clBlue},
+        {csWait, 450},
+        {csSetup, 0, clBlack},
+        {csWait, 450},
+        {csSetup, 0, clBlue},
+        {csWait, 450},
+        {csSetup, 0, clBlack},
+        {csEnd}
+};
+
 
 const LedRGBChunk_t lsqFailure[] = {
         {csSetup, 0, clRed},
