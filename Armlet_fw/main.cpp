@@ -155,8 +155,9 @@ void App_t::ITask() {
                 uint32_t VBatAdc = Adc.GetResult(ADC_BATTERY_CHNL);
                 uint32_t VRef = Adc.GetResult(ADC_VREFINT_CHNL);
                 uint32_t VBat_mv = 2 * Adc.Adc2mV(VBatAdc, VRef);
+                uint32_t VDDA_mv = Adc.GetVDDA(VRef);
 //                Uart.Printf("adc: %u; Vref: %u; VBat: %u\r", VBatAdc, VRef, VBat_mv);
-                Uart.Printf("VBat_mv: %u\r", VBat_mv);
+                Uart.Printf("VBat_mv: %u; VDDA: %u\r", VBat_mv, VDDA_mv);
                 // Check battery
                 if(VBat_mv <= BAT_END_mV) {
                     Uart.Printf("Discharged to death\r");
