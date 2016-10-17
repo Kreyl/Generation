@@ -32,7 +32,11 @@ static TmrKL_t TmrEverySecond {MS2ST(1000), EVT_EVERY_SECOND, tktPeriodic};
 
 
 static inline bool IsCharging()     { return PinIsLo(CHARGE_PIN); }
+
 static void ReadIDfromEE();
+static void ReadAbilityFromEE();
+static void WriteAbilityToEE();
+
 static uint8_t ISetID(int32_t NewID);
 
 Beeper_t Beeper {BEEPER_PIN};
@@ -76,6 +80,7 @@ int main(void) {
 
     ee.Init();
     ReadIDfromEE();
+
     Uart.Printf("\r%S %S ID=%u\r", APP_NAME, BUILD_TIME, App.ID);
     Clk.PrintFreqs();
 
@@ -93,6 +98,7 @@ int main(void) {
     chThdSleepMilliseconds(720);
 
     Mems.Init();
+    ReadAbilityFromEE();
 
     // Main cycle
     App.ITask();
@@ -137,7 +143,7 @@ void App_t::ITask() {
                 uint32_t VBat_mv = 2 * Adc.Adc2mV(VBatAdc, VRef);
                 uint32_t VDDA_mv = Adc.GetVDDA(VRef);
 //                Uart.Printf("adc: %u; Vref: %u; VBat: %u\r", VBatAdc, VRef, VBat_mv);
-                Uart.Printf("VBat_mv: %u; VDDA: %u\r", VBat_mv, VDDA_mv);
+//                Uart.Printf("VBat_mv: %u; VDDA: %u\r", VBat_mv, VDDA_mv);
                 // Check battery
                 if(VBat_mv <= BAT_END_mV) {
 //                    Uart.Printf("Discharged to death\r");
@@ -149,6 +155,52 @@ void App_t::ITask() {
                     Led.StartOrContinue(lsqDischarged);
                 }
             } // if idle
+        }
+#endif
+
+#if 1 // ==== Pill ====
+        if(Evt & EVT_PILL_CONNECTED) {
+            Uart.Printf("Pill: %d; %X\r", PillMgr.Pill.TypeInt32, PillMgr.Pill.AbilityID);
+            if(PillMgr.Pill.Type == pilltypeAbility) {
+                uint32_t AbId = PillMgr.Pill.AbilityID; // To make things shorter
+                if(AbId == 0) {
+                    Uart.Printf("Pill Reset\r");
+                    AbilityMsk = 0;
+                    WriteAbilityToEE();
+                    Vibro.StartOrRestart(vsqBrr);
+                    chThdSleepMilliseconds(540);
+                    REBOOT();  // Reset MCU
+                }
+                else {  // Not reset
+                    bool HasChanged = true;
+                    switch(AbId) {
+                        case PUNCH_PILL_SIG:       AbilityMsk |= 0x001; break;
+                        case PUNCH_PWR_PILL_SIG:   AbilityMsk |= 0x002; break;
+                        case LIFT_PILL_SIG:        AbilityMsk |= 0x004; break;
+                        case LIFT_PWR_PILL_SIG:    AbilityMsk |= 0x008; break;
+                        case WARP_PILL_SIG:        AbilityMsk |= 0x010; break;
+                        case WARP_PWR_PILL_SIG:    AbilityMsk |= 0x020; break;
+                        case CLEANSE_PILL_SIG:     AbilityMsk |= 0x040; break;
+                        case BARRIER_PILL_SIG:     AbilityMsk |= 0x080; break;
+                        case SINGULARITY_PILL_SIG: AbilityMsk |= 0x100; break;
+                        case SONG_PILL_SIG:        AbilityMsk |= 0x200; break;
+                        case DEFAULT_PILL_SIG:     AbilityMsk |= 0x400; break;
+                        case MAX_PILL_SIG:         AbilityMsk |= 0x800; break;
+                        default: HasChanged = false; break;
+                    }
+                    if(HasChanged) {
+                        WriteAbilityToEE();
+                        QEvt e;
+                        e.sig = AbId;
+                        QMSM_DISPATCH(the_hand, &e);
+                        Vibro.StartOrRestart(vsqBrrBrr);
+                    }
+                    Uart.Printf("AbilityMsk: %X\r", App.AbilityMsk);
+                } // Not reset
+            } // if(PillMgr.Pill.Type == pilltypeAbility) {
+        }
+        if(Evt & EVT_PILL_DISCONNECTED) {
+            Uart.Printf("Pill Discon\r");
         }
 #endif
 
@@ -194,6 +246,64 @@ void App_t::OnCmd(Shell_t *PShell) {
         PShell->Ack(r);
     }
 
+#if 1 // ==== Pills ====
+    else if(PCmd->NameIs("PillRead32")) {
+        int32_t Cnt = 0;
+        if(PCmd->GetNextInt32(&Cnt) != OK) { PShell->Ack(CMD_ERROR); return; }
+        uint8_t MemAddr = 0, b = OK;
+        PShell->Printf("#PillData32 ");
+        for(int32_t i=0; i<Cnt; i++) {
+            b = PillMgr.Read(MemAddr, &dw32, 4);
+            if(b != OK) break;
+            PShell->Printf("%d ", dw32);
+            MemAddr += 4;
+        }
+        Uart.Printf("\r\n");
+        PShell->Ack(b);
+    }
+
+    else if(PCmd->NameIs("PillWrite32")) {
+        uint8_t b = CMD_ERROR;
+        uint8_t MemAddr = 0;
+        // Iterate data
+        while(true) {
+            if(PCmd->GetNextInt32(&dw32) != OK) break;
+//            Uart.Printf("%X ", Data);
+            b = PillMgr.Write(MemAddr, &dw32, 4);
+            if(b != OK) break;
+            MemAddr += 4;
+        } // while
+        Uart.Ack(b);
+    }
+
+//    else if(PCmd->NameIs("#PillRepeatWrite32") and (Type == dtPillFlasher)) {
+//        uint32_t PillAddr;
+//        if(PCmd->TryConvertTokenToNumber(&PillAddr) == OK) {
+//            if((PillAddr >= 0) and (PillAddr <= 7)) {
+//                b = OK;
+//                Data2Wr.Sz32 = 0;
+//                for(uint32_t i=0; i<PILL_SZ32; i++) Data2Wr.Data[i] = 0;
+//                // Iterate data
+//                for(uint32_t i=0; i<PILL_SZ32; i++) {
+//                    if(PCmd->GetNextToken() != OK) break;   // Get next data to write, get out if end
+//                    //Uart.Printf("%S\r", PCmd->Token);
+//                    b = PCmd->TryConvertTokenToNumber(&Data2Wr.Data[i]);
+//                    if(b == OK) Data2Wr.Sz32++;
+//                    else break; // Token is NAN
+//                } // while
+//                // Save data to EEPROM
+//                if(b == OK) b = EE.WriteBuf(&Data2Wr, sizeof(Data2Wr), EE_REPDATA_ADDR);
+//                Uart.Ack(b);
+//                // Write pill immediately if connected
+//                if(PillMgr.CheckIfConnected(PILL_I2C_ADDR) == OK) App.OnPillConnect();
+//                return;
+//            } // if pill addr ok
+//        } // if pill addr
+//        Uart.Ack(CMD_ERROR);
+//    }
+#endif // Pills
+
+
     else PShell->Ack(CMD_UNKNOWN);
 }
 #endif
@@ -218,5 +328,30 @@ uint8_t ISetID(int32_t NewID) {
         Uart.Printf("EE error: %u\r", rslt);
         return FAILURE;
     }
+}
+#endif
+
+#if 1 // ======================== Ability Load/Save ============================
+
+void ReadAbilityFromEE() {
+    ee.Read(EE_ADDR_ABILITY, &App.AbilityMsk, 4);
+    Uart.Printf("AbilityMsk: %X\r", App.AbilityMsk);
+    QEvt e;
+    if(App.AbilityMsk & 0x001) { e.sig = PUNCH_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
+    if(App.AbilityMsk & 0x002) { e.sig = PUNCH_PWR_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
+    if(App.AbilityMsk & 0x004) { e.sig = LIFT_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
+    if(App.AbilityMsk & 0x008) { e.sig = LIFT_PWR_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
+    if(App.AbilityMsk & 0x010) { e.sig = WARP_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
+    if(App.AbilityMsk & 0x020) { e.sig = WARP_PWR_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
+    if(App.AbilityMsk & 0x040) { e.sig = CLEANSE_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
+    if(App.AbilityMsk & 0x080) { e.sig = BARRIER_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
+    if(App.AbilityMsk & 0x100) { e.sig = SINGULARITY_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
+    if(App.AbilityMsk & 0x200) { e.sig = SONG_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
+    if(App.AbilityMsk & 0x400) { e.sig = DEFAULT_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
+    if(App.AbilityMsk & 0x800) { e.sig = MAX_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
+}
+
+void WriteAbilityToEE() {
+    ee.Write(EE_ADDR_ABILITY, &App.AbilityMsk, 4);
 }
 #endif

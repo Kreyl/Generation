@@ -20,6 +20,7 @@
 
 // EEAddresses
 #define EE_ADDR_DEVICE_ID   0
+#define EE_ADDR_ABILITY     4
 
 #define ID_MIN              1
 #define ID_MAX              99
@@ -30,6 +31,7 @@ private:
     thread_t *PThread;
 public:
     uint8_t ID;
+    uint32_t AbilityMsk = 0;
     bool UsbIsConnected() { return PinIsHi(USB_DETECT_PIN); }
     // Eternal methods
     void InitThread() { PThread = chThdGetSelfX(); }

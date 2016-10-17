@@ -33,8 +33,6 @@ private:
     void Standby();
     void Resume();
     bool IsConnectedNow;
-    uint8_t Read (uint8_t MemAddr, void *Ptr, uint32_t Length);
-    uint8_t Write(uint8_t MemAddr, void *Ptr, uint32_t Length);
 public:
     PillState_t State;
     Pill_t Pill;
@@ -43,6 +41,8 @@ public:
     void Init();
     void Check();
     uint8_t WritePill();
+    uint8_t Read (uint8_t MemAddr, void *Ptr, uint32_t Length);
+    uint8_t Write(uint8_t MemAddr, void *Ptr, uint32_t Length);
 };
 
 extern PillMgr_t PillMgr;

@@ -277,22 +277,24 @@ static inline void DelayLoop(volatile uint32_t ACounter) { while(ACounter--); }
 //}
 #endif
 
-#if 0 // ======================= Power and backup unit =========================
-#define REBOOT()                SCB_AIRCR = (AIRCR_VECTKEY | 0x04)
+#if 1 // ======================= Power and backup unit =========================
+// See Programming manual: http://www.st.com/content/ccc/resource/technical/document/programming_manual/6c/3a/cb/e7/e4/ea/44/9b/DM00046982.pdf/files/DM00046982.pdf/jcr:content/translations/en.DM00046982.pdf
+// On writes, write 0x5FA to VECTKEY, otherwise the write is ignored. 4 is SYSRESETREQ: System reset request
+#define REBOOT()                SCB->AIRCR = 0x05FA0004
 
 #if defined STM32F2XX || defined STM32F4XX || defined STM32F10X_LD_VL
 namespace BackupSpc {
-static inline void EnableAccess() {
-    rccEnablePWRInterface(FALSE);
-    rccEnableBKPInterface(FALSE);
-    PWR->CR |= PWR_CR_DBP;
-}
-static inline void DisableAccess() { PWR->CR &= ~PWR_CR_DBP; }
+    static inline void EnableAccess() {
+        rccEnablePWRInterface(FALSE);
+        rccEnableBKPInterface(FALSE);
+        PWR->CR |= PWR_CR_DBP;
+    }
+    static inline void DisableAccess() { PWR->CR &= ~PWR_CR_DBP; }
 
-static inline void Reset() {
-    RCC->BDCR |=  RCC_BDCR_BDRST;
-    RCC->BDCR &= ~RCC_BDCR_BDRST;
-}
+    static inline void Reset() {
+        RCC->BDCR |=  RCC_BDCR_BDRST;
+        RCC->BDCR &= ~RCC_BDCR_BDRST;
+    }
 } // namespace
 #endif // STM32F2xx/F4xx
 #endif
