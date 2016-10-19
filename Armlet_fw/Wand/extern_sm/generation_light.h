@@ -15,14 +15,15 @@
 * for more details.
 *****************************************************************************/
 /*${.::generation_light.h} .................................................*/
-#ifndef generation_h
-#define generation_h
+#ifndef generation_light_h
+#define generation_light_h
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "qpc.h"    /* include own framework */
 
 #define BSP_TICKS_PER_SEC 100
-
-extern int DebugSM;
 
 enum PlayerSignals {
     TICK_SEC_SIG  = Q_USER_SIG,
@@ -54,15 +55,10 @@ enum PlayerSignals {
     DEFAULT_PILL_SIG,
     MAX_PILL_SIG,
 
-
-    TERMINATE_SIG /* terminate the application */
+    LAST_USER_SIG = MAX_PILL_SIG
 };
 
 extern QHsm * const the_biotics; /* opaque pointer to the biotics HSM */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*${SMs::Biotics_ctor} .....................................................*/
 void Biotics_ctor(void);
@@ -73,8 +69,8 @@ extern QHsm * const the_hand; /* opaque pointer to the hand HSM */
 /*${SMs::Hand_ctor} ........................................................*/
 void Hand_ctor(void);
 
+
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* generation_h */
+#endif /* generation_light_h */

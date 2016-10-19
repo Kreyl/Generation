@@ -62,7 +62,7 @@ static uint8_t mV2PercentLiIon(uint16_t mV) {
 
 #if 1 // ============================ EEMB =====================================
 #define BAT_TOP_mV          4140
-#define BAT_ZERO_mV         3340
+#define BAT_ZERO_mV         3501
 #define BAT_END_mV          3100    // Do not operate if Ubat <= BAT_END_V
 #define BAT_PERCENT_STEP    8
 

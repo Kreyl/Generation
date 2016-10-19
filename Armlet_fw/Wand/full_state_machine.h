@@ -6,7 +6,7 @@
 #include "state_machine.h"
 #include "extern_sm/generation_light.h"
 
-#define EXTERN_TICK_MS 4000
+#define EXTERN_TICK_MS 1000
 
 const uint8_t SIG_MAP[STROKES_COUNT] =  {
     CHARGE_SIG,

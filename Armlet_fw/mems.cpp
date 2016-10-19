@@ -15,6 +15,7 @@
 #include "main.h"
 
 #include "qpc.h"
+#include "biotics.h"
 
 #include "Sequences.h"
 
@@ -152,9 +153,12 @@ uint8_t Mems_t::Init() {
     Hand_ctor();
     QMSM_INIT(the_hand, (QEvt *)0);
 
+    BIO_set_to_short(5);
+    BIO_set_to_long(3);
+
     Led.StartOrContinue(lsqStart);    // Show Calibration Ongoing
 
-    DebugSM = 0;
+//    DebugSM = 0;
 //    QEvt e;
 //    e.sig = MAX_PILL_SIG;
 //    QMSM_DISPATCH(the_hand, &e);

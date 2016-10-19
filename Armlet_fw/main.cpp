@@ -107,6 +107,7 @@ int main(void) {
 __attribute__ ((__noreturn__))
 void App_t::ITask() {
     bool WasCharging = false;
+    int32_t DischargedIndicationTimeout_s = DISCHARGED_INDICATION_PERIOD_S;
     while(true) {
         uint32_t Evt = chEvtWaitAny(ALL_EVENTS);
         if(Evt & EVT_EVERY_SECOND) {
@@ -141,9 +142,9 @@ void App_t::ITask() {
                 uint32_t VBatAdc = Adc.GetResult(ADC_BATTERY_CHNL);
                 uint32_t VRef = Adc.GetResult(ADC_VREFINT_CHNL);
                 uint32_t VBat_mv = 2 * Adc.Adc2mV(VBatAdc, VRef);
-                uint32_t VDDA_mv = Adc.GetVDDA(VRef);
+//                uint32_t VDDA_mv = Adc.GetVDDA(VRef);
 //                Uart.Printf("adc: %u; Vref: %u; VBat: %u\r", VBatAdc, VRef, VBat_mv);
-//                Uart.Printf("VBat_mv: %u; VDDA: %u\r", VBat_mv, VDDA_mv);
+                Uart.Printf("VBat_mv: %u\r", VBat_mv);
                 // Check battery
                 if(VBat_mv <= BAT_END_mV) {
 //                    Uart.Printf("Discharged to death\r");
@@ -152,7 +153,15 @@ void App_t::ITask() {
 //                    Sleep::EnterStandby();
                 }
                 else if(VBat_mv < BAT_ZERO_mV) {
-                    Led.StartOrContinue(lsqDischarged);
+//                    Uart.Printf("Discharged %d\r", DischargedIndicationTimeout_s);
+                    DischargedIndicationTimeout_s--;
+                    if(DischargedIndicationTimeout_s <= 0) {
+                        if(!Vibro.IsBusy()) {
+                            DischargedIndicationTimeout_s = DISCHARGED_INDICATION_PERIOD_S;
+                            Vibro.StartOrRestart(vsqDischarged);
+                        }
+                    }
+//                    Led.StartOrContinue(lsqDischarged);
                 }
             } // if idle
         }

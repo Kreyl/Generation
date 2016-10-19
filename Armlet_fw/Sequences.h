@@ -431,6 +431,20 @@ const BaseChunk_t vsqBrrBrr[] = {
         {csEnd}
 };
 
+const BaseChunk_t vsqDischarged[] = {
+        {csSetup, VIBRO_VOLUME},
+        {csWait, VIBRO_SHORT_MS},
+        {csSetup, 0},
+        {csWait, 99},
+        {csSetup, VIBRO_VOLUME},
+        {csWait, VIBRO_SHORT_MS},
+        {csSetup, 0},
+        {csWait, 99},
+        {csSetup, VIBRO_VOLUME},
+        {csWait, VIBRO_SHORT_MS},
+        {csSetup, 0},
+        {csEnd}
+};
 
 // Gestures
 #define VMORSE_TONE         {csSetup, VIBRO_VOLUME}

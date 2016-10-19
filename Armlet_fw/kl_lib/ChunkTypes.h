@@ -105,7 +105,9 @@ public:
         }
         ISwitchOff();
     }
+
     const TChunk* GetCurrentSequence() { return IPStartChunk; }
+    const bool IsBusy() { return IPStartChunk != nullptr; }
 
     void IProcessSequenceI() {
         if(chVTIsArmedI(&ITmr)) chVTResetI(&ITmr);  // Reset timer
@@ -133,6 +135,8 @@ public:
 
                 case csEnd:
                     if(PThread != nullptr) chEvtSignalI(PThread, EvtEnd);
+                    IPStartChunk = nullptr;
+                    IPCurrentChunk = nullptr;
                     return;
                     break;
             } // switch

@@ -26,6 +26,8 @@
 #define ID_MAX              99
 #define ID_DEFAULT          ID_MIN
 
+#define DISCHARGED_INDICATION_PERIOD_S  360
+
 class App_t {
 private:
     thread_t *PThread;
