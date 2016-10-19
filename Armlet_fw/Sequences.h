@@ -216,14 +216,14 @@ extern LedRGBChunk_t lsqStart[];
 //};
 
 const LedRGBChunk_t lsqCharging[] = {
-        {csSetup, 360, clGreen},
-        {csSetup, 360, clBlack},
-        {csWait, 630},
+        {csSetup, 540, {0,9,0}},
+        {csSetup, 540, clBlack},
+        {csWait, 900},
         {csGoto, 0}
 };
 
 const LedRGBChunk_t lsqChargingDone[] = {
-        {csSetup, 0, clGreen},
+        {csSetup, 0, {0,9,0}},
         {csEnd}
 };
 

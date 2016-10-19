@@ -106,22 +106,29 @@ int main(void) {
 
 __attribute__ ((__noreturn__))
 void App_t::ITask() {
-    bool WasCharging = false;
+    bool UsbWasConnected = false;
     int32_t DischargedIndicationTimeout_s = DISCHARGED_INDICATION_PERIOD_S;
     while(true) {
         uint32_t Evt = chEvtWaitAny(ALL_EVENTS);
         if(Evt & EVT_EVERY_SECOND) {
-            // Process charging
-            if(IsCharging() and !WasCharging) {
-                WasCharging = true;
-                Led.StartOrContinue(lsqCharging);
-            }
-            else if(!IsCharging() and WasCharging) {
-                WasCharging = false;
-                Led.StartOrContinue(lsqChargingDone);
-            }
-            // Check if USB connected
-            if(!UsbIsConnected()) {
+            if(UsbIsConnected()) {
+                UsbWasConnected = true;
+                // Process charging
+                if(IsCharging()) {
+                    Led.StartOrContinue(lsqCharging);
+                    Uart.Printf("Connected and charging\r");
+                }
+                else {
+                    Led.StartOrContinue(lsqChargingDone);
+                    Uart.Printf("Connected, not charging\r");
+                }
+            } // if(UsbIsConnected()
+            else {
+                if(UsbWasConnected) {
+                    UsbWasConnected = false;
+                    Led.Stop();
+                    Uart.Printf("Disconnected\r");
+                }
                 // Start battery measurement
                 Adc.EnableVref();
                 BatPinGnd.Init();
