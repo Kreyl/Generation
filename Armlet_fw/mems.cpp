@@ -16,8 +16,10 @@
 
 #include "qpc.h"
 
-#include "beeper.h"
 #include "Sequences.h"
+
+/*
+#include "beeper.h"
 
 extern Beeper_t Beeper;
 
@@ -54,28 +56,10 @@ void DbgVibro(uint32_t Indx) {
         default: break;
     }
 }
+*/
 
 //StateMachine stateMachine(0);
 FullStateMachine fullStateMachine(0);
-
-Color_t ClrTbl[] = {
-        clBlack,
-        clWhite,
-        clRed,
-        {100, 100, 0},
-        clYellow,
-        clGreen,
-        clMagenta,
-        clBlue      // CALIBRATION
-};
-
-//static LedRGBChunk_t lsqBlink[] = {
-//        {csSetup, 0, clGreen},
-//        {csWait, 180},
-//        {csSetup, 0, clBlack},
-//        {csWait, 180},
-//        {csGoto, 0}
-//};
 
 static THD_WORKING_AREA(waMemsThread, 4096);
 __noreturn
@@ -87,7 +71,6 @@ static void MemsThread(void *arg) {
 __noreturn
 void Mems_t::ITask() {
     uint32_t PrevTime = 0;
-    bool WasCalibrating = false;
 
     while(true) {
         chThdSleepMilliseconds(16);
@@ -120,60 +103,14 @@ void Mems_t::ITask() {
 
 //        Uart.Printf("%u;   %d; %d; %d;   %d; %d; %d;   %d; %d; %d\r\n", IPkt.Time,  IPkt.gyro[0], IPkt.gyro[1], IPkt.gyro[2], IPkt.acc[0],  IPkt.acc[1],  IPkt.acc[2], IPkt.mag[0],  IPkt.mag[1],  IPkt.mag[2]);
 
-//        uint32_t Tempor = chVTGetSystemTimeX();
-//        int Rslt = stateMachine.setData(Delta, acc, gyro, mag);
-
-//        Uart.Printf("1\r");
-
-        bool IsCalibrating = !fullStateMachine.setData(Delta, acc, gyro, mag);
-        if(IsCalibrating and !WasCalibrating) {
-            WasCalibrating = true;
-        }
-        else if(!IsCalibrating and WasCalibrating) {
-            WasCalibrating = false;
-            Beeper.StartOrRestart(bsqBeepBeep);
-        }
-//        Uart.Printf("2\r");
-//        if(IsCalibrating) Uart.Printf("Calibrating\r");
-//        Tempor = chVTGetSystemTimeX() - Tempor;
-//        Uart.Printf("%u   %f %d  %u\r", chVTGetSystemTimeX(), Delta, Rslt, Tempor);
-//        Uart.Printf("%u \r", Tempor);
-
-//        switch(Rslt) {
-//            case 2: Led.SetColor(clRed); break;
-//            case 3: Led.SetColor(clGreen); break;
-//            case 4: Led.SetColor(clBlue); break;
-//            default: break;
-//        }
-
-//        uint8_t ClrN;
-//        uint16_t BlinkOn, BlinkOff;
-//        uint8_t VibroPwr;
-
-//        if(BlinkOn != 0) {
-//            lsqBlink[0].Color.Set(ClrTbl[ClrN]);
-//            lsqBlink[1].Time_ms = BlinkOn;
-//            lsqBlink[3].Time_ms = BlinkOff;
-//            if(Led.GetCurrentSequence() == nullptr) Led.StartSequence(lsqBlink);
-//        }
-//        else {
-//            if(Led.GetCurrentSequence() != nullptr) Led.Stop();
-//            Led.SetColor(ClrTbl[ClrN]);
-//        }
-//
-//        Vibro.Set(VibroPwr);
-
+        fullStateMachine.setData(Delta, acc, gyro, mag);
     }
 }
 
 
 uint8_t Mems_t::Init() {
-    // Debug Pins
-    PinSetupOut(GPIOB, 0, omPushPull);
-
     PinSetupOut(MEMS_PWR_GPIO, MEMS_PWR_PIN, omPushPull);
-    //    pi2c->ScanBus();
-
+//    pi2c->ScanBus();
     uint32_t n=0;
     while(true) {
         __unused uint8_t v;
@@ -208,9 +145,7 @@ uint8_t Mems_t::Init() {
         magWriteReg(MAG_MR_REG,  0b00000000); // MD = 00 (continuous-conversion mode)
 
         break;
-
-
-    }
+    } // while
 
     Biotics_ctor();
     QMSM_INIT(the_biotics, (QEvt *)0);
@@ -220,9 +155,9 @@ uint8_t Mems_t::Init() {
     Led.StartOrContinue(lsqStart);    // Show Calibration Ongoing
 
     DebugSM = 0;
-    QEvt e;
-    e.sig = MAX_PILL_SIG;
-    QMSM_DISPATCH(the_hand, &e);
+//    QEvt e;
+//    e.sig = MAX_PILL_SIG;
+//    QMSM_DISPATCH(the_hand, &e);
 
     // Thread
     chThdCreateStatic(waMemsThread, sizeof(waMemsThread), NORMALPRIO, (tfunc_t)MemsThread, NULL);
@@ -262,12 +197,7 @@ uint8_t Mems_t::accReadReg(uint8_t Reg, uint8_t *PValue) {
 
 uint8_t Mems_t::accRead(int16_t *pBuf) {
     uint8_t reg = ACC_OUT_X_L | (1 << 7);   // Enable address auto-inc by setting MSB '1'
-    uint8_t r = pi2c->WriteRead(ACC_I2C_ADDR, &reg, 1, (uint8_t*)pBuf, 6);
-    // ?
-//    pBuf[0] >>= 4;
-//    pBuf[1] >>= 4;
-//    pBuf[2] >>= 4;
-    return r;
+    return pi2c->WriteRead(ACC_I2C_ADDR, &reg, 1, (uint8_t*)pBuf, 6);
 }
 #endif
 
