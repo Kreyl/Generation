@@ -112,14 +112,14 @@ void Mems_t::ITask() {
 uint8_t Mems_t::Init() {
     PinSetupOut(MEMS_PWR_GPIO, MEMS_PWR_PIN, omPushPull);
 //    pi2c->ScanBus();
-    uint32_t n=0;
-    while(true) {
+    for(int n=0; n<4; n++) {
         __unused uint8_t v;
-        n++;
         Uart.Printf("AccGyro Init: %u\r", n);
+        pi2c->Standby();
         Off();
         chThdSleepMilliseconds(99);
         On();
+        pi2c->Resume();
         chThdSleepMilliseconds(99);
         // Gyro
         gyroWriteReg(L3G_CTRL_REG4, 0x20); // 2000 dps full scale
@@ -144,9 +144,7 @@ uint8_t Mems_t::Init() {
         magWriteReg(MAG_CRA_REG, 0b00001100); // DO = 011 (7.5 Hz ODR)
         magWriteReg(MAG_CRB_REG, 0b00100000); // GN = 001 (+/- 1.3 gauss full scale)
         magWriteReg(MAG_MR_REG,  0b00000000); // MD = 00 (continuous-conversion mode)
-
-        break;
-    } // while
+    } // for
 
     Biotics_ctor();
     QMSM_INIT(the_biotics, (QEvt *)0);
