@@ -62,7 +62,7 @@ void DbgVibro(uint32_t Indx) {
 //StateMachine stateMachine(0);
 FullStateMachine fullStateMachine(0);
 
-static THD_WORKING_AREA(waMemsThread, 4096);
+static THD_WORKING_AREA(waMemsThread, 16384);
 __noreturn
 static void MemsThread(void *arg) {
     chRegSetThreadName("Mems");
@@ -72,6 +72,7 @@ static void MemsThread(void *arg) {
 __noreturn
 void Mems_t::ITask() {
     uint32_t PrevTime = 0;
+    int n=0;
 
     while(true) {
         chThdSleepMilliseconds(16);
@@ -102,7 +103,10 @@ void Mems_t::ITask() {
             mag[i] = IPkt.mag[i];
         }
 
-//        Uart.Printf("%u;   %d; %d; %d;   %d; %d; %d;   %d; %d; %d\r\n", IPkt.Time,  IPkt.gyro[0], IPkt.gyro[1], IPkt.gyro[2], IPkt.acc[0],  IPkt.acc[1],  IPkt.acc[2], IPkt.mag[0],  IPkt.mag[1],  IPkt.mag[2]);
+        if(n-- == 0) {
+            n = 11;
+            Uart.Printf("%u;   %d; %d; %d;   %d; %d; %d;   %d; %d; %d\r\n", IPkt.Time,  IPkt.gyro[0], IPkt.gyro[1], IPkt.gyro[2], IPkt.acc[0],  IPkt.acc[1],  IPkt.acc[2], IPkt.mag[0],  IPkt.mag[1],  IPkt.mag[2]);
+        }
 
         fullStateMachine.setData(Delta, acc, gyro, mag);
     }

@@ -23,18 +23,18 @@ int StateMachine::setData(const float delta,
     inClaibration = imu.calc(delta, accIn, gyroIn, magIn, axis, &gyro, acc, heading);
 
     float Norm = norm(heading);
-//    Uart.Printf("Norm: %f\r", Norm);
-//    Uart.Printf("Heading: %f %f %f; inc: %u\r", heading[0], heading[1], heading[2], inClaibration);
+    Uart.Printf("N: %f;   ", Norm);
+    Uart.Printf("H: %f %f %f\r", heading[0], heading[1], heading[2]);
 
     if (inClaibration) {
         return CALIBRATION;
     }
 
-    if(Norm < 0.5) {
-        REBOOT();
-        imu.resetCalibration();
-        Led.StartOrContinue(lsqStart);
-    }
+//    if(Norm < 0.5) {
+//        REBOOT();
+//        imu.resetCalibration();
+//        Led.StartOrContinue(lsqStart);
+//    }
 
     return splitter.setIMUData(delta, gyro, acc, heading) + STATES_OFFSET;
 }
