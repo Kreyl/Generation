@@ -11,12 +11,19 @@ int StateMachine::setData(const float delta,
     bool inClaibration;
     float gyro;
     float acc[DIMENTION];
-    float heading[DIMENTION];  
+    float heading[DIMENTION];
 
     inClaibration = imu.calc(delta, accIn, gyroIn, magIn, axis, &gyro, acc, heading);
 
     if (inClaibration) {
         return CALIBRATION;
+    }
+
+    float Norm = norm(heading);
+
+    if(Norm < 0.5) {
+        imu.softReset();
+        Led.StartOrRestart(lsqFailure);
     }
 
     return splitter.setIMUData(delta, gyro, acc, heading) + STATES_OFFSET;

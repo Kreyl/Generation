@@ -34,6 +34,10 @@ void IMU::resetCalibration() {
     inCalibration = true;
     calibrationCounter = 0;
     stacksReady = false;
+    softReset();
+}
+
+void IMU::softReset() {
     magHeading = 0;
     gyroNorm = 0;
 
