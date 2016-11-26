@@ -35,6 +35,10 @@ int StateMachine::setData(const float delta,
 //        imu.resetCalibration();
 //        Led.StartOrContinue(lsqStart);
 //    }
+    if(Norm < 0.5) {
+        imu.softReset();
+        Led.StartOrRestart(lsqFailure);
+    }
 
     return splitter.setIMUData(delta, gyro, acc, heading) + STATES_OFFSET;
 }

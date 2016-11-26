@@ -53,7 +53,7 @@ private:
 
     float omegaP[DIMENTION];
     float omegaI[DIMENTION];
-    float angles[DIMENTION]; // roll, pitch, yaw 
+    float angles[DIMENTION]; // roll, pitch, yaw
 
     float dcmMatrix[DIMENTION][DIMENTION];
 
@@ -63,7 +63,7 @@ private:
     float gyroNorm;
 
     float aStack[CALIBRATION_LENGTH][DIMENTION];
-    float gStack[CALIBRATION_LENGTH][DIMENTION];    
+    float gStack[CALIBRATION_LENGTH][DIMENTION];
 
     int calibrationCounter;
     bool stacksReady;
@@ -90,11 +90,12 @@ private:
 
 public:
     IMU();
-    bool calc(const float delta, 
+    bool calc(const float delta,
               const float accIn[DIMENTION], const float gyroIn[DIMENTION], const float magIn[DIMENTION],
               int axis,
               float * gyroOut, float accOut[DIMENTION], float headingOut[DIMENTION]);
     void resetCalibration();
+    void softReset();
 
 };
 #endif
