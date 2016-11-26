@@ -4,25 +4,25 @@
 void copyPoint(const float source[DIMENTION], float dest[DIMENTION]) {
     for (int i = 0; i < DIMENTION; i++) {
         dest[i] = source[i];
-    }    
+    }
 }
 
 void addVec(float vr[DIMENTION], const float v1[DIMENTION], const float v2[DIMENTION]) {
     for (int i=0; i<DIMENTION; i++) {
-        vr[i] = v1[i] + v2[i]; 
-    }  
+        vr[i] = v1[i] + v2[i];
+    }
 }
 
 void subVec(float vr[DIMENTION], const float v1[DIMENTION], const float v2[DIMENTION]) {
     for (int i=0; i<DIMENTION; i++) {
-        vr[i] = v1[i] - v2[i]; 
-    }  
+        vr[i] = v1[i] - v2[i];
+    }
 }
 
 void scaleVec(float vr[DIMENTION], const float v[DIMENTION], const float k) {
     for (int i=0; i<DIMENTION; i++) {
-        vr[i] = v[i] * k; 
-    }  
+        vr[i] = v[i] * k;
+    }
 }
 
 float norm(const float v[DIMENTION]) {
@@ -68,19 +68,25 @@ void adjustVecT(float vr[DIMENTION], const float v[DIMENTION], const float m[DIM
     for (int i=0; i<DIMENTION; i++) {
         vr[i] = 0;
         for (int j=0; j<DIMENTION; j++) {
-            vr[i] += m[i][j] * v[j];   
+            vr[i] += m[i][j] * v[j];
         }
     }
 }
 
 void multiply(float mr[DIMENTION][DIMENTION], const float m1[DIMENTION][DIMENTION], const float m2[DIMENTION][DIMENTION]) {
+    float tmp[DIMENTION][DIMENTION];
     for (int i=0; i<DIMENTION; i++) {
         for (int j=0; j<DIMENTION; j++) {
             float sum = 0;
             for (int k=0; k<DIMENTION; k++) {
                 sum += m1[i][k] * m2[k][j];
             }
-            mr[i][j] = sum;
+            tmp[i][j] = sum;
+        }
+    }
+    for (int i=0; i<DIMENTION; i++) {
+        for (int j=0; j<DIMENTION; j++) {
+            mr[i][j] = tmp[i][j];
         }
     }
 }
