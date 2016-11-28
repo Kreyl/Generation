@@ -1,4 +1,7 @@
 #include "state_machine.h"
+#include "matrix.h"
+#include "main.h"
+#include "Sequences.h"
 
 StateMachine::StateMachine(int axis) {
     this->axis = axis;

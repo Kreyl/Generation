@@ -49,7 +49,7 @@ LedRGBChunk_t lsqStart[] = {
 
 int main(void) {
     // ==== Setup clock frequency ====
-    Clk.SetupBusDividers(ahbDiv2, apbDiv1, apbDiv1);
+    Clk.SetupBusDividers(ahbDiv1, apbDiv1, apbDiv1);
     Clk.SetupPllSrc(pllsrcMsi); // Required to allow PLLSAI1 for ADC clocking
     Clk.UpdateFreqValues();
 
