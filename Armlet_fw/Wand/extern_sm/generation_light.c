@@ -51,6 +51,7 @@ static QState Biotics_I(Biotics * const me, QEvt const * const e);
 static QState Biotics_II(Biotics * const me, QEvt const * const e);
 static QState Biotics_III(Biotics * const me, QEvt const * const e);
 static QState Biotics_IV(Biotics * const me, QEvt const * const e);
+static QState Biotics_IM(Biotics * const me, QEvt const * const e);
 static QState Biotics_IIM(Biotics * const me, QEvt const * const e);
 static QState Biotics_IIIM(Biotics * const me, QEvt const * const e);
 
@@ -140,6 +141,12 @@ static QState Biotics_I(Biotics * const me, QEvt const * const e) {
             status_ = Q_HANDLED();
             break;
         }
+        case I_SIG: {
+            me->Signal = e->sig;
+            status_ = Q_TRAN(&Biotics_IM);
+            break;
+        }
+
         case II_SIG: {
             me->Signal = e->sig;
             status_ = Q_TRAN(&Biotics_II);
@@ -158,6 +165,25 @@ static QState Biotics_I(Biotics * const me, QEvt const * const e) {
             break;
         }
 
+        default: {
+            status_ = Q_SUPER(&Biotics_active);
+            break;
+        }
+    }
+    return status_;
+}
+
+static QState Biotics_IM(Biotics * const me, QEvt const * const e) {
+    QState status_;
+    switch (e->sig) {
+        /* ${SMs::Biotics::SM::active::song} */
+        case Q_ENTRY_SIG: {
+            BIO_SET_TO(Short);
+            vibro(100);
+            RGB_blink_fast(VIOLET);
+            status_ = Q_HANDLED();
+            break;
+        }
         default: {
             status_ = Q_SUPER(&Biotics_active);
             break;
