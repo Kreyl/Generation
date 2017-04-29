@@ -76,29 +76,29 @@ int main(void) {
     i2c2.Init();
     i2c3.Init();
 
-    PillMgr.Init();
+//    PillMgr.Init();
 
-    ee.Init();
-    ReadIDfromEE();
+//    ee.Init();
+//    ReadIDfromEE();
 
     Uart.Printf("\r%S %S ID=%u\r", APP_NAME, BUILD_TIME, App.ID);
     Clk.PrintFreqs();
 
     // Battery measurement
-    Adc.Init();
-    BatPinGnd.Deinit();
-    PinSetupAnalog(BAT_INPUT_PIN);
+//    Adc.Init();
+//    BatPinGnd.Deinit();
+//    PinSetupAnalog(BAT_INPUT_PIN);
 
-    TmrEverySecond.InitAndStart();
+//    TmrEverySecond.InitAndStart();
 
-//    if(Radio.Init() == OK) {
+    if(Radio.Init() == OK) {
         Vibro.StartOrRestart(vsqBrrBrr);
-//    }
+    }
 //    else Led.StartSequence(lsqFailure);
     chThdSleepMilliseconds(720);
 
     Mems.Init();
-    ReadAbilityFromEE();
+//    ReadAbilityFromEE();
 
     // Main cycle
     App.ITask();
@@ -110,33 +110,33 @@ void App_t::ITask() {
     int32_t DischargedIndicationTimeout_s = DISCHARGED_INDICATION_PERIOD_S;
     while(true) {
         uint32_t Evt = chEvtWaitAny(ALL_EVENTS);
-        if(Evt & EVT_EVERY_SECOND) {
-            if(UsbIsConnected()) {
-                UsbWasConnected = true;
-                // Process charging
-                if(IsCharging()) {
-                    Led.StartOrContinue(lsqCharging);
-                    Uart.Printf("Connected and charging\r");
-                }
-                else {
-                    Led.StartOrContinue(lsqChargingDone);
-                    Uart.Printf("Connected, not charging\r");
-                }
-            } // if(UsbIsConnected()
-            else {
-                if(UsbWasConnected) {
-                    UsbWasConnected = false;
-                    Led.Stop();
-                    Uart.Printf("Disconnected\r");
-                }
-                // Start battery measurement
-                Adc.EnableVref();
-                BatPinGnd.Init();
-                BatPinGnd.SetLo();
-                PinConnectAdc(BAT_INPUT_PIN);
-                Adc.StartMeasurement();
-            }
-        } // EVT_EVERY_SECOND
+//        if(Evt & EVT_EVERY_SECOND) {
+//            if(UsbIsConnected()) {
+//                UsbWasConnected = true;
+//                // Process charging
+//                if(IsCharging()) {
+//                    Led.StartOrContinue(lsqCharging);
+//                    Uart.Printf("Connected and charging\r");
+//                }
+//                else {
+//                    Led.StartOrContinue(lsqChargingDone);
+//                    Uart.Printf("Connected, not charging\r");
+//                }
+//            } // if(UsbIsConnected()
+//            else {
+//                if(UsbWasConnected) {
+//                    UsbWasConnected = false;
+//                    Led.Stop();
+//                    Uart.Printf("Disconnected\r");
+//                }
+//                // Start battery measurement
+//                Adc.EnableVref();
+//                BatPinGnd.Init();
+//                BatPinGnd.SetLo();
+//                PinConnectAdc(BAT_INPUT_PIN);
+//                Adc.StartMeasurement();
+//            }
+//        } // EVT_EVERY_SECOND
 
 #if ADC_REQUIRED
         if(Evt & EVT_ADC_DONE) {
@@ -174,7 +174,7 @@ void App_t::ITask() {
         }
 #endif
 
-#if 1 // ==== Pill ====
+#if 0 // ==== Pill ====
         if(Evt & EVT_PILL_CONNECTED) {
             Uart.Printf("Pill: %d; %X\r", PillMgr.Pill.TypeInt32, PillMgr.Pill.AbilityID);
             if(PillMgr.Pill.Type == pilltypeAbility) {

@@ -30,7 +30,7 @@
 #define I2C2_ENABLED            TRUE
 #define I2C3_ENABLED            TRUE
 
-#define ADC_REQUIRED            TRUE
+#define ADC_REQUIRED            FALSE
 #define STM32_DMA_REQUIRED      TRUE    // Leave this macro name for OS
 
 #if 1 // ========================== GPIO =======================================
