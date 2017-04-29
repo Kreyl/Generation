@@ -26,13 +26,13 @@ Color_t ClrTbl[] = {
         clBlue      // CALIBRATION
 };
 
-static LedRGBChunk_t lsqBlink[] = {
-        {csSetup, 0, clGreen},
-        {csWait, 180},
-        {csSetup, 0, clBlack},
-        {csWait, 180},
-        {csGoto, 0}
-};
+//static LedRGBChunk_t lsqBlink[] = {
+//        {csSetup, 0, clGreen},
+//        {csWait, 180},
+//        {csSetup, 0, clBlack},
+//        {csWait, 180},
+//        {csGoto, 0}
+//};
 
 static THD_WORKING_AREA(waMemsThread, 1024);
 __noreturn
@@ -41,55 +41,68 @@ static void MemsThread(void *arg) {
     Mems.ITask();
 }
 
+TmrKL_t SnsTmr(MS2ST(20), EVT_START_LISTEN, tktPeriodic);
+
 __noreturn
 void Mems_t::ITask() {
-    uint32_t PrevTime = 0;
+//    uint32_t PrevTime = 0;
     while(true) {
-        chThdSleepMilliseconds(16);
+//        chThdSleepMilliseconds(16);
+        chEvtWaitAny(ALL_EVENTS);
         rPkt_t IPkt;
-        IPkt.Time = chVTGetSystemTime() / 10;
-        uint32_t tmp32 = IPkt.Time - PrevTime;
-        float Delta = tmp32;
-        Delta /= 1000;
-        PrevTime = IPkt.Time;
-        // Read raw data
+        uint32_t Time = chVTGetSystemTimeX();
+        Time = ST2MS(Time);
+        IPkt.Time = Time;
+
+//        Time = chVTGetSystemTimeX() - PrevTime;
+//        PrevTime = chVTGetSystemTimeX();
+//        Uart.Printf("t=%u\r", Time);
+
         gyroRead(IPkt.gyro);
         accRead(IPkt.acc);
         magRead(IPkt.mag);
+
         // Replace gyro axes
         int16_t tmp = IPkt.gyro[0];
         IPkt.gyro[0] = IPkt.gyro[1];
         IPkt.gyro[1] = -tmp;
 
-        // Add pkt to buf
-        Radio.TxBuf.PutAnyway(IPkt);
+        // Replace Mag axes
+        tmp = IPkt.mag[2];
+        IPkt.mag[2] = IPkt.mag[1];
+        IPkt.mag[1] = tmp;
 
-        float acc[3], gyro[3], mag[3];
-        for(int i=0; i<3; i++) {
-            acc[i] = IPkt.acc[i];
-            gyro[i] = IPkt.gyro[i];
-            mag[i] = IPkt.mag[i];
-        }
+        // Add pkt to buf
+        chSysLock();
+        Radio.TxBuf.PutAnyway(IPkt);
+        chSysUnlock();
+
+//        float acc[3], gyro[3], mag[3];
+//        for(int i=0; i<3; i++) {
+//            acc[i] = IPkt.acc[i];
+//            gyro[i] = IPkt.gyro[i];
+//            mag[i] = IPkt.mag[i];
+//        }
 
 //        Uart.Printf("%u;   %d; %d; %d;   %d; %d; %d;   %d; %d; %d\r\n", IPkt.Time,  IPkt.gyro[0], IPkt.gyro[1], IPkt.gyro[2], IPkt.acc[0],  IPkt.acc[1],  IPkt.acc[2], IPkt.mag[0],  IPkt.mag[1],  IPkt.mag[2]);
-        uint8_t ClrN;
-        uint16_t BlinkOn, BlinkOff;
-        uint8_t VibroPwr;
+//        uint8_t ClrN;
+//        uint16_t BlinkOn, BlinkOff;
+//        uint8_t VibroPwr;
 
-        fullStateMachine.setData(Delta, acc, gyro, mag, 0xFFFFFFFF, &ClrN, &BlinkOn, &BlinkOff, &VibroPwr);
+//        fullStateMachine.setData(Delta, acc, gyro, mag, 0xFFFFFFFF, &ClrN, &BlinkOn, &BlinkOff, &VibroPwr);
 
-        if(BlinkOn != 0) {
-            lsqBlink[0].Color.Set(ClrTbl[ClrN]);
-            lsqBlink[1].Time_ms = BlinkOn;
-            lsqBlink[3].Time_ms = BlinkOff;
-            if(Led.GetCurrentSequence() == nullptr) Led.StartSequence(lsqBlink);
-        }
-        else {
-            if(Led.GetCurrentSequence() != nullptr) Led.Stop();
-            Led.SetColor(ClrTbl[ClrN]);
-        }
+//        if(BlinkOn != 0) {
+//            lsqBlink[0].Color.Set(ClrTbl[ClrN]);
+//            lsqBlink[1].Time_ms = BlinkOn;
+//            lsqBlink[3].Time_ms = BlinkOff;
+//            if(Led.GetCurrentSequence() == nullptr) Led.StartSequence(lsqBlink);
+//        }
+//        else {
+//            if(Led.GetCurrentSequence() != nullptr) Led.Stop();
+//            Led.SetColor(ClrTbl[ClrN]);
+//        }
 
-        Vibro.Set(VibroPwr);
+//        Vibro.Set(VibroPwr);
 
     }
 }
@@ -115,7 +128,7 @@ uint8_t Mems_t::Init() {
 //    Uart.Printf("gyro: %X\r", v);
 
     // Acc
-    accWriteReg(ACC_CTRL_REG4, 0b00101000); // FS = 10 (+/- 8 g full scale); HR = 1 (high resolution enable)
+    accWriteReg(ACC_CTRL_REG4, 0b10101000); // Block data update; FS = 10 (+/- 8 g full scale); HR = 1 (high resolution enable)
     accWriteReg(ACC_CTRL_REG1, 0b01000111); // ODR = 0100 (50 Hz ODR); LPen = 0 (normal mode); all axes enabled
 //    accReadReg(ACC_CTRL_REG1, &v);
 //    Uart.Printf("acc: %X\r", v);
@@ -151,7 +164,8 @@ uint8_t Mems_t::Init() {
 //    AccOffset[2] -= GRAVITY;
 
     // Thread
-    chThdCreateStatic(waMemsThread, sizeof(waMemsThread), NORMALPRIO, (tfunc_t)MemsThread, NULL);
+    thread_reference_t Thd = chThdCreateStatic(waMemsThread, sizeof(waMemsThread), NORMALPRIO, (tfunc_t)MemsThread, NULL);
+    SnsTmr.InitAndStart(Thd);
     return 0;
 }
 

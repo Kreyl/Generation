@@ -1520,7 +1520,9 @@ void Clk_t::SetHiPerfMode() {
     // Try to enable HSE
     if(EnableHSE() == OK) {
         // Setup PLL (must be disabled first)
-        if(SetupPLLMulDiv(1, 24, 4, 6) == OK) { // 12MHz / 1 * 24 => 72 and 48MHz
+//        if(SetupPLLMulDiv(1, 24, 4, 6) == OK) { // 12MHz / 1 * 24 => 72 and 48MHz
+//        if(SetupPLLMulDiv(2, 16, 2, 2) == OK) { // 12MHz / 2 * 16 / 2 => 48 and 48MHz
+        if(SetupPLLMulDiv(2, 8, 2, 2) == OK) { // 12MHz / 6 * 8 / 2 => 24 and 24MHz
             SetupBusDividers(ahbDiv1, apbDiv1, apbDiv1);
             SetVoltageRange(mvrHiPerf);
             SetupFlashLatency(72, mvrHiPerf);

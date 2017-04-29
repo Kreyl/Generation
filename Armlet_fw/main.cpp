@@ -21,6 +21,7 @@ Vibro_t Vibro {VIBRO_PIN};
 
 int main(void) {
     // ==== Setup clock frequency ====
+    Clk.SetHiPerfMode();
     Clk.UpdateFreqValues();
 
     // Init OS
