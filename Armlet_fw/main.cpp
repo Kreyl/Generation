@@ -311,6 +311,15 @@ void App_t::OnCmd(Shell_t *PShell) {
 //    }
 #endif // Pills
 
+    // Calibration
+    else if(PCmd->NameIs("CalG")) Mems.SetState(mstCalG);
+
+    else if(PCmd->NameIs("CalA1")) Mems.SetState(mstCalA1);
+    else if(PCmd->NameIs("CalA2")) Mems.SetState(mstCalA2);
+    else if(PCmd->NameIs("CalA3")) Mems.SetState(mstCalA3);
+    else if(PCmd->NameIs("CalA4")) Mems.SetState(mstCalA4);
+    else if(PCmd->NameIs("CalA5")) Mems.SetState(mstCalA5);
+    else if(PCmd->NameIs("CalA6")) Mems.SetState(mstCalA6);
 
     else PShell->Ack(CMD_UNKNOWN);
 }

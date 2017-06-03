@@ -18,6 +18,8 @@
 
 #define APP_NAME            "ArmletG"
 
+#define RADIO_ENABLED       TRUE
+
 // EEAddresses
 #define EE_ADDR_DEVICE_ID   0
 #define EE_ADDR_ABILITY     4

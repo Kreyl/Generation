@@ -103,12 +103,63 @@ void Mems_t::ITask() {
             mag[i] = IPkt.mag[i];
         }
 
-        if(n-- == 0) {
-            n = 11;
-            Uart.Printf("%u;   %d; %d; %d;   %d; %d; %d;   %d; %d; %d\r\n", IPkt.Time,  IPkt.gyro[0], IPkt.gyro[1], IPkt.gyro[2], IPkt.acc[0],  IPkt.acc[1],  IPkt.acc[2], IPkt.mag[0],  IPkt.mag[1],  IPkt.mag[2]);
-        }
+        // Do calibration if needed
+        switch(State) {
+            case mstCalG:
+                GyroOffset[0] += IPkt.gyro[0];
+                GyroOffset[1] += IPkt.gyro[1];
+                GyroOffset[2] += IPkt.gyro[2];
+                CalCounter++;
+                Uart.Printf("%d; %d; %d\r", GyroOffset[0], GyroOffset[1], GyroOffset[2]);
+                if(CalCounter >= GYRO_CAL_CNT) {
+                    chSysLock();
+                    GyroOffset[0] /= CalCounter;
+                    GyroOffset[1] /= CalCounter;
+                    GyroOffset[2] /= CalCounter;
+                    State = mstNormal;
+                    Uart.PrintfI("Gyro calibration done: %d %d %d\r", GyroOffset[0], GyroOffset[1], GyroOffset[2]);
+                    chSysUnlock();
+                }
+                break;
 
-        fullStateMachine.setData(Delta, acc, gyro, mag);
+            case mstCalA1:
+            case mstCalA2:
+            case mstCalA3:
+            case mstCalA4:
+            case mstCalA5:
+            case mstCalA6:
+                AccOffset[0] += IPkt.acc[0];
+                AccOffset[1] += IPkt.acc[1];
+                AccOffset[2] += IPkt.acc[2];
+                CalCounter++;
+                if(CalCounter >= ACC_CAL_CNT) {
+                    if(State == mstCalA6) {
+                        AccOffset[0] /= (CalCounter * 6);
+                        AccOffset[1] /= (CalCounter * 6);
+                        AccOffset[2] /= (CalCounter * 6);
+                        Uart.PrintfI("Acc calibration done: %d %d %d\r", AccOffset[0], AccOffset[1], AccOffset[2]);
+                        State = mstNormal;
+                    }
+                    else {
+                        Uart.PrintfI("Acc phase done: %d %d %d\r", AccOffset[0], AccOffset[1], AccOffset[2]);
+                        State = mstIntermediate;
+                    }
+                }
+                break;
+
+            case mstNormal:
+                fullStateMachine.setData(Delta, acc, gyro, mag);
+                break;
+
+            default: break;
+        } // switch
+
+//        if(n-- == 0) {
+//            n = 11;
+//            Uart.Printf("%u;   %d; %d; %d;   %d; %d; %d;   %d; %d; %d\r\n", IPkt.Time,  IPkt.gyro[0], IPkt.gyro[1], IPkt.gyro[2], IPkt.acc[0],  IPkt.acc[1],  IPkt.acc[2], IPkt.mag[0],  IPkt.mag[1],  IPkt.mag[2]);
+//        }
+
+
     }
 }
 
@@ -170,6 +221,45 @@ uint8_t Mems_t::Init() {
     return 0;
 }
 
+void Mems_t::SetState(MemsState_t NewState) {
+    chSysLock();
+    State = NewState;
+    CalCounter = 0;
+    switch(State) {
+        case mstCalG:
+            Uart.PrintfI("Gyro calibration...\r");
+            GyroOffset[0] = 0;
+            GyroOffset[1] = 0;
+            GyroOffset[2] = 0;
+            break;
+
+        case mstCalA1:
+            Uart.PrintfI("Acc calibration phase1...\r");
+            AccOffset[0] = 0;
+            AccOffset[1] = 0;
+            AccOffset[2] = 0;
+            break;
+
+        case mstCalA2:
+            Uart.PrintfI("Acc calibration phase2...\r");
+            break;
+        case mstCalA3:
+            Uart.PrintfI("Acc calibration phase3...\r");
+            break;
+        case mstCalA4:
+            Uart.PrintfI("Acc calibration phase4...\r");
+            break;
+        case mstCalA5:
+            Uart.PrintfI("Acc calibration phase5...\r");
+            break;
+        case mstCalA6:
+            Uart.PrintfI("Acc calibration phase6...\r");
+            break;
+
+        default: break;
+    }
+    chSysUnlock();
+}
 
 #if 1 // ============================== Gyro ===================================
 uint8_t Mems_t::gyroWriteReg(uint8_t Reg, uint8_t Value) {
