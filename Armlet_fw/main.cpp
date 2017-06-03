@@ -21,7 +21,9 @@ Vibro_t Vibro {VIBRO_PIN};
 
 int main(void) {
     // ==== Setup clock frequency ====
+#if RADIO_ENABLED
     Clk.SetHiPerfMode();
+#endif
     Clk.UpdateFreqValues();
 
     // Init OS
@@ -39,19 +41,20 @@ int main(void) {
     Vibro.Init();
 
     i2c1.Init();
-//    i2c3.Init();
+    i2c3.Init();
 
-//    ee.Init();
-//    ee.On();
+    ee.Init();
+    ee.On();
 
     Mems.Init();
-
+#if RADIO_ENABLED
     if(Radio.Init() == OK) {
         Led.StartSequence(lsqStart);
         Vibro.StartSequence(vsqBrr);
     }
     else Led.StartSequence(lsqFailure);
     chThdSleepMilliseconds(1800);
+#endif
 
     // Main cycle
     App.ITask();
@@ -84,6 +87,15 @@ void App_t::OnCmd(Shell_t *PShell) {
     Uart.Printf("\r%S\r", PCmd->Name);
     // Handle command
     if(PCmd->NameIs("Ping")) PShell->Ack(OK);
+
+    else if(PCmd->NameIs("CalG")) Mems.SetState(mstCalG);
+
+    else if(PCmd->NameIs("CalA1")) Mems.SetState(mstCalA1);
+    else if(PCmd->NameIs("CalA2")) Mems.SetState(mstCalA2);
+    else if(PCmd->NameIs("CalA3")) Mems.SetState(mstCalA3);
+    else if(PCmd->NameIs("CalA4")) Mems.SetState(mstCalA4);
+    else if(PCmd->NameIs("CalA5")) Mems.SetState(mstCalA5);
+    else if(PCmd->NameIs("CalA6")) Mems.SetState(mstCalA6);
 
     else PShell->Ack(CMD_UNKNOWN);
 }

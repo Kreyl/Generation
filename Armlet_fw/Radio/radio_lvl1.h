@@ -103,7 +103,7 @@ private:
 public:
     thread_t *PThd;
     int8_t Rssi;
-    CircBuf_t<rPkt_t, 9> TxBuf;
+    CircBuf_t<rPkt_t, 54> TxBuf;
     uint8_t Init();
     // Inner use
     void ITask();

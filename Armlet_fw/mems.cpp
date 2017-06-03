@@ -41,7 +41,12 @@ static void MemsThread(void *arg) {
     Mems.ITask();
 }
 
-TmrKL_t SnsTmr(MS2ST(20), EVT_START_LISTEN, tktPeriodic);
+TmrKL_t SnsTmr(MS2ST(5), EVT_START_LISTEN, tktPeriodic);
+
+#define DBG_GPIO1   GPIOB
+#define DBG_PIN1    0
+#define DBG1_SET()  PinSetHi(DBG_GPIO1, DBG_PIN1)
+#define DBG1_CLR()  PinSetLo(DBG_GPIO1, DBG_PIN1)
 
 __noreturn
 void Mems_t::ITask() {
@@ -72,41 +77,111 @@ void Mems_t::ITask() {
         IPkt.mag[2] = IPkt.mag[1];
         IPkt.mag[1] = tmp;
 
-        // Add pkt to buf
-        chSysLock();
-        Radio.TxBuf.PutAnyway(IPkt);
-        chSysUnlock();
+        // Do calibration if needed
+        switch(State) {
+            case mstCalG:
+                GyroOffset[0] += IPkt.gyro[0];
+                GyroOffset[1] += IPkt.gyro[1];
+                GyroOffset[2] += IPkt.gyro[2];
+                CalCounter++;
+                Uart.Printf("%d; %d; %d\r", GyroOffset[0], GyroOffset[1], GyroOffset[2]);
+                if(CalCounter >= GYRO_CAL_CNT) {
+                    chSysLock();
+                    GyroOffset[0] /= CalCounter;
+                    GyroOffset[1] /= CalCounter;
+                    GyroOffset[2] /= CalCounter;
+                    State = mstNormal;
+                    Uart.PrintfI("Gyro calibration done: %d %d %d\r", GyroOffset[0], GyroOffset[1], GyroOffset[2]);
+                    chSysUnlock();
+                }
+                break;
 
-//        float acc[3], gyro[3], mag[3];
-//        for(int i=0; i<3; i++) {
-//            acc[i] = IPkt.acc[i];
-//            gyro[i] = IPkt.gyro[i];
-//            mag[i] = IPkt.mag[i];
-//        }
+            case mstCalA1:
+            case mstCalA2:
+            case mstCalA3:
+            case mstCalA4:
+            case mstCalA5:
+            case mstCalA6:
+                AccOffset[0] += IPkt.acc[0];
+                AccOffset[1] += IPkt.acc[1];
+                AccOffset[2] += IPkt.acc[2];
+                CalCounter++;
+                if(CalCounter >= ACC_CAL_CNT) {
+                    if(State == mstCalA6) {
+                        AccOffset[0] /= (CalCounter * 6);
+                        AccOffset[1] /= (CalCounter * 6);
+                        AccOffset[2] /= (CalCounter * 6);
+                        Uart.PrintfI("Acc calibration done: %d %d %d\r", AccOffset[0], AccOffset[1], AccOffset[2]);
+                        State = mstNormal;
+                    }
+                    else {
+                        Uart.PrintfI("Acc phase done: %d %d %d\r", AccOffset[0], AccOffset[1], AccOffset[2]);
+                        State = mstIntermediate;
+                    }
+                }
+                break;
+
+            case mstNormal:
+#if RADIO_ENABLED
+                DBG1_SET();
+                CC.TransmitSync(&IPkt);
+                DBG1_CLR();
+#endif
+                break;
+
+            default: break;
+        } // switch
+
+        // Add pkt to buf
+//        chSysLock();
+//        Radio.TxBuf.Put(&IPkt);
+//        chSysUnlock();
+
 
 //        Uart.Printf("%u;   %d; %d; %d;   %d; %d; %d;   %d; %d; %d\r\n", IPkt.Time,  IPkt.gyro[0], IPkt.gyro[1], IPkt.gyro[2], IPkt.acc[0],  IPkt.acc[1],  IPkt.acc[2], IPkt.mag[0],  IPkt.mag[1],  IPkt.mag[2]);
-//        uint8_t ClrN;
-//        uint16_t BlinkOn, BlinkOff;
-//        uint8_t VibroPwr;
-
-//        fullStateMachine.setData(Delta, acc, gyro, mag, 0xFFFFFFFF, &ClrN, &BlinkOn, &BlinkOff, &VibroPwr);
-
-//        if(BlinkOn != 0) {
-//            lsqBlink[0].Color.Set(ClrTbl[ClrN]);
-//            lsqBlink[1].Time_ms = BlinkOn;
-//            lsqBlink[3].Time_ms = BlinkOff;
-//            if(Led.GetCurrentSequence() == nullptr) Led.StartSequence(lsqBlink);
-//        }
-//        else {
-//            if(Led.GetCurrentSequence() != nullptr) Led.Stop();
-//            Led.SetColor(ClrTbl[ClrN]);
-//        }
-
-//        Vibro.Set(VibroPwr);
-
+//        Uart.Printf("%d; %d; %d\r", IPkt.gyro[0], IPkt.gyro[1], IPkt.gyro[2]);
     }
 }
 
+void Mems_t::SetState(MemsState_t NewState) {
+    chSysLock();
+    State = NewState;
+    CalCounter = 0;
+    switch(State) {
+        case mstCalG:
+            Uart.PrintfI("Gyro calibration...\r");
+            GyroOffset[0] = 0;
+            GyroOffset[1] = 0;
+            GyroOffset[2] = 0;
+            break;
+
+        case mstCalA1:
+            Uart.PrintfI("Acc calibration phase1...\r");
+            AccOffset[0] = 0;
+            AccOffset[1] = 0;
+            AccOffset[2] = 0;
+            break;
+
+        case mstCalA2:
+            Uart.PrintfI("Acc calibration phase2...\r");
+            break;
+        case mstCalA3:
+            Uart.PrintfI("Acc calibration phase3...\r");
+            break;
+        case mstCalA4:
+            Uart.PrintfI("Acc calibration phase4...\r");
+            break;
+        case mstCalA5:
+            Uart.PrintfI("Acc calibration phase5...\r");
+            break;
+        case mstCalA6:
+            Uart.PrintfI("Acc calibration phase6...\r");
+            break;
+
+        default: break;
+    }
+    chSysUnlock();
+}
 
 uint8_t Mems_t::Init() {
     // Debug Pins
@@ -164,7 +239,7 @@ uint8_t Mems_t::Init() {
 //    AccOffset[2] -= GRAVITY;
 
     // Thread
-    thread_reference_t Thd = chThdCreateStatic(waMemsThread, sizeof(waMemsThread), NORMALPRIO, (tfunc_t)MemsThread, NULL);
+    thread_reference_t Thd = chThdCreateStatic(waMemsThread, sizeof(waMemsThread), HIGHPRIO, (tfunc_t)MemsThread, NULL);
     SnsTmr.InitAndStart(Thd);
     return 0;
 }

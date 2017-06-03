@@ -19,6 +19,11 @@
 // 3.9 mg/digit; 1 g = 256
 #define GRAVITY 256 //this equivalent to 1G in the raw data coming from the accelerometer
 
+#define GYRO_CAL_CNT    1024
+#define ACC_CAL_CNT     256
+
+enum MemsState_t {mstNormal, mstCalG, mstCalA1, mstCalA2, mstCalA3, mstCalA4, mstCalA5, mstCalA6, mstIntermediate};
+
 class Mems_t {
 private:
     i2c_t *pi2c;
@@ -26,23 +31,26 @@ private:
     uint8_t gyroWriteReg(uint8_t Reg, uint8_t Value);
     uint8_t gyroReadReg(uint8_t Reg, uint8_t *PValue);
     uint8_t gyroRead(int16_t *pBuf);
-//    int32_t GyroOffset[3];
+    int32_t GyroOffset[3];
     // Acc
     uint8_t accWriteReg(uint8_t Reg, uint8_t Value);
     uint8_t accReadReg(uint8_t Reg, uint8_t *PValue);
     uint8_t accRead(int16_t *pBuf);
-//    int32_t AccOffset[3];
+    int32_t AccOffset[3];
     // Magnetometer
     uint8_t magWriteReg(uint8_t Reg, uint8_t Value);
     uint8_t magReadReg(uint8_t Reg, uint8_t *PValue);
     uint8_t magRead(int16_t *pBuf);
 
+    MemsState_t State = mstNormal;
+    int32_t CalCounter;
 public:
     int16_t Gyro[3];
     uint8_t Init();
+    void SetState(MemsState_t NewState);
     void On()  { PinSetLo(MEMS_PWR_GPIO, MEMS_PWR_PIN); }
     void Off() { PinSetHi(MEMS_PWR_GPIO, MEMS_PWR_PIN); }
-    Mems_t(i2c_t *api2c) : pi2c(api2c) {}
+    Mems_t(i2c_t *api2c) : pi2c(api2c), State(mstNormal), CalCounter(0) {}
     void ITask();
 };
 

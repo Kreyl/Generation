@@ -18,6 +18,7 @@
 
 #define APP_NAME            "ArmletG"
 
+#define RADIO_ENABLED       TRUE
 
 class App_t {
 private:
