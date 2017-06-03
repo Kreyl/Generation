@@ -1,12 +1,14 @@
 #include "splitter.h"
-#include "matrix.h"
 #include "filter.h"
 #include "unify_definition.h"
 #include "stroke_export.h"
 #include "split_state_export.h"
-
+#include <math.h>
 #include <stdio.h>
 
+#include "beeper.h"
+#include "Sequences.h"
+extern Beeper_t Beeper;
 
 Splitter::Splitter() {
     strokeLength = -1;
@@ -14,81 +16,79 @@ Splitter::Splitter() {
 }
 
 void Splitter::resetSize() {
-    int i,j;
-    for (i=0; i<DIMENTION; i++) {
-        for (j=0; j<2; j++){ 
-            positionsRange[j][i] = 0;
-        }
-        position[i] = 0;
-        speed[i] = 0;
+    int j;
+    for (j=0; j<2; j++){
+        positionsRange[j] = Vector();
     }
+    position = Vector();
+    speed = Vector();
 }
 
-void Splitter::processSize(const float accel[DIMENTION], const float delta) {
-    float at[DIMENTION];
-    float at2[DIMENTION];
-    float vt[DIMENTION];
-    float deltaP[DIMENTION];
+void Splitter::processSize(const Vector accel, const float delta) {
+    Vector at;
+    Vector at2;
+    Vector vt;
+    Vector deltaP;
 
-    scaleVec(at, accel, delta);
-    scaleVec(at2, accel, (delta * delta) / 2);
+    at = accel * delta;
+    at2 = accel * (delta * delta / 2);
 
-    addVec(speed, speed, at);
+    speed += at;
 
-    scaleVec(vt, speed, delta);
+    vt = speed * delta;
 
-    addVec(deltaP, vt, at2);
+    deltaP = vt + at2;
 
-    addVec(position, position, deltaP);
+    position += deltaP;
 
-    adjustRange(positionsRange, position);    
+    positionsRange[0].x = fminf(positionsRange[0].x, position.x);
+    positionsRange[1].x = fmaxf(positionsRange[1].x, position.x);
+
+    positionsRange[0].y = fminf(positionsRange[0].y, position.y);
+    positionsRange[1].y = fmaxf(positionsRange[1].y, position.y);
+
+    positionsRange[0].z = fminf(positionsRange[0].z, position.z);
+    positionsRange[1].z = fmaxf(positionsRange[1].z, position.z);
 }
 
-int Splitter::setIMUData(const float delta, const float gyro, const float accel[DIMENTION], const float heading[DIMENTION]) {
+int Splitter::setIMUData(const float delta, const ImuAnswer answer) {
+
     float dimention;
-    float dimentionVec[DIMENTION];
-    float newPoint[DIMENTION];
-    float x[DIMENTION];
-    float y[DIMENTION];
-    float z[DIMENTION];
     float yNorm;
+
+    Vector x;
+    Vector y;
+    Vector z;
 
     int result = -1;
 
-    processSize(filter.setInput(accel, delta), delta);
+    processSize(filter.setInput(answer.acc, delta), delta);
 
-    if (gyro > GYRO_MIN) {
+    if (answer.gyro > GYRO_MIN) {
         exportSplitState(IN_ACTION);
         timer = GYRO_TIMEOUT;
         if (strokeLength == 0) {
-            y[0] = heading[0];
-            y[1] = heading[1];
-            y[2] = 0;
-            
-            z[0] = 0;
-            z[1] = 0;
-            z[2] = 1;
+            y = Vector(answer.heading.x, answer.heading.y, 0);
+            z = Vector(0.0, 0.0, 1.0);
 
-            yNorm = norm(y);
+            yNorm = y.norm2();
 
             if (yNorm != 0) {
-                scaleVec(y, y, 1 / yNorm);
+                y *= 1 / yNorm;
             } else {
                 return -1;
             }
 
-            cross(x, y, z);
-            normInplace(x);
+            x = crossProduct(y, z);
+            x.normalize2();
 
-            copyPoint(x, M[0]);
-            copyPoint(y, M[1]);
-            copyPoint(z, M[2]);
+            M = Matrix(x, y, z);
 
             resetSize();
         }
 
-        adjustVec(newPoint, M, heading);
-        copyPoint(newPoint, buffer[strokeLength]);
+        buffer[strokeLength] = answer.heading * M;
+
         strokeLength += 1;
         if (strokeLength > STROKE_MAX_LENGTH) {
             strokeLength = STROKE_MAX_LENGTH + 1;
@@ -96,8 +96,8 @@ int Splitter::setIMUData(const float delta, const float gyro, const float accel[
     } else {
         timer--;
         if (timer == 0) {
-            subVec(dimentionVec, positionsRange[1], positionsRange[0]);
-            dimention = norm(dimentionVec);  
+
+            dimention = (positionsRange[1] - positionsRange[0]).norm2();
 
             //printf("%f\n", dimention);
 
@@ -108,7 +108,8 @@ int Splitter::setIMUData(const float delta, const float gyro, const float accel[
             } else if (dimention < MIN_DIMENTION) {
                 exportSplitState(TOO_SMALL);
             } else {
-                result = getStroke(buffer, strokeLength);              
+                Beeper.StartOrRestart(bsqBeepBeep);
+                result = getStroke(buffer, strokeLength);
             }
 
             strokeLength = 0;

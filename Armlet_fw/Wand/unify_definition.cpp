@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <math.h>
-#include "matrix.h"
 #include "unify_definition.h"
 #include "stroke_export.h"
 
@@ -16,14 +15,18 @@ float getDist(const float a[DIMENTION], const float b[DIMENTION]) {
     return sqrtf(delta);
 }
 
-void unifyStroke(float stroke[STROKE_MAX_LENGTH][DIMENTION], float newStroke[SEGMENTATION][DIMENTION], int length) {
+float getDist(const Vector a, const Vector b) {
+    return (a - b).norm2();
+}
+
+void unifyStroke(Vector stroke[STROKE_MAX_LENGTH], Vector newStroke[SEGMENTATION], int length) {
     float strokeLengths[STROKE_MAX_LENGTH];
     float step;
     int i, j;
     int newStrokeId = 1;
     float nextLength;
-    float * p1;
-    float * p2;
+    Vector p1;
+    Vector p2;
     float delta;
     float coeff;
 
@@ -35,8 +38,8 @@ void unifyStroke(float stroke[STROKE_MAX_LENGTH][DIMENTION], float newStroke[SEG
 
     step = strokeLengths[length - 1] / (SEGMENTATION - 1);
 
-    copyPoint(stroke[0], newStroke[0]);
-    copyPoint(stroke[length - 1], newStroke[SEGMENTATION - 1]);
+    newStroke[0] = stroke[0];
+    newStroke[SEGMENTATION - 1] = stroke[length - 1];
 
     nextLength = step;
 
@@ -46,9 +49,9 @@ void unifyStroke(float stroke[STROKE_MAX_LENGTH][DIMENTION], float newStroke[SEG
             p2 = stroke[i];
             delta = strokeLengths[i] - strokeLengths[i - 1];
             coeff = delta == 0 ? 0 : (1 - ((strokeLengths[i] - nextLength) / delta));
-            for (j = 0; j < DIMENTION; j++) {
-                newStroke[newStrokeId][j] = p1[j] + (p2[j] - p1[j]) * coeff;
-            }
+
+            newStroke[newStrokeId] = p1 + (p2 - p1) * coeff;
+
             newStrokeId += 1;
             nextLength += step;
         }
@@ -56,7 +59,9 @@ void unifyStroke(float stroke[STROKE_MAX_LENGTH][DIMENTION], float newStroke[SEG
 
 }
 
-float checkStroke(float stroke[SEGMENTATION][DIMENTION], const float description[SEGMENTATION][DIMENTION]) {
+
+
+float checkStroke(Vector stroke[SEGMENTATION], const Vector description[SEGMENTATION]) {
     float errors[SEGMENTATION];
     float mean = 0;
     float result = 0;
@@ -77,8 +82,10 @@ float checkStroke(float stroke[SEGMENTATION][DIMENTION], const float description
     return sqrtf(result / SEGMENTATION);
 }
 
-int getStroke(float stroke[STROKE_MAX_LENGTH][DIMENTION], int length) {
-    float unifiedStroke[SEGMENTATION][DIMENTION];
+int getStroke(Vector stroke[STROKE_MAX_LENGTH], int length) {
+
+    Vector unifiedStroke[SEGMENTATION];
+
     unifyStroke(stroke, unifiedStroke, length);
 
     exportStroke(unifiedStroke);

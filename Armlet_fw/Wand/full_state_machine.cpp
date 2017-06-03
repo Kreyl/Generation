@@ -3,42 +3,36 @@
 #include "generation_light.h"
 #include "knowledge.h"
 
-#include "uart.h"
-#include "led.h"
-#include "Sequences.h"
-
-extern LedRGB_t Led;
-
 FullStateMachine::FullStateMachine(int axis) : innerMachine(axis) {
-    innerTimer = 0;
+    innerTimer = 0;    
 }
 
-bool FullStateMachine::setData(const float delta,
-    const float acc[DIMENTION], const float gyro[DIMENTION], const float mag[DIMENTION])
-{
-    int innerState = innerMachine.setData(delta, acc, gyro, mag);
+void FullStateMachine::init() {
+    innerMachine.init();
+}
 
-//    Uart.Printf("IS: %d\r", innerState);
+bool FullStateMachine::setData(const float dt, const Vector acc, const Vector gyro, const Vector mag)
+{
+    int innerState = innerMachine.setData(dt, acc, gyro, mag);
 
     if (innerState == CALIBRATION) {
         return false;
     } else {
-        if(Led.GetCurrentSequence() == lsqStart) Led.Stop();
         QEvt e;
-        if (innerState > IDLE) {
+        if (innerState > IDLE) {           
             e.sig = SIG_MAP[innerState - STATES_OFFSET];
             QMSM_DISPATCH(the_hand, &e);
             QMSM_DISPATCH(the_biotics, &e);
         }
 
-        innerTimer += (uint16_t) (delta * 1000);
+        innerTimer += (uint16_t) (dt * 1000);
         if (innerTimer > EXTERN_TICK_MS) {
             e.sig = TICK_SEC_SIG;
             QMSM_DISPATCH(the_hand, &e);
             QMSM_DISPATCH(the_biotics, &e);
         }
 
-        innerTimer %= EXTERN_TICK_MS;
+        innerTimer %= EXTERN_TICK_MS;    
     }
     return true;
 }

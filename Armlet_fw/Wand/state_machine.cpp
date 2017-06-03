@@ -2,24 +2,26 @@
 #include "ahrsmath.h"
 #include "calibration.h"
 
-StateMachine::StateMachine(int axis) : imu(getAOffset(), getGOffset(), getGOffset()){
+StateMachine::StateMachine(int axis) {
     this->axis = axis;
+    calibrationDone = 0;
+}
+
+void StateMachine::init() {
+   imu.init(); 
 }
 
 
-int StateMachine::setData(const float delta,
-    const float accIn[DIMENTION], const float gyroIn[DIMENTION], const float magIn[DIMENTION])
-{
-    bool inClaibration;
-    float gyro;
-    float acc[DIMENTION];
-    float heading[DIMENTION];  
+int StateMachine::setData(const float dt, const Vector acc, const Vector gyro, const Vector mag){
 
-    inClaibration = imu.calc(delta, accIn, gyroIn, magIn, axis, &gyro, acc, heading);
+    ImuAnswer answer = imu.calc(dt, acc, gyro, mag, axis);
 
-    if (inClaibration) {
+    if (!answer.active) {
         return CALIBRATION;
     }
-
-    return splitter.setIMUData(delta, gyro, acc, heading) + STATES_OFFSET;
+    if (calibrationDone == 0) {
+        onCalibrationDone();
+        calibrationDone = 1;
+    }
+    return splitter.setIMUData(dt, answer) + STATES_OFFSET;
 }

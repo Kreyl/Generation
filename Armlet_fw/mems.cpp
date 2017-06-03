@@ -59,10 +59,15 @@ void DbgVibro(uint32_t Indx) {
 }
 */
 
+void LoadGyroCal(int32_t *Offset);
+void LoadAccCal(int32_t *Offset);
+void SaveGyroCal(int32_t *Offset);
+void SaveAccCal(int32_t *Offset);
+
 //StateMachine stateMachine(0);
 FullStateMachine fullStateMachine(0);
 
-static THD_WORKING_AREA(waMemsThread, 16384);
+static THD_WORKING_AREA(waMemsThread, 8192);
 __noreturn
 static void MemsThread(void *arg) {
     chRegSetThreadName("Mems");
@@ -75,7 +80,7 @@ void Mems_t::ITask() {
 //    int n=0;
 
     while(true) {
-        chThdSleepMilliseconds(16);
+        chThdSleepMilliseconds(5);
         rPkt_t IPkt;
         IPkt.Time = chVTGetSystemTime() / 10;
         uint32_t tmp32 = IPkt.Time - PrevTime;
@@ -96,12 +101,9 @@ void Mems_t::ITask() {
 //        Radio.TxBuf.PutAnyway(IPkt);
 
         // Make 3 arrays for state machine
-        float acc[3], gyro[3], mag[3];
-        for(int i=0; i<3; i++) {
-            acc[i] = IPkt.acc[i];
-            gyro[i] = IPkt.gyro[i];
-            mag[i] = IPkt.mag[i];
-        }
+        Vector acc(IPkt.acc[0], IPkt.acc[1], IPkt.acc[2]);
+        Vector gyro(IPkt.gyro[0], IPkt.gyro[1], IPkt.gyro[2]);
+        Vector mag(IPkt.mag[0], IPkt.mag[1], IPkt.mag[2]);
 
         // Do calibration if needed
         switch(State) {
@@ -110,15 +112,14 @@ void Mems_t::ITask() {
                 GyroOffset[1] += IPkt.gyro[1];
                 GyroOffset[2] += IPkt.gyro[2];
                 CalCounter++;
-                Uart.Printf("%d; %d; %d\r", GyroOffset[0], GyroOffset[1], GyroOffset[2]);
+//                Uart.Printf("%d; %d; %d\r", GyroOffset[0], GyroOffset[1], GyroOffset[2]);
                 if(CalCounter >= GYRO_CAL_CNT) {
-                    chSysLock();
                     GyroOffset[0] /= CalCounter;
                     GyroOffset[1] /= CalCounter;
                     GyroOffset[2] /= CalCounter;
                     State = mstNormal;
+                    SaveGyroCal(GyroOffset);
                     Uart.PrintfI("Gyro calibration done: %d %d %d\r", GyroOffset[0], GyroOffset[1], GyroOffset[2]);
-                    chSysUnlock();
                 }
                 break;
 
@@ -137,6 +138,7 @@ void Mems_t::ITask() {
                         AccOffset[0] /= (CalCounter * 6);
                         AccOffset[1] /= (CalCounter * 6);
                         AccOffset[2] /= (CalCounter * 6);
+                        SaveAccCal(AccOffset);
                         Uart.PrintfI("Acc calibration done: %d %d %d\r", AccOffset[0], AccOffset[1], AccOffset[2]);
                         State = mstNormal;
                     }
@@ -158,11 +160,8 @@ void Mems_t::ITask() {
 //            n = 11;
 //            Uart.Printf("%u;   %d; %d; %d;   %d; %d; %d;   %d; %d; %d\r\n", IPkt.Time,  IPkt.gyro[0], IPkt.gyro[1], IPkt.gyro[2], IPkt.acc[0],  IPkt.acc[1],  IPkt.acc[2], IPkt.mag[0],  IPkt.mag[1],  IPkt.mag[2]);
 //        }
-
-
     }
 }
-
 
 uint8_t Mems_t::Init() {
     PinSetupOut(MEMS_PWR_GPIO, MEMS_PWR_PIN, omPushPull);
@@ -188,9 +187,9 @@ uint8_t Mems_t::Init() {
         // Acc
         accWriteReg(ACC_CTRL_REG4, 0b00101000); // FS = 10 (+/- 8 g full scale); HR = 1 (high resolution enable)
         accWriteReg(ACC_CTRL_REG1, 0b01000111); // ODR = 0100 (50 Hz ODR); LPen = 0 (normal mode); all axes enabled
-        int16_t a[3];
-        accRead(a);
-        Uart.Printf("Acc: %d %d %d\r", a[0], a[1], a[2]);
+//        int16_t a[3];
+//        accRead(a);
+//        Uart.Printf("Acc: %d %d %d\r", a[0], a[1], a[2]);
 
 //        accReadReg(ACC_CTRL_REG1, &v);
 //        Uart.Printf("acc: %X\r", v);
@@ -206,8 +205,17 @@ uint8_t Mems_t::Init() {
     Hand_ctor();
     QMSM_INIT(the_hand, (QEvt *)0);
 
+    QEvt e;
+    e.sig = MAX_PILL_SIG;
+    QMSM_DISPATCH(the_hand, &e);
+    QMSM_DISPATCH(the_biotics, &e);
+
     BIO_set_to_short(5);
     BIO_set_to_long(3);
+
+    LoadGyroCal(GyroOffset);
+    LoadAccCal(AccOffset);
+    fullStateMachine.init();
 
     Led.StartOrContinue(lsqStart);    // Show Calibration Ongoing
 
@@ -219,6 +227,20 @@ uint8_t Mems_t::Init() {
     // Thread
     chThdCreateStatic(waMemsThread, sizeof(waMemsThread), NORMALPRIO, (tfunc_t)MemsThread, NULL);
     return 0;
+}
+
+Vector getGOffset() {
+    return Vector((float)Mems.GyroOffset[0], (float)Mems.GyroOffset[1], (float)Mems.GyroOffset[2]);
+}
+Vector getAOffset() {
+    return Vector((float)Mems.AccOffset[0], (float)Mems.AccOffset[1], (float)Mems.AccOffset[2]);
+}
+Vector getMOffset() {
+    return Vector();
+}
+
+void onCalibrationDone() {
+    Led.Stop();
 }
 
 void Mems_t::SetState(MemsState_t NewState) {

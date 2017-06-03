@@ -22,8 +22,6 @@
 #include "qpc.h"
 #include "full_state_machine.h"
 
-#include "ahrsmath.h"
-
 App_t App;
 Mems_t Mems(&i2c1);
 LedRGB_t Led { LED_RED_CH, LED_GREEN_CH, LED_BLUE_CH };
@@ -55,7 +53,8 @@ LedRGBChunk_t lsqStart[] = {
 
 int main(void) {
     // ==== Setup clock frequency ====
-    Clk.SetupBusDividers(ahbDiv2, apbDiv1, apbDiv1);
+    Clk.SetHiPerfMode();
+//    Clk.SetupBusDividers(ahbDiv1, apbDiv1, apbDiv1);
     Clk.SetupPllSrc(pllsrcMsi); // Required to allow PLLSAI1 for ADC clocking
     Clk.UpdateFreqValues();
 
@@ -72,7 +71,8 @@ int main(void) {
     PinSetupInput(USB_DETECT_PIN, pudPullDown);
     PinSetupInput(CHARGE_PIN, pudPullUp);
 
-//    Beeper.Init();
+    Beeper.Init();
+    Beeper.StartOrRestart(bsqBeepBeep);
 
     i2c1.Init();
     i2c2.Init();
@@ -80,8 +80,7 @@ int main(void) {
 
 //    PillMgr.Init();
 
-//    ee.Init();
-//    ReadIDfromEE();
+    ReadIDfromEE();
 
     Uart.Printf("\r%S %S ID=%u\r", APP_NAME, BUILD_TIME, App.ID);
     Clk.PrintFreqs();
@@ -230,16 +229,6 @@ void App_t::ITask() {
     } // while true
 }
 
-Vector getGOffset() {
-    return Vector();
-}
-Vector getAOffset() {
-    return Vector();
-}
-Vector getMOffset() {
-    return Vector();
-}
-
 #if 1 // ======================= Command processing ============================
 void App_t::OnCmd(Shell_t *PShell) {
 	Cmd_t *PCmd = &PShell->Cmd;
@@ -360,6 +349,24 @@ uint8_t ISetID(int32_t NewID) {
     }
 }
 #endif
+
+// Calibration offsets
+void LoadGyroCal(int32_t *Offset) {
+    ee.Read(EE_GYRO_CAL, Offset, (4*3));
+    Uart.Printf("Gyro offset: %d; %d; %d\r", Offset[0], Offset[1], Offset[2]);
+}
+void LoadAccCal(int32_t *Offset) {
+    ee.Read(EE_ACC_CAL, Offset, (4*3));
+    Uart.Printf("Acc offset: %d; %d; %d\r", Offset[0], Offset[1], Offset[2]);
+}
+
+void SaveGyroCal(int32_t *Offset) {
+    ee.Write(EE_GYRO_CAL, Offset, (4*3));
+}
+
+void SaveAccCal(int32_t *Offset) {
+    ee.Write(EE_ACC_CAL, Offset, (4*3));
+}
 
 #if 1 // ======================== Ability Load/Save ============================
 __unused

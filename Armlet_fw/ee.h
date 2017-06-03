@@ -22,7 +22,6 @@ private:
     i2c_t *i2c;
     const PinOutput_t IPwrPin;
 public:
-    void Init() const { IPwrPin.Init(); }
     void Resume() const {
         IPwrPin.Init();
         IPwrPin.SetHi();

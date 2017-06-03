@@ -10,10 +10,11 @@ private:
     int axis;
     IMU imu;
     Splitter splitter;
+    int calibrationDone;
 
 public:
     StateMachine(int axis);
-    int setData(const float delta, 
-        const float accIn[DIMENTION], const float gyroIn[DIMENTION], const float magIn[DIMENTION]);
+    void init();
+    int setData(const float dt, const Vector acc, const Vector gyro, const Vector mag);
 };
 #endif

@@ -3,25 +3,27 @@
 
 #include "knowledge.h"
 #include "filter.h"
+#include "imu.h"
+#include "ahrsmath.h"
 
 class Splitter {
 private:
     int strokeLength;
-    float M[DIMENTION][DIMENTION];
-    float positionsRange[2][DIMENTION];
-    float position[DIMENTION];
-    float speed[DIMENTION];
+    Matrix M;
+    Vector positionsRange[2];
+    Vector position;
+    Vector speed;
     int timer;
     Filter filter;
 
     void resetSize();
-    void processSize(const float accel[DIMENTION], const float delta);
+    void processSize(const Vector accel, const float delta);
 
 public:
-    float buffer[STROKE_MAX_LENGTH][DIMENTION];
+    Vector buffer[STROKE_MAX_LENGTH];
 
     Splitter();
-    int setIMUData(const float delta, const float gyro, const float accel[DIMENTION], const float heading[DIMENTION]);
+    int setIMUData(const float delta, const ImuAnswer imuAnswer);
 
 };
 #endif

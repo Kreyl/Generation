@@ -23,6 +23,8 @@
 // EEAddresses
 #define EE_ADDR_DEVICE_ID   0
 #define EE_ADDR_ABILITY     4
+#define EE_GYRO_CAL         16
+#define EE_ACC_CAL          32
 
 #define ID_MIN              1
 #define ID_MAX              99
