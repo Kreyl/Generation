@@ -72,7 +72,7 @@ static void MemsThread(void *arg) {
 __noreturn
 void Mems_t::ITask() {
     uint32_t PrevTime = 0;
-    int n=0;
+//    int n=0;
 
     while(true) {
         chThdSleepMilliseconds(16);

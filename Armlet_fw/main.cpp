@@ -22,6 +22,8 @@
 #include "qpc.h"
 #include "full_state_machine.h"
 
+#include "ahrsmath.h"
+
 App_t App;
 Mems_t Mems(&i2c1);
 LedRGB_t Led { LED_RED_CH, LED_GREEN_CH, LED_BLUE_CH };
@@ -70,7 +72,7 @@ int main(void) {
     PinSetupInput(USB_DETECT_PIN, pudPullDown);
     PinSetupInput(CHARGE_PIN, pudPullUp);
 
-    Beeper.Init();
+//    Beeper.Init();
 
     i2c1.Init();
     i2c2.Init();
@@ -91,9 +93,9 @@ int main(void) {
 
 //    TmrEverySecond.InitAndStart();
 
-    if(Radio.Init() == OK) {
+//    if(Radio.Init() == OK) {
         Vibro.StartOrRestart(vsqBrrBrr);
-    }
+//    }
 //    else Led.StartSequence(lsqFailure);
     chThdSleepMilliseconds(720);
 
@@ -106,8 +108,8 @@ int main(void) {
 
 __attribute__ ((__noreturn__))
 void App_t::ITask() {
-    bool UsbWasConnected = false;
-    int32_t DischargedIndicationTimeout_s = DISCHARGED_INDICATION_PERIOD_S;
+//    bool UsbWasConnected = false;
+//    int32_t DischargedIndicationTimeout_s = DISCHARGED_INDICATION_PERIOD_S;
     while(true) {
         uint32_t Evt = chEvtWaitAny(ALL_EVENTS);
 //        if(Evt & EVT_EVERY_SECOND) {
@@ -228,6 +230,16 @@ void App_t::ITask() {
     } // while true
 }
 
+Vector getGOffset() {
+    return Vector();
+}
+Vector getAOffset() {
+    return Vector();
+}
+Vector getMOffset() {
+    return Vector();
+}
+
 #if 1 // ======================= Command processing ============================
 void App_t::OnCmd(Shell_t *PShell) {
 	Cmd_t *PCmd = &PShell->Cmd;
@@ -326,6 +338,7 @@ void App_t::OnCmd(Shell_t *PShell) {
 #endif
 
 #if 1 // =========================== ID management =============================
+__unused
 void ReadIDfromEE() {
     uint8_t R = ee.Read(EE_ADDR_DEVICE_ID, &App.ID, 1);
     if(App.ID < ID_MIN or App.ID > ID_MAX or R != OK) {
@@ -349,7 +362,7 @@ uint8_t ISetID(int32_t NewID) {
 #endif
 
 #if 1 // ======================== Ability Load/Save ============================
-
+__unused
 void ReadAbilityFromEE() {
     ee.Read(EE_ADDR_ABILITY, &App.AbilityMsk, 4);
     Uart.Printf("AbilityMsk: %X\r", App.AbilityMsk);
@@ -366,6 +379,7 @@ void ReadAbilityFromEE() {
     if(App.AbilityMsk & 0x200) { e.sig = SONG_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
 }
 
+__unused
 void WriteAbilityToEE() {
     ee.Write(EE_ADDR_ABILITY, &App.AbilityMsk, 4);
 }

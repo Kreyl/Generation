@@ -18,7 +18,7 @@
 #include "qpc.h"
 #include "generation_light.h"
 #include "bsp.h"                   // Change this file for different platforms
-//#include "service.h"
+#include "service.h"
 #include "biotics.h"
 
 

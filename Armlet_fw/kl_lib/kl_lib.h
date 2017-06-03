@@ -632,10 +632,10 @@ static inline void PinSetupAnalog(GPIO_TypeDef *PGpioPort, const uint16_t APinNu
 
 #ifdef STM32L4XX
 static inline void PinConnectAdc(GPIO_TypeDef *PGpioPort, const uint16_t APinNumber) {
-    SET_BIT(PGpioPort->ASCR, 1<<APinNumber);
+    PGpioPort->ASCR |= (1<<APinNumber);
 }
 static inline void PinDisconnectAdc(GPIO_TypeDef *PGpioPort, const uint16_t APinNumber) {
-    CLEAR_BIT(PGpioPort->ASCR, 1<<APinNumber);
+    PGpioPort->ASCR &= ~(1<<APinNumber);
 }
 #endif
 
@@ -1577,7 +1577,7 @@ public:
     void SetupPllSrc(PllSrc_t Src) { MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC, ((uint32_t)Src)); }
     uint8_t SetupPllMulDiv(uint32_t M, uint32_t N, uint32_t R, uint32_t Q, uint32_t P = 8);
     uint8_t SetupPllSai1(uint32_t N, uint32_t R);
-    void EnableSai1ROut() { SET_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1REN); }
+    void EnableSai1ROut() { RCC->PLLSAI1CFGR |= RCC_PLLSAI1CFGR_PLLSAI1REN; }
 
     void UpdateFreqValues();
     void EnablePrefeth() { FLASH->ACR |= FLASH_ACR_PRFTEN; }

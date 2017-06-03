@@ -200,6 +200,7 @@ extern LedRGBChunk_t lsqStart[];
 //        {csGoto, 0}
 //};
 
+__unused
 const LedRGBChunk_t lsqFailure[] = {
         {csSetup, 0, clRed},
         {csWait, 99},
@@ -215,6 +216,7 @@ const LedRGBChunk_t lsqFailure[] = {
         {csEnd}
 };
 
+__unused
 const LedRGBChunk_t lsqCharging[] = {
         {csSetup, 540, {0,9,0}},
         {csSetup, 540, clBlack},
@@ -222,11 +224,13 @@ const LedRGBChunk_t lsqCharging[] = {
         {csGoto, 0}
 };
 
+__unused
 const LedRGBChunk_t lsqChargingDone[] = {
         {csSetup, 0, {0,9,0}},
         {csEnd}
 };
 
+__unused
 const LedRGBChunk_t lsqDischarged[] = {
         {csSetup, 0, clRed},
         {csWait, 180},

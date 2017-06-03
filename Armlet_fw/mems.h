@@ -19,6 +19,11 @@
 // 3.9 mg/digit; 1 g = 256
 #define GRAVITY 256 //this equivalent to 1G in the raw data coming from the accelerometer
 
+#define GYRO_CAL_CNT    1024
+#define ACC_CAL_CNT     256
+
+enum MemsState_t {mstNormal, mstCalG, mstCalA1, mstCalA2, mstCalA3, mstCalA4, mstCalA5, mstCalA6, mstIntermediate};
+
 class Mems_t {
 private:
     i2c_t *pi2c;

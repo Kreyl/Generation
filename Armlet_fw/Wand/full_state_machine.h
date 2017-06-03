@@ -4,23 +4,10 @@
 #include <stdint.h>
 
 #include "state_machine.h"
-#include "extern_sm/generation_light.h"
+#include "generation_light.h"
+#include "sigmap.h"
 
 #define EXTERN_TICK_MS 1000
-
-const uint8_t SIG_MAP[STROKES_COUNT] =  {
-    CHARGE_SIG,
-    THROW_SIG,
-    PUNCH_SIG,
-    LIFT_SIG,
-    WARP_SIG,
-    BARRIER_SIG,
-    CLEANSE_SIG,
-    SINGULAR_SIG,
-    SONG_SIG,
-    RELEASE_SIG,
-    PWR_RELEASE_SIG
-};
 
 class FullStateMachine {
 private:
@@ -29,9 +16,7 @@ private:
 public:
 
     FullStateMachine(int axis);
-    bool setData(const float delta,
+    bool setData(const float delta, 
         const float acc[DIMENTION], const float gyro[DIMENTION], const float mag[DIMENTION]);
-
-    void resetCalibration();
 };
 #endif

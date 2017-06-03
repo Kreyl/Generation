@@ -3,7 +3,6 @@
 
 #include "knowledge.h"
 #include "filter.h"
-#include <inttypes.h>
 
 class Splitter {
 private:
@@ -20,7 +19,7 @@ private:
 
 public:
     float buffer[STROKE_MAX_LENGTH][DIMENTION];
-    uint32_t GyroTimeout;
+
     Splitter();
     int setIMUData(const float delta, const float gyro, const float accel[DIMENTION], const float heading[DIMENTION]);
 

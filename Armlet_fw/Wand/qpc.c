@@ -31,14 +31,11 @@ void QMsm_init_(QHsm *me, QEvt const * const e){
    (*me->temp.fun)(me, e);        /* execute the top-most initial transition */
                                                          /* enter the target */
    (void)(*me->temp.fun)(me , &QEP_reservedEvt_[Q_ENTRY_SIG]);
-
+   
    me->state.fun = me->temp.fun; /* mark configuration as stable - MSM stuff */
 }
 
-extern void PrintfC(const char *format, ...);
-
 QState QMsm_dispatch_(QHsm *me, QEvt const * const e) {
-//    PrintfC("%S: %u\r", __FUNCTION__, e->sig);
    QStateHandler s = me->state.fun;                /* save the current state */
    QStateHandler t;                             /* save state in transitions */
    QState r = (*s)(me, e);                         /* call the event handler */
@@ -50,7 +47,7 @@ QState QMsm_dispatch_(QHsm *me, QEvt const * const e) {
           r = (*me->temp.fun)(me, e);                          /*pass event  */
           #ifdef DEBUG
           //   printf("return: %u\n\r", r);
-          #endif                 /* bubble event up until handled or ignored */
+          #endif                 /* bubble event up until handled or ignored */   
       } while (r == Q_RET_SUPER);
    }
 
@@ -63,6 +60,6 @@ QState QMsm_dispatch_(QHsm *me, QEvt const * const e) {
    if (r == Q_RET_HANDLED) {
       me->temp.fun = me->state.fun;      /* in case it was handled by parent */
    }
-    return r;
+    return r; 
 }
 

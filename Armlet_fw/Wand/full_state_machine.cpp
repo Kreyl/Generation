@@ -1,17 +1,13 @@
 #include "full_state_machine.h"
-//#include "extern_sm/service.h"
-#include "extern_sm/generation_light.h"
+#include "service.h"
+#include "generation_light.h"
 #include "knowledge.h"
-#include <stdio.h>
-#include "board.h"
 
+#include "uart.h"
 #include "led.h"
 #include "Sequences.h"
 
 extern LedRGB_t Led;
-
-extern void DbgBeep(uint32_t Indx);
-extern void DbgVibro(uint32_t Indx);
 
 FullStateMachine::FullStateMachine(int axis) : innerMachine(axis) {
     innerTimer = 0;
@@ -22,6 +18,8 @@ bool FullStateMachine::setData(const float delta,
 {
     int innerState = innerMachine.setData(delta, acc, gyro, mag);
 
+//    Uart.Printf("IS: %d\r", innerState);
+
     if (innerState == CALIBRATION) {
         return false;
     } else {
@@ -29,10 +27,6 @@ bool FullStateMachine::setData(const float delta,
         QEvt e;
         if (innerState > IDLE) {
             e.sig = SIG_MAP[innerState - STATES_OFFSET];
-#if DEBUG_OTK
-            DbgBeep(innerState - STATES_OFFSET);
-            DbgVibro(innerState - STATES_OFFSET);
-#endif
             QMSM_DISPATCH(the_hand, &e);
             QMSM_DISPATCH(the_biotics, &e);
         }
@@ -40,15 +34,11 @@ bool FullStateMachine::setData(const float delta,
         innerTimer += (uint16_t) (delta * 1000);
         if (innerTimer > EXTERN_TICK_MS) {
             e.sig = TICK_SEC_SIG;
-            QMSM_DISPATCH(the_biotics, &e);
             QMSM_DISPATCH(the_hand, &e);
+            QMSM_DISPATCH(the_biotics, &e);
         }
 
         innerTimer %= EXTERN_TICK_MS;
     }
     return true;
-}
-
-void FullStateMachine::resetCalibration() {
-    innerMachine.resetCalibration();
 }

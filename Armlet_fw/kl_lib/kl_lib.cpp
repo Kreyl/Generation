@@ -1609,7 +1609,7 @@ uint8_t Clk_t::SetupPllMulDiv(uint32_t M, uint32_t N, uint32_t R, uint32_t Q, ui
 
 uint8_t Clk_t::SetupPllSai1(uint32_t N, uint32_t R) {
     // Disable PLLSAI1
-    CLEAR_BIT(RCC->CR, RCC_CR_PLLSAI1ON);
+    RCC->CR &= ~(RCC_CR_PLLSAI1ON);
     // Wait till PLLSAI1 is ready to be updated
     uint32_t t = 45000;
     while(READ_BIT(RCC->CR, RCC_CR_PLLSAI1RDY) != 0) {
@@ -1621,7 +1621,7 @@ uint8_t Clk_t::SetupPllSai1(uint32_t N, uint32_t R) {
     // Setup dividers
     MODIFY_REG(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1N, N << 8);
     MODIFY_REG(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1R, ((R >> 1U) - 1U) << 25);
-    SET_BIT(RCC->CR, RCC_CR_PLLSAI1ON); // Enable SAI
+    RCC->CR |= RCC_CR_PLLSAI1ON; // Enable SAI
     // Wait till PLLSAI1 is ready. May fail if PLL source disabled or not selected.
     t = 45000;
     while(READ_BIT(RCC->CR, RCC_CR_PLLSAI1RDY) == 0) {

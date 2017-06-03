@@ -23,10 +23,10 @@ void BIO_set_max() {
 }
 
 void BIO_set_to_short(uint8_t TimeOut) {
-    BIO.TO_Short_s = TimeOut;  
+    BIO.TO_Short_s = TimeOut;
 }
 
 void BIO_set_to_long(uint8_t TimeOut) {
-    BIO.TO_Long_s = TimeOut;  
+    BIO.TO_Long_s = TimeOut;
 }
 

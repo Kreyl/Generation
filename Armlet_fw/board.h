@@ -51,7 +51,7 @@
 
 // Vibro
 #define VIBRO_TOP       100
-#define VIBRO_PIN       { GPIOB, 14, TIM15, 1, invNotInverted, omPushPull, VIBRO_TOP }
+#define VIBRO_PIN       { GPIOB, 15, TIM15, 2, invNotInverted, omPushPull, VIBRO_TOP }
 
 // Beeper
 #define BEEPER_TOP      22
