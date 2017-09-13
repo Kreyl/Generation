@@ -1557,9 +1557,9 @@ void Clk_t::SetHiPerfMode() {
     if(HiPerfModeEnabled) return;
     __unused uint8_t Rslt = FAILURE;
     // Try to enable HSE
-    if(EnableHSE() == OK) {
+//    if(EnableHSE() == OK) {
         // Setup PLL (must be disabled first)
-        if(SetupPllMulDiv(1, 24, 4, 6) == OK) { // 12MHz / 1 * 24 => 72 and 48MHz
+        if(SetupPllMulDiv(1, 36, 2, 6) == OK) { // 12MHz / 1 * 24 => 72 and 48MHz
             SetupBusDividers(ahbDiv1, apbDiv1, apbDiv1);
             SetVoltageRange(mvrHiPerf);
             SetupFlashLatency(72, mvrHiPerf);
@@ -1572,7 +1572,7 @@ void Clk_t::SetHiPerfMode() {
                 } // sw 2 PLL
             } // en PLL
         } // if setup pll div
-    } // if Enable HSE
+//    } // if Enable HSE
     // Switch back if failure
     // TODO if(Rslt != OK)
 }
@@ -1598,7 +1598,8 @@ uint8_t Clk_t::SetupPllMulDiv(uint32_t M, uint32_t N, uint32_t R, uint32_t Q, ui
     uint32_t tmp = RCC->PLLCFGR;
     tmp &= ~(RCC_PLLCFGR_PLLR | RCC_PLLCFGR_PLLREN | RCC_PLLCFGR_PLLQ | RCC_PLLCFGR_PLLQEN |
             RCC_PLLCFGR_PLLP | RCC_PLLCFGR_PLLPEN | RCC_PLLCFGR_PLLN | RCC_PLLCFGR_PLLM | RCC_PLLCFGR_PLLSRC);
-    tmp |= RCC_PLLCFGR_PLLSRC_HSE | // Use only HSE as src
+    tmp |=  RCC_PLLCFGR_PLLSRC_MSI |
+            //RCC_PLLCFGR_PLLSRC_HSE | // Use only HSE as src
             ((M - 1) << 4) |
             (N << 8) |
             (R << 25) | RCC_PLLCFGR_PLLREN |    // PLLCLK output enable
