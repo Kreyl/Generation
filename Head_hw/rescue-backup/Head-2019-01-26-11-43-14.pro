@@ -1,6 +1,6 @@
-update=26.01.2019 11:54:41
+update=04.04.2016 16:42:41
 version=1
-last_client=eeschema
+last_client=kicad
 [pcbnew]
 version=1
 LastNetListRead=
@@ -27,4 +27,17 @@ NetIExt=net
 version=1
 [eeschema]
 version=1
-LibDir=
+LibDir=D:/Libs/Kicad
+[eeschema/libraries]
+LibName1=Head-rescue
+LibName2=pcb_details
+LibName3=power
+LibName4=Power_kl
+LibName5=RF ICs
+LibName6=st_kl
+LibName7=Tittar_kl
+LibName8=Transistors_kl
+LibName9=Switches
+LibName10=Sensors
+LibName11=Antennas_kl
+LibName12=Connectors_kl

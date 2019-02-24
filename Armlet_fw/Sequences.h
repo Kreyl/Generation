@@ -200,6 +200,31 @@ extern LedRGBChunk_t lsqStart[];
 //        {csGoto, 0}
 //};
 
+const LedRGBChunk_t lsqRed[] = {
+        {csSetup, 0, clRed},
+        {csWait, 999},
+        {csSetup, 0, clBlack},
+        {csEnd}
+};
+const LedRGBChunk_t lsqGreen[] = {
+        {csSetup, 0, clGreen},
+        {csWait, 999},
+        {csSetup, 0, clBlack},
+        {csEnd}
+};
+const LedRGBChunk_t lsqBlue[] = {
+        {csSetup, 0, clBlue},
+        {csWait, 999},
+        {csSetup, 0, clBlack},
+        {csEnd}
+};
+const LedRGBChunk_t lsqMagenta[] = {
+        {csSetup, 0, clMagenta},
+        {csWait, 999},
+        {csSetup, 0, clBlack},
+        {csEnd}
+};
+
 __unused
 const LedRGBChunk_t lsqFailure[] = {
         {csSetup, 0, clRed},

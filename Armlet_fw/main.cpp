@@ -10,17 +10,12 @@
 #include "ee.h"
 #include "mems.h"
 #include "i2cL476.h"
-#include "radio_lvl1.h"
 #include "Sequences.h"
 #include "pill_mgr.h"
 #include "kl_adc.h"
 #include "battery_consts.h"
 
 #include "beeper.h"
-
-
-#include "qpc.h"
-#include "full_state_machine.h"
 
 App_t App;
 Mems_t Mems(&i2c1);
@@ -31,7 +26,7 @@ const PinOutput_t BatPinGnd(BAT_GND_PIN);
 static TmrKL_t TmrEverySecond {MS2ST(1000), EVT_EVERY_SECOND, tktPeriodic};
 
 
-static inline bool IsCharging()     { return PinIsLo(CHARGE_PIN); }
+//static inline bool IsCharging()     { return PinIsLo(CHARGE_PIN); }
 
 static void ReadIDfromEE();
 static void ReadAbilityFromEE();
@@ -40,6 +35,7 @@ static void WriteAbilityToEE();
 static uint8_t ISetID(int32_t NewID);
 
 Beeper_t Beeper {BEEPER_PIN};
+
 
 LedRGBChunk_t lsqStart[] = {
         {csSetup, 0, clDarkRed},
@@ -55,7 +51,7 @@ int main(void) {
     // ==== Setup clock frequency ====
     Clk.SetHiPerfMode();
 //    Clk.SetupBusDividers(ahbDiv1, apbDiv1, apbDiv1);
-    Clk.SetupPllSrc(pllsrcMsi); // Required to allow PLLSAI1 for ADC clocking
+//    Clk.SetupPllSrc(pllsrcMsi); // Required to allow PLLSAI1 for ADC clocking
     Clk.UpdateFreqValues();
 
     // Init OS
@@ -64,15 +60,15 @@ int main(void) {
 
     // ==== Init hardware ====
     App.InitThread();
-    Uart.Init(115200, UART_GPIO, UART_TX_PIN, UART_GPIO, UART_RX_PIN);
+    Uart.Init(256000, UART_GPIO, UART_TX_PIN, UART_GPIO, UART_RX_PIN);
     Led.Init();
     Vibro.Init();
     // State pins
     PinSetupInput(USB_DETECT_PIN, pudPullDown);
     PinSetupInput(CHARGE_PIN, pudPullUp);
 
-    Beeper.Init();
-    Beeper.StartOrRestart(bsqBeepBeep);
+//    Beeper.Init();
+//    Beeper.StartOrRestart(bsqBeepBeep);
 
     i2c1.Init();
     i2c2.Init();
@@ -93,12 +89,13 @@ int main(void) {
 //    TmrEverySecond.InitAndStart();
 
 //    if(Radio.Init() == OK) {
-        Vibro.StartOrRestart(vsqBrrBrr);
+//        Vibro.StartOrRestart(vsqBrrBrr);
 //    }
 //    else Led.StartSequence(lsqFailure);
     chThdSleepMilliseconds(720);
 
     Mems.Init();
+
 //    ReadAbilityFromEE();
 
     // Main cycle
@@ -237,14 +234,6 @@ void App_t::OnCmd(Shell_t *PShell) {
     // Handle command
     if(PCmd->NameIs("Ping")) PShell->Ack(OK);
 
-    else if(PCmd->NameIs("Sig")) {
-        if(PCmd->GetNextInt32(&dw32) != OK) PShell->Ack(FAILURE);
-        QEvt e;
-        e.sig = SIG_MAP[dw32];
-        QMSM_DISPATCH(the_hand, &e);
-        QMSM_DISPATCH(the_biotics, &e);
-    }
-
     // ==== ID ====
     else if(PCmd->NameIs("GetID")) PShell->Reply("ID", App.ID);
 
@@ -367,27 +356,3 @@ void SaveGyroCal(int32_t *Offset) {
 void SaveAccCal(int32_t *Offset) {
     ee.Write(EE_ACC_CAL, Offset, (4*3));
 }
-
-#if 1 // ======================== Ability Load/Save ============================
-__unused
-void ReadAbilityFromEE() {
-    ee.Read(EE_ADDR_ABILITY, &App.AbilityMsk, 4);
-    Uart.Printf("AbilityMsk: %X\r", App.AbilityMsk);
-    QEvt e;
-    if(App.AbilityMsk & 0x001) { e.sig = PUNCH_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
-    if(App.AbilityMsk & 0x002) { e.sig = PUNCH_PWR_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
-    if(App.AbilityMsk & 0x004) { e.sig = LIFT_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
-    if(App.AbilityMsk & 0x008) { e.sig = LIFT_PWR_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
-    if(App.AbilityMsk & 0x010) { e.sig = WARP_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
-    if(App.AbilityMsk & 0x020) { e.sig = WARP_PWR_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
-    if(App.AbilityMsk & 0x040) { e.sig = CLEANSE_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
-    if(App.AbilityMsk & 0x080) { e.sig = BARRIER_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
-    if(App.AbilityMsk & 0x100) { e.sig = SINGULARITY_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
-    if(App.AbilityMsk & 0x200) { e.sig = SONG_PILL_SIG; QMSM_DISPATCH(the_hand, &e); }
-}
-
-__unused
-void WriteAbilityToEE() {
-    ee.Write(EE_ADDR_ABILITY, &App.AbilityMsk, 4);
-}
-#endif

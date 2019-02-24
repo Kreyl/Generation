@@ -8,14 +8,8 @@
 #include "mems.h"
 #include "uart.h"
 
-#include "cc1101.h"
-#include "radio_lvl1.h"
 //#include "state_machine.h"
-#include "full_state_machine.h"
 #include "main.h"
-
-#include "qpc.h"
-#include "biotics.h"
 
 #include "Sequences.h"
 
@@ -64,15 +58,14 @@ void LoadAccCal(int32_t *Offset);
 void SaveGyroCal(int32_t *Offset);
 void SaveAccCal(int32_t *Offset);
 
-//StateMachine stateMachine(0);
-FullStateMachine fullStateMachine(0);
-
-static THD_WORKING_AREA(waMemsThread, 8192);
+static THD_WORKING_AREA(waMemsThread, 4096);
 __noreturn
 static void MemsThread(void *arg) {
     chRegSetThreadName("Mems");
     Mems.ITask();
 }
+
+int16_t gyro[3], acc[3], mag[3];
 
 __noreturn
 void Mems_t::ITask() {
@@ -81,85 +74,25 @@ void Mems_t::ITask() {
 
     while(true) {
         chThdSleepMilliseconds(5);
-        rPkt_t IPkt;
-        IPkt.Time = chVTGetSystemTime() / 10;
-        uint32_t tmp32 = IPkt.Time - PrevTime;
+        uint32_t Time = chVTGetSystemTime() / 10;
+        uint32_t tmp32 = Time - PrevTime;
         float Delta = tmp32;
         Delta /= 1000;
 
-        PrevTime = IPkt.Time;
+        PrevTime = Time;
         // Read raw data
-        gyroRead(IPkt.gyro);
-        accRead(IPkt.acc);
-        magRead(IPkt.mag);
+        gyroRead(gyro);
+        accRead(acc);
+        magRead(mag);
         // Replace gyro axes
-        int16_t tmp = IPkt.gyro[0];
-        IPkt.gyro[0] = IPkt.gyro[1];
-        IPkt.gyro[1] = -tmp;
+        int16_t tmp = gyro[0];
+        gyro[0] = gyro[1];
+        gyro[1] = -tmp;
 
         // Add pkt to buf
 //        Radio.TxBuf.PutAnyway(IPkt);
 
-        // Make 3 arrays for state machine
-        Vector acc(IPkt.acc[0], IPkt.acc[1], IPkt.acc[2]);
-        Vector gyro(IPkt.gyro[0], IPkt.gyro[1], IPkt.gyro[2]);
-        Vector mag(IPkt.mag[0], IPkt.mag[1], IPkt.mag[2]);
-
-        // Do calibration if needed
-        switch(State) {
-            case mstCalG:
-                GyroOffset[0] += IPkt.gyro[0];
-                GyroOffset[1] += IPkt.gyro[1];
-                GyroOffset[2] += IPkt.gyro[2];
-                CalCounter++;
-//                Uart.Printf("%d; %d; %d\r", GyroOffset[0], GyroOffset[1], GyroOffset[2]);
-                if(CalCounter >= GYRO_CAL_CNT) {
-                    GyroOffset[0] /= CalCounter;
-                    GyroOffset[1] /= CalCounter;
-                    GyroOffset[2] /= CalCounter;
-                    State = mstNormal;
-                    SaveGyroCal(GyroOffset);
-                    Uart.PrintfI("Gyro calibration done: %d %d %d\r", GyroOffset[0], GyroOffset[1], GyroOffset[2]);
-                }
-                break;
-
-            case mstCalA1:
-            case mstCalA2:
-            case mstCalA3:
-            case mstCalA4:
-            case mstCalA5:
-            case mstCalA6:
-                AccOffset[0] += IPkt.acc[0];
-                AccOffset[1] += IPkt.acc[1];
-                AccOffset[2] += IPkt.acc[2];
-                CalCounter++;
-                if(CalCounter >= ACC_CAL_CNT) {
-                    if(State == mstCalA6) {
-                        AccOffset[0] /= (CalCounter * 6);
-                        AccOffset[1] /= (CalCounter * 6);
-                        AccOffset[2] /= (CalCounter * 6);
-                        SaveAccCal(AccOffset);
-                        Uart.PrintfI("Acc calibration done: %d %d %d\r", AccOffset[0], AccOffset[1], AccOffset[2]);
-                        State = mstNormal;
-                    }
-                    else {
-                        Uart.PrintfI("Acc phase done: %d %d %d\r", AccOffset[0], AccOffset[1], AccOffset[2]);
-                        State = mstIntermediate;
-                    }
-                }
-                break;
-
-            case mstNormal:
-                fullStateMachine.setData(Delta, acc, gyro, mag);
-                break;
-
-            default: break;
-        } // switch
-
-//        if(n-- == 0) {
-//            n = 11;
-//            Uart.Printf("%u;   %d; %d; %d;   %d; %d; %d;   %d; %d; %d\r\n", IPkt.Time,  IPkt.gyro[0], IPkt.gyro[1], IPkt.gyro[2], IPkt.acc[0],  IPkt.acc[1],  IPkt.acc[2], IPkt.mag[0],  IPkt.mag[1],  IPkt.mag[2]);
-//        }
+        Uart.Printf("%u %d %d %d %d %d %d %d %d %d\r\n", Time, gyro[0], gyro[1], gyro[2], acc[0], acc[1], acc[2], mag[0], mag[1], mag[2]);
     }
 }
 
@@ -200,22 +133,8 @@ uint8_t Mems_t::Init() {
         magWriteReg(MAG_MR_REG,  0b00000000); // MD = 00 (continuous-conversion mode)
     } // for
 
-    Biotics_ctor();
-    QMSM_INIT(the_biotics, (QEvt *)0);
-    Hand_ctor();
-    QMSM_INIT(the_hand, (QEvt *)0);
-
-    QEvt e;
-    e.sig = MAX_PILL_SIG;
-    QMSM_DISPATCH(the_hand, &e);
-    QMSM_DISPATCH(the_biotics, &e);
-
-    BIO_set_to_short(5);
-    BIO_set_to_long(3);
-
     LoadGyroCal(GyroOffset);
     LoadAccCal(AccOffset);
-    fullStateMachine.init();
 
     Led.StartOrContinue(lsqStart);    // Show Calibration Ongoing
 
@@ -227,16 +146,6 @@ uint8_t Mems_t::Init() {
     // Thread
     chThdCreateStatic(waMemsThread, sizeof(waMemsThread), NORMALPRIO, (tfunc_t)MemsThread, NULL);
     return 0;
-}
-
-Vector getGOffset() {
-    return Vector((float)Mems.GyroOffset[0], (float)Mems.GyroOffset[1], (float)Mems.GyroOffset[2]);
-}
-Vector getAOffset() {
-    return Vector((float)Mems.AccOffset[0], (float)Mems.AccOffset[1], (float)Mems.AccOffset[2]);
-}
-Vector getMOffset() {
-    return Vector();
 }
 
 void onCalibrationDone() {
